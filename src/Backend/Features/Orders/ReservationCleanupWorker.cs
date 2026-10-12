@@ -1,0 +1,65 @@
+using DAFL.Backend.Infrastructure.Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace DAFL.Backend.Features.Orders;
+
+public class ReservationCleanupWorker : BackgroundService
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly ILogger<ReservationCleanupWorker> _logger;
+
+    public ReservationCleanupWorker(IServiceProvider serviceProvider, ILogger<ReservationCleanupWorker> logger)
+    {
+        _serviceProvider = serviceProvider;
+        _logger = logger;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("ReservationCleanupWorker started: Scanning for expired 15-minute stock reservations.");
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                using var scope = _serviceProvider.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+                var now = DateTime.UtcNow;
+                var expiredOrders = await context.Orders
+                    .Include(o => o.Items)
+                    .Where(o => o.Status == OrderStatus.Pending && o.ExpiresAt <= now)
+                    .ToListAsync(stoppingToken);
+
+                if (expiredOrders.Any())
+                {
+                    _logger.LogInformation("Found {Count} expired orders to release stock reservation.", expiredOrders.Count);
+
+                    foreach (var order in expiredOrders)
+                    {
+                        foreach (var item in order.Items)
+                        {
+                            var product = await context.Products.FirstOrDefaultAsync(p => p.Id == item.ProductId, stoppingToken);
+                            if (product != null)
+                            {
+                                product.ReservedStock = Math.Max(0, product.ReservedStock - item.Quantity);
+                            }
+                        }
+
+                        order.Status = OrderStatus.Expired;
+                        _logger.LogInformation("Released reserved stock for Expired Order #{OrderCode}.", order.OrderCode);
+                    }
+
+                    await context.SaveChangesAsync(stoppingToken);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error while cleaning up expired order reservations: {Message}", ex.Message);
+            }
+
+            // Run check every 60 seconds
+            await Task.Delay(TimeSpan.FromSeconds(60), stoppingToken);
+        }
+    }
+}

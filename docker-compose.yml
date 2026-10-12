@@ -1,0 +1,123 @@
+version: '3.8'
+
+services:
+  # 1. Microsoft SQL Server 2022
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: dafl-sqlserver
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${SA_PASSWORD:-YourStrong@Passw0rd123!}
+      - MSSQL_PID=Developer
+    ports:
+      - "1433:1433"
+    volumes:
+      - mssql_data:/var/opt/mssql
+    networks:
+      - dafl-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -Q 'SELECT 1' -C || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 15s
+
+  # 2. Redis 7 Alpine
+  redis:
+    image: redis:7.2-alpine
+    container_name: dafl-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - dafl-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # 3. Apache Kafka 3.7+ in KRaft Mode (No Zookeeper required)
+  kafka:
+    image: apache/kafka:3.7.0
+    container_name: dafl-kafka
+    restart: unless-stopped
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
+    volumes:
+      - kafka_data:/tmp/kraft-combined-logs
+    networks:
+      - dafl-network
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/kafka/bin/kafka-broker-api-versions.sh --bootstrap-server localhost:9092 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # 4. Backend: .NET 8 Web API (Vertical Slice Architecture)
+  backend:
+    build:
+      context: ./src/Backend
+      dockerfile: Dockerfile
+    container_name: dafl-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-5000}:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=DAFL_DB;User Id=sa;Password=${SA_PASSWORD:-YourStrong@Passw0rd123!};TrustServerCertificate=True;MultipleActiveResultSets=true;
+      - CacheSettings__Enabled=${CACHE_ENABLED:-true}
+      - CacheSettings__ConnectionString=redis:6379,abortConnect=false,connectTimeout=2000
+      - KafkaSettings__BootstrapServers=kafka:9092
+      - PayOS__ClientId=${PAYOS_CLIENT_ID:-demo_client_id}
+      - PayOS__ApiKey=${PAYOS_API_KEY:-demo_api_key}
+      - PayOS__ChecksumKey=${PAYOS_CHECKSUM_KEY:-demo_checksum_key}
+    depends_on:
+      sqlserver:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - dafl-network
+
+  # 5. Frontend: ReactJS + Vite (Served via Nginx Alpine)
+  frontend:
+    build:
+      context: ./src/Frontend
+      dockerfile: Dockerfile
+    container_name: dafl-frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    environment:
+      - VITE_API_BASE_URL=http://localhost:${BACKEND_PORT:-5000}
+    depends_on:
+      - backend
+    networks:
+      - dafl-network
+
+networks:
+  dafl-network:
+    driver: bridge
+
+volumes:
+  mssql_data:
+  redis_data:
+  kafka_data:

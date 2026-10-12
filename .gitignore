@@ -1,0 +1,75 @@
+# ==========================================
+# DAFL E-COMMERCE - GITIGNORE
+# ==========================================
+
+# --- Environment & Secrets ---
+.env
+.env.local
+.env.*.local
+*.local
+secrets.json
+
+# --- .NET & C# ---
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.userprefs
+*.suo
+*.userosscache
+*.sln.docstates
+.vs/
+.vscode/
+.idea/
+*.DotSettings.user
+appsettings.*.local.json
+
+# Test results & coverage
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+
+# --- Node.js & React Frontend ---
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Production build output
+dist/
+dist-ssr/
+build/
+.temp/
+
+# --- BMad & AI Framework ---
+.agent/
+.agents/
+_bmad/
+_bmad-output/
+.system_generated/
+.gemini/
+scratch/
+
+# --- Docker & Persistent Volumes ---
+mssql_data/
+redis_data/
+kafka_data/
+*.mdf
+*.ldf
+
+# --- OS Generated Files ---
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
