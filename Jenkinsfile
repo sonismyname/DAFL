@@ -25,28 +25,28 @@ pipeline {
         stage('Build Backend') {
             steps {
                 echo '=== Building Backend Image (.NET 8) ==='
-                sh 'docker compose -f docker-compose.yml build backend'
+                sh 'docker compose -p dafl -f docker-compose.yml build backend'
             }
         }
 
         stage('Build Frontend') {
             steps {
                 echo '=== Building Frontend Image (Vite React) ==='
-                sh 'docker compose -f docker-compose.yml build frontend'
+                sh 'docker compose -p dafl -f docker-compose.yml build frontend'
             }
         }
 
         stage('Deploy Services') {
             steps {
                 echo '=== Deploying Updated Containers on Localhost ==='
-                sh 'docker compose -f docker-compose.yml up -d'
+                sh 'docker compose -p dafl -f docker-compose.yml up -d --remove-orphans'
             }
         }
 
         stage('Health Check') {
             steps {
                 echo '=== Checking Running Services Status ==='
-                sh 'docker compose -f docker-compose.yml ps'
+                sh 'docker compose -p dafl -f docker-compose.yml ps'
             }
         }
     }

@@ -1,5 +1,5 @@
 FROM jenkins/jenkins:lts
-USER root
+USER 0:0
 
 # Cài đặt Docker CLI và Docker Compose Plugin
 RUN apt-get update && \
@@ -19,4 +19,4 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Chạy dưới quyền root để truy cập /var/run/docker.sock từ Docker Desktop
-USER root
+USER 0:0

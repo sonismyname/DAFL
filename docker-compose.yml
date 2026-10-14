@@ -1,3 +1,5 @@
+name: dafl
+
 services:
   # 1. PostgreSQL 16 Alpine (Lightweight for demo, ~80MB vs 2GB+ SQL Server)
   postgres:
