@@ -1,18 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  ShoppingBag, Search, Sparkles, CheckCircle2, Clock, 
-  CreditCard, ShieldCheck, Zap, X, Plus, Minus, ArrowRight, 
+import {
+  ShoppingBag, Search, Sparkles, CheckCircle2, Clock,
+  CreditCard, ShieldCheck, Zap, X, Plus, Minus, ArrowRight,
   User as UserIcon, Bell, Star, Tag, LogOut, Check, RefreshCw, Send, Package,
   Sun, Moon, Smartphone, FileText, Truck, Layers,
   MapPin, ExternalLink, Calendar, RotateCcw, Receipt, ArrowLeft, Copy, CheckCheck, AlertCircle, ChevronDown
 } from 'lucide-react';
 import * as signalR from '@microsoft/signalr';
-import { 
-  Category, Product, ProductDetail, CartItem, Voucher, 
-  CheckoutResult, ApiResponse, User, NotificationItem, OrderHistory, Evaluation 
+import {
+  Category, Product, ProductDetail, CartItem, Voucher,
+  CheckoutResult, ApiResponse, User, NotificationItem, OrderHistory, Evaluation
 } from './types';
-import { 
-  FALLBACK_CATEGORIES, FALLBACK_PRODUCTS, FALLBACK_VOUCHERS, FALLBACK_NOTIFICATIONS 
+import {
+  FALLBACK_CATEGORIES, FALLBACK_PRODUCTS, FALLBACK_VOUCHERS, FALLBACK_NOTIFICATIONS
 } from './mockData';
 import { getProductDetailExtra } from './productDetailHelper';
 
@@ -1053,10 +1053,10 @@ export default function App() {
         {/* Search Bar with Debounce & Clear button */}
         <div className="search-bar">
           <Search className="search-icon" size={18} />
-          <input 
-            type="text" 
-            className="search-input" 
-            placeholder="Tìm kiếm sản phẩm trong 26 ngành hàng..." 
+          <input
+            type="text"
+            className="search-input"
+            placeholder="Tìm kiếm sản phẩm trong 26 ngành hàng..."
             value={searchQuery}
             onChange={e => {
               setSearchQuery(e.target.value);
@@ -1064,7 +1064,7 @@ export default function App() {
             }}
           />
           {searchQuery && (
-            <button 
+            <button
               type="button"
               onClick={() => setSearchQuery('')}
               style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', display: 'flex', padding: 2 }}
@@ -1078,9 +1078,9 @@ export default function App() {
         {/* Header Actions */}
         <div className="header-actions">
           {/* Theme Switch Toggle Button */}
-          <button 
+          <button
             type="button"
-            className="btn-theme-toggle" 
+            className="btn-theme-toggle"
             onClick={toggleTheme}
             title={theme === 'dark' ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}
             aria-label="Chuyển đổi giao diện Sáng / Tối"
@@ -1094,9 +1094,9 @@ export default function App() {
           </button>
 
           {/* Notification Bell */}
-          <button 
-            className="btn-icon" 
-            onClick={() => setIsNotifOpen(!isNotifOpen)} 
+          <button
+            className="btn-icon"
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
             title="Thông báo đơn hàng & khuyến mãi"
           >
             <Bell size={19} />
@@ -1105,9 +1105,9 @@ export default function App() {
 
           {/* User Account Button with Dropdown Toggle Menu below */}
           <div className="account-dropdown-wrapper" ref={accountDropdownRef}>
-            <button 
+            <button
               type="button"
-              className={`btn btn-secondary btn-account-toggle ${isAccountDropdownOpen ? 'active' : ''}`} 
+              className={`btn btn-secondary btn-account-toggle ${isAccountDropdownOpen ? 'active' : ''}`}
               onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
               title="Menu tài khoản & điều hướng các trang"
             >
@@ -1146,8 +1146,8 @@ export default function App() {
                 {/* Navigation Links to Pages */}
                 <div className="dropdown-nav-group">
                   <div className="dropdown-group-title">Điều hướng các trang</div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`dropdown-nav-item ${currentRoute === 'home' ? 'active' : ''}`}
                     onClick={() => {
                       navigateTo('home');
@@ -1159,8 +1159,8 @@ export default function App() {
                     {currentRoute === 'home' && <span className="dropdown-active-dot" />}
                   </button>
 
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`dropdown-nav-item ${currentRoute === 'orders' ? 'active' : ''}`}
                     onClick={() => {
                       navigateTo('orders');
@@ -1176,8 +1176,8 @@ export default function App() {
                     )}
                   </button>
 
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className={`dropdown-nav-item ${currentRoute === 'profile' ? 'active' : ''}`}
                     onClick={() => {
                       navigateTo('profile');
@@ -1195,8 +1195,8 @@ export default function App() {
                 {/* Quick Utilities */}
                 <div className="dropdown-nav-group">
                   <div className="dropdown-group-title">Tiện ích mua sắm</div>
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="dropdown-nav-item"
                     onClick={() => {
                       setIsNotifOpen(true);
@@ -1212,8 +1212,8 @@ export default function App() {
                     )}
                   </button>
 
-                  <button 
-                    type="button" 
+                  <button
+                    type="button"
                     className="dropdown-nav-item"
                     onClick={() => {
                       setIsCartOpen(true);
@@ -1235,8 +1235,8 @@ export default function App() {
                 {/* Footer Action */}
                 <div className="dropdown-footer">
                   {user ? (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="dropdown-logout-btn"
                       onClick={() => {
                         handleLogout();
@@ -1247,8 +1247,8 @@ export default function App() {
                       <span>Đăng xuất tài khoản</span>
                     </button>
                   ) : (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       className="btn btn-primary"
                       style={{ width: '100%', padding: '8px 14px', fontSize: '0.85rem' }}
                       onClick={() => {
@@ -1280,231 +1280,231 @@ export default function App() {
         <>
           {/* Hero Showcase (Commercial E-Commerce Promotion) */}
           <section className="hero">
-        <div className="hero-layout">
-          <div className="hero-main">
-            <div className="hero-top-badge">
-              <Sparkles size={14} color="#e02e24" />
-              <span>Săn Deal Giá Sốc • Mua Sắm Tiết Kiệm</span>
-            </div>
-            <h1 className="hero-title">
-              Sàn Thương Mại Điện Tử Đa Ngành Hàng
-            </h1>
-            <p className="hero-subtitle">
-              <strong>Càng Mua Càng Rẻ</strong> — Mua sắm thông minh, ngập tràn deal sốc mỗi ngày! Khám phá 26 ngành hàng đa dạng từ Thời trang, Điện thoại, Gia dụng đến Hàng tiêu dùng với mức giá ưu đãi nhất thị trường và bảo đảm quyền lợi người mua 100%.
-            </p>
-            <div className="hero-tags">
-              <span className="tag"><Zap size={14} color="#e02e24" /> Flash Sale Giảm Đến 50%</span>
-              <span className="tag"><ShieldCheck size={14} color="#10b981" /> Đảm Bảo Chính Hãng 100%</span>
-              <span className="tag"><Tag size={14} color="#e02e24" /> Voucher Giảm 20K & 10%</span>
-              <span className="tag"><Clock size={14} color="#f59e0b" /> Đổi Trả Miễn Phí 7 Ngày</span>
-              <span className="tag"><ShoppingBag size={14} color="#ff5722" /> Giao Hàng Toàn Quốc 24/7</span>
-            </div>
-            <div className="hero-actions">
-              <button 
-                className="hero-pdd-cta" 
-                onClick={() => {
-                  const el = document.getElementById('products-section');
-                  el?.scrollIntoView({ behavior: 'smooth' });
-                }}
-              >
-                <ShoppingBag size={18} />
-                <span>Săn Deal Hot Ngay</span>
-              </button>
-              <button 
-                className="btn btn-secondary" 
-                style={{ 
-                  borderRadius: 9999, 
-                  padding: '12px 20px', 
-                  color: theme === 'light' ? '#ffffff' : 'var(--text-main)', 
-                  borderColor: theme === 'light' ? 'rgba(255,255,255,0.45)' : 'var(--border-subtle)', 
-                  background: theme === 'light' ? 'rgba(255,255,255,0.22)' : 'var(--btn-secondary-bg)' 
-                }}
-                onClick={() => setSelectedCategory(null)}
-              >
-                <span>Xem 26 Ngành Hàng</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Promotion Card Showcase */}
-          <div className="hero-showcase-card">
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8, fontSize: '0.85rem', fontWeight: 800 }}>
-              <Tag size={16} />
-              <span>Ưu Đãi Đặc Quyền Hôm Nay</span>
-            </div>
-            <div className="phone-screen-inner">
-              <div style={{ background: '#e02e24', color: '#fff', padding: '6px 10px', borderRadius: 6, fontWeight: 800, fontSize: '0.8rem', marginBottom: 8 }}>
-                🎉 TẶNG VOUCHER 20K ĐƠN ĐẦU
+            <div className="hero-layout">
+              <div className="hero-main">
+                <div className="hero-top-badge">
+                  <Sparkles size={14} color="#e02e24" />
+                  <span>Săn Deal Giá Sốc • Mua Sắm Tiết Kiệm</span>
+                </div>
+                <h1 className="hero-title">
+                  Sàn Thương Mại Điện Tử Đa Ngành Hàng 123
+                </h1>
+                <p className="hero-subtitle">
+                  <strong>Càng Mua Càng Rẻ</strong> — Mua sắm thông minh, ngập tràn deal sốc mỗi ngày! Khám phá 26 ngành hàng đa dạng từ Thời trang, Điện thoại, Gia dụng đến Hàng tiêu dùng với mức giá ưu đãi nhất thị trường và bảo đảm quyền lợi người mua 100%.
+                </p>
+                <div className="hero-tags">
+                  <span className="tag"><Zap size={14} color="#e02e24" /> Flash Sale Giảm Đến 50%</span>
+                  <span className="tag"><ShieldCheck size={14} color="#10b981" /> Đảm Bảo Chính Hãng 100%</span>
+                  <span className="tag"><Tag size={14} color="#e02e24" /> Voucher Giảm 20K & 10%</span>
+                  <span className="tag"><Clock size={14} color="#f59e0b" /> Đổi Trả Miễn Phí 7 Ngày</span>
+                  <span className="tag"><ShoppingBag size={14} color="#ff5722" /> Giao Hàng Toàn Quốc 24/7</span>
+                </div>
+                <div className="hero-actions">
+                  <button
+                    className="hero-pdd-cta"
+                    onClick={() => {
+                      const el = document.getElementById('products-section');
+                      el?.scrollIntoView({ behavior: 'smooth' });
+                    }}
+                  >
+                    <ShoppingBag size={18} />
+                    <span>Săn Deal Hot Ngay</span>
+                  </button>
+                  <button
+                    className="btn btn-secondary"
+                    style={{
+                      borderRadius: 9999,
+                      padding: '12px 20px',
+                      color: theme === 'light' ? '#ffffff' : 'var(--text-main)',
+                      borderColor: theme === 'light' ? 'rgba(255,255,255,0.45)' : 'var(--border-subtle)',
+                      background: theme === 'light' ? 'rgba(255,255,255,0.22)' : 'var(--btn-secondary-bg)'
+                    }}
+                    onClick={() => setSelectedCategory(null)}
+                  >
+                    <span>Xem 26 Ngành Hàng</span>
+                  </button>
+                </div>
               </div>
-              <div style={{ fontSize: '0.75rem', color: '#4b5563', lineHeight: 1.4, marginBottom: 8 }}>
-                Nhập mã <strong>DAFL20</strong> khi thanh toán để được giảm ngay 20.000đ cho đơn hàng của bạn!
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
-                <span style={{ fontSize: '0.65rem', background: '#fee2e2', color: '#e02e24', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
-                  Freeship 0Đ
-                </span>
-                <span style={{ fontSize: '0.65rem', background: '#fee2e2', color: '#e02e24', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
-                  Deal Đồng Giá 9K
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
 
-      {/* 26 Categories Carousel / Filter Bar */}
-      <section>
-        <div className="section-title">
-          <span>Danh mục ngành hàng ({categories.length} hạng mục)</span>
-          {selectedCategory && (
-            <button 
-              style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
-              onClick={() => setSelectedCategory(null)}
-            >
-              Xem tất cả
-            </button>
-          )}
-        </div>
-
-        <div className="categories-bar">
-          <button 
-            className={`category-pill ${selectedCategory === null ? 'active' : ''}`}
-            onClick={() => setSelectedCategory(null)}
-          >
-            Tất cả danh mục
-          </button>
-          {categories.map(cat => (
-            <button 
-              key={cat.id} 
-              className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
-              onClick={() => setSelectedCategory(cat.id)}
-            >
-              <span style={{ marginRight: 6 }}>{cat.iconUrl || '📦'}</span>
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </section>
-
-      {/* Products Grid */}
-      <section id="products-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>
-            {selectedCategory ? (categories.find(c => c.id === selectedCategory)?.name || 'Danh mục sản phẩm') : 'Tất cả sản phẩm'}
-          </h2>
-          {products.length > 0 && (
-            <div className="product-count-badge">
-              <Package size={14} color="var(--primary)" />
-              <span>Hiển thị {Math.min(visibleCount, products.length)} / {products.length} sản phẩm</span>
-            </div>
-          )}
-        </div>
-
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
-            <RefreshCw size={24} className="spin" style={{ display: 'inline-block', marginBottom: 8 }} />
-            <div>Đang tải danh sách sản phẩm...</div>
-          </div>
-        ) : products.length === 0 ? (
-          <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
-            Không tìm thấy sản phẩm nào phù hợp với tìm kiếm.
-          </div>
-        ) : (
-          <>
-            <div className="products-grid">
-              {products.slice(0, visibleCount).map(product => (
-                <div 
-                  key={product.id} 
-                  className="product-card"
-                  onClick={() => openProductDetail(product)}
-                >
-                  <div className="product-image-wrap">
-                    <img 
-                      src={product.imageUrl} 
-                      alt={product.name} 
-                      className="product-image" 
-                      loading="lazy" 
-                      decoding="async" 
-                    />
-                    <span className="product-category-badge">{product.categoryName}</span>
-                    {product.originalPrice && product.originalPrice > product.price && (
-                      <span className="product-discount-badge">
-                        -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                      </span>
-                    )}
+              {/* Promotion Card Showcase */}
+              <div className="hero-showcase-card">
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, marginBottom: 8, fontSize: '0.85rem', fontWeight: 800 }}>
+                  <Tag size={16} />
+                  <span>Ưu Đãi Đặc Quyền Hôm Nay</span>
+                </div>
+                <div className="phone-screen-inner">
+                  <div style={{ background: '#e02e24', color: '#fff', padding: '6px 10px', borderRadius: 6, fontWeight: 800, fontSize: '0.8rem', marginBottom: 8 }}>
+                    🎉 TẶNG VOUCHER 20K ĐƠN ĐẦU
                   </div>
-                  <div className="product-content">
-                    <h3 className="product-name">{product.name}</h3>
-                    <p className="product-desc">{product.description}</p>
-                    
-                    <div className="product-meta">
-                      <span className="product-rating">
-                        <Star size={13} fill="#f59e0b" color="#f59e0b" />
-                        {product.rating ? product.rating.toFixed(1) : '5.0'}
-                      </span>
-                      <span>•</span>
-                      <span>{product.reviewCount || 0} đánh giá</span>
-                    </div>
-
-                    <div className="product-footer">
-                      <div>
-                        <div className="product-price">{formatPrice(product.price)}</div>
-                        {product.originalPrice && (
-                          <div className="product-original-price">{formatPrice(product.originalPrice)}</div>
-                        )}
-                        <div className="product-stock">Còn {product.availableStock} sản phẩm</div>
-                      </div>
-                      <button 
-                        className="btn btn-primary" 
-                        style={{ padding: '8px 14px', fontSize: '0.8rem' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          addToCart(product);
-                        }}
-                        disabled={product.availableStock <= 0}
-                      >
-                        <Plus size={15} /> Thêm
-                      </button>
-                    </div>
+                  <div style={{ fontSize: '0.75rem', color: '#4b5563', lineHeight: 1.4, marginBottom: 8 }}>
+                    Nhập mã <strong>DAFL20</strong> khi thanh toán để được giảm ngay 20.000đ cho đơn hàng của bạn!
+                  </div>
+                  <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}>
+                    <span style={{ fontSize: '0.65rem', background: '#fee2e2', color: '#e02e24', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
+                      Freeship 0Đ
+                    </span>
+                    <span style={{ fontSize: '0.65rem', background: '#fee2e2', color: '#e02e24', padding: '2px 6px', borderRadius: 4, fontWeight: 700 }}>
+                      Deal Đồng Giá 9K
+                    </span>
                   </div>
                 </div>
-              ))}
+              </div>
+            </div>
+          </section>
+
+          {/* 26 Categories Carousel / Filter Bar */}
+          <section>
+            <div className="section-title">
+              <span>Danh mục ngành hàng ({categories.length} hạng mục)</span>
+              {selectedCategory && (
+                <button
+                  style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
+                  onClick={() => setSelectedCategory(null)}
+                >
+                  Xem tất cả
+                </button>
+              )}
             </div>
 
-            {/* Scroll Sentinel for Infinite Scroll Lazy Loading */}
-            <div ref={loadMoreSentinelRef} style={{ height: 24 }} />
-
-            {/* Lazy Load Spinner */}
-            {isLoadingMore && (
-              <div className="lazy-load-indicator">
-                <RefreshCw size={20} className="spin" />
-                <span>Đang tải thêm sản phẩm khi cuộn...</span>
-              </div>
-            )}
-
-            {/* Manual Load More Button as Fallback */}
-            {!isLoadingMore && visibleCount < products.length && (
-              <div style={{ textAlign: 'center', margin: '16px 0 28px' }}>
-                <button 
-                  className="btn btn-secondary" 
-                  onClick={handleLoadMore}
-                  style={{ padding: '10px 24px', borderRadius: 999, fontSize: '0.875rem' }}
+            <div className="categories-bar">
+              <button
+                className={`category-pill ${selectedCategory === null ? 'active' : ''}`}
+                onClick={() => setSelectedCategory(null)}
+              >
+                Tất cả danh mục
+              </button>
+              {categories.map(cat => (
+                <button
+                  key={cat.id}
+                  className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
+                  onClick={() => setSelectedCategory(cat.id)}
                 >
-                  Tải thêm {Math.min(16, products.length - visibleCount)} sản phẩm tiếp theo
+                  <span style={{ marginRight: 6 }}>{cat.iconUrl || '📦'}</span>
+                  {cat.name}
                 </button>
-              </div>
-            )}
+              ))}
+            </div>
+          </section>
 
-            {/* End of list state */}
-            {visibleCount >= products.length && products.length > 0 && (
-              <div className="lazy-load-end">
-                <CheckCircle2 size={18} color="#10b981" />
-                <span>Bạn đã xem toàn bộ {products.length} sản phẩm</span>
+          {/* Products Grid */}
+          <section id="products-section">
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
+              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>
+                {selectedCategory ? (categories.find(c => c.id === selectedCategory)?.name || 'Danh mục sản phẩm') : 'Tất cả sản phẩm'}
+              </h2>
+              {products.length > 0 && (
+                <div className="product-count-badge">
+                  <Package size={14} color="var(--primary)" />
+                  <span>Hiển thị {Math.min(visibleCount, products.length)} / {products.length} sản phẩm</span>
+                </div>
+              )}
+            </div>
+
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
+                <RefreshCw size={24} className="spin" style={{ display: 'inline-block', marginBottom: 8 }} />
+                <div>Đang tải danh sách sản phẩm...</div>
               </div>
+            ) : products.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
+                Không tìm thấy sản phẩm nào phù hợp với tìm kiếm.
+              </div>
+            ) : (
+              <>
+                <div className="products-grid">
+                  {products.slice(0, visibleCount).map(product => (
+                    <div
+                      key={product.id}
+                      className="product-card"
+                      onClick={() => openProductDetail(product)}
+                    >
+                      <div className="product-image-wrap">
+                        <img
+                          src={product.imageUrl}
+                          alt={product.name}
+                          className="product-image"
+                          loading="lazy"
+                          decoding="async"
+                        />
+                        <span className="product-category-badge">{product.categoryName}</span>
+                        {product.originalPrice && product.originalPrice > product.price && (
+                          <span className="product-discount-badge">
+                            -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                          </span>
+                        )}
+                      </div>
+                      <div className="product-content">
+                        <h3 className="product-name">{product.name}</h3>
+                        <p className="product-desc">{product.description}</p>
+
+                        <div className="product-meta">
+                          <span className="product-rating">
+                            <Star size={13} fill="#f59e0b" color="#f59e0b" />
+                            {product.rating ? product.rating.toFixed(1) : '5.0'}
+                          </span>
+                          <span>•</span>
+                          <span>{product.reviewCount || 0} đánh giá</span>
+                        </div>
+
+                        <div className="product-footer">
+                          <div>
+                            <div className="product-price">{formatPrice(product.price)}</div>
+                            {product.originalPrice && (
+                              <div className="product-original-price">{formatPrice(product.originalPrice)}</div>
+                            )}
+                            <div className="product-stock">Còn {product.availableStock} sản phẩm</div>
+                          </div>
+                          <button
+                            className="btn btn-primary"
+                            style={{ padding: '8px 14px', fontSize: '0.8rem' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              addToCart(product);
+                            }}
+                            disabled={product.availableStock <= 0}
+                          >
+                            <Plus size={15} /> Thêm
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Scroll Sentinel for Infinite Scroll Lazy Loading */}
+                <div ref={loadMoreSentinelRef} style={{ height: 24 }} />
+
+                {/* Lazy Load Spinner */}
+                {isLoadingMore && (
+                  <div className="lazy-load-indicator">
+                    <RefreshCw size={20} className="spin" />
+                    <span>Đang tải thêm sản phẩm khi cuộn...</span>
+                  </div>
+                )}
+
+                {/* Manual Load More Button as Fallback */}
+                {!isLoadingMore && visibleCount < products.length && (
+                  <div style={{ textAlign: 'center', margin: '16px 0 28px' }}>
+                    <button
+                      className="btn btn-secondary"
+                      onClick={handleLoadMore}
+                      style={{ padding: '10px 24px', borderRadius: 999, fontSize: '0.875rem' }}
+                    >
+                      Tải thêm {Math.min(16, products.length - visibleCount)} sản phẩm tiếp theo
+                    </button>
+                  </div>
+                )}
+
+                {/* End of list state */}
+                {visibleCount >= products.length && products.length > 0 && (
+                  <div className="lazy-load-end">
+                    <CheckCircle2 size={18} color="#10b981" />
+                    <span>Bạn đã xem toàn bộ {products.length} sản phẩm</span>
+                  </div>
+                )}
+              </>
             )}
-          </>
-        )}
-      </section>
+          </section>
         </>
       )}
 
@@ -1516,9 +1516,9 @@ export default function App() {
           <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 14 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button 
+                <button
                   type="button"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                   onClick={() => navigateTo('home')}
                 >
@@ -1534,19 +1534,19 @@ export default function App() {
             </div>
 
             <div style={{ display: 'flex', gap: 10 }}>
-              <button 
+              <button
                 type="button"
-                className="btn btn-secondary" 
-                onClick={fetchOrderHistory} 
+                className="btn btn-secondary"
+                onClick={fetchOrderHistory}
                 disabled={orderHistoryLoading}
                 style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
               >
                 <RefreshCw size={15} className={orderHistoryLoading ? 'spin' : ''} />
                 Làm mới danh sách
               </button>
-              <button 
+              <button
                 type="button"
-                className="btn btn-secondary" 
+                className="btn btn-secondary"
                 onClick={() => navigateTo('profile')}
                 style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
               >
@@ -1565,7 +1565,7 @@ export default function App() {
               { key: 'Completed', label: `Hoàn tất (${orderHistory.filter(o => o.status === 'Completed').length})` },
               { key: 'Cancelled', label: `Đã hủy (${orderHistory.filter(o => o.status === 'Cancelled').length})` }
             ].map(tab => (
-              <button 
+              <button
                 key={tab.key}
                 type="button"
                 className={`order-filter-btn ${orderFilter === tab.key ? 'active' : ''}`}
@@ -1612,11 +1612,11 @@ export default function App() {
                             {order.status === 'Pending' && <Clock size={13} />}
                             {order.status === 'Shipping' && <Truck size={13} />}
                             {order.status === 'Completed' && <CheckCircle2 size={13} />}
-                            {order.status === 'Paid' ? 'Đã thanh toán (PayOS)' : 
-                             order.status === 'Pending' ? 'Chờ thanh toán' : 
-                             order.status === 'Shipping' ? 'Đang giao hàng' : 
-                             order.status === 'Completed' ? 'Giao thành công' : 
-                             order.status === 'Cancelled' ? 'Đã hủy' : order.status}
+                            {order.status === 'Paid' ? 'Đã thanh toán (PayOS)' :
+                              order.status === 'Pending' ? 'Chờ thanh toán' :
+                                order.status === 'Shipping' ? 'Đang giao hàng' :
+                                  order.status === 'Completed' ? 'Giao thành công' :
+                                    order.status === 'Cancelled' ? 'Đã hủy' : order.status}
                           </span>
                         </div>
 
@@ -1639,10 +1639,10 @@ export default function App() {
                       <div className="order-items-list">
                         {order.items && order.items.map(item => (
                           <div key={item.id} className="order-item-row">
-                            <img 
-                              src={item.productImageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'} 
-                              alt={item.productName} 
-                              className="order-item-img" 
+                            <img
+                              src={item.productImageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'}
+                              alt={item.productName}
+                              className="order-item-img"
                             />
                             <div style={{ flex: 1 }}>
                               <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: 4 }}>
@@ -1684,7 +1684,7 @@ export default function App() {
                             {order.discountAmount > 0 && (
                               <span>
                                 Đã giảm <strong style={{ color: '#10b981' }}>-{formatPrice(order.discountAmount)}</strong>
-                                {order.voucherCode ? ` (Mã: ${order.voucherCode})` : ''} • 
+                                {order.voucherCode ? ` (Mã: ${order.voucherCode})` : ''} •
                               </span>
                             )}
                             {' '}Tổng giá trị đơn: <strong style={{ color: '#e02e24', fontSize: '1.15rem' }}>{formatPrice(order.totalAmount)}</strong>
@@ -1694,7 +1694,7 @@ export default function App() {
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                           {order.status === 'Pending' && (
                             <>
-                              <button 
+                              <button
                                 type="button"
                                 className="btn btn-primary"
                                 style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
@@ -1712,7 +1712,7 @@ export default function App() {
                               >
                                 <CreditCard size={15} /> Thanh toán ngay (PayOS trực tiếp)
                               </button>
-                              <button 
+                              <button
                                 type="button"
                                 className="btn btn-secondary"
                                 style={{ padding: '8px 12px', fontSize: '0.8rem' }}
@@ -1725,7 +1725,7 @@ export default function App() {
                           )}
 
                           {(order.status === 'Paid' || order.status === 'Completed') && (
-                            <button 
+                            <button
                               type="button"
                               className="btn btn-secondary"
                               style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
@@ -1752,9 +1752,9 @@ export default function App() {
           <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button 
+                <button
                   type="button"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                   onClick={() => navigateTo('home')}
                 >
@@ -1769,9 +1769,9 @@ export default function App() {
               </p>
             </div>
 
-            <button 
+            <button
               type="button"
-              className="btn btn-secondary" 
+              className="btn btn-secondary"
               onClick={() => navigateTo('orders')}
               style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
             >
@@ -1798,9 +1798,9 @@ export default function App() {
               </div>
 
               {user && (
-                <button 
+                <button
                   type="button"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ color: '#f87171', borderColor: 'rgba(244, 63, 94, 0.3)', fontSize: '0.8rem', padding: '6px 12px' }}
                   onClick={handleLogout}
                 >
@@ -1815,9 +1815,9 @@ export default function App() {
                 <Sparkles size={15} /> Điền nhanh các địa chỉ mẫu thường dùng:
               </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <button 
+                <button
                   type="button"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                   onClick={() => applyAddressPreset(
                     'Nguyễn Văn Demo',
@@ -1828,9 +1828,9 @@ export default function App() {
                 >
                   📍 ĐH Bách Khoa Hà Nội
                 </button>
-                <button 
+                <button
                   type="button"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                   onClick={() => applyAddressPreset(
                     'Trần Minh Khang',
@@ -1841,9 +1841,9 @@ export default function App() {
                 >
                   🏢 Keangnam Landmark 72
                 </button>
-                <button 
+                <button
                   type="button"
-                  className="btn btn-secondary" 
+                  className="btn btn-secondary"
                   style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                   onClick={() => applyAddressPreset(
                     'Lê Hoàng Long',
@@ -1862,71 +1862,71 @@ export default function App() {
               <div className="address-form-grid">
                 <div className="form-group">
                   <label className="form-label">Họ và tên người nhận hàng</label>
-                  <input 
-                    className="form-input" 
-                    value={profileFullName} 
-                    onChange={e => setProfileFullName(e.target.value)} 
-                    placeholder="Nguyễn Văn A" 
-                    required 
+                  <input
+                    className="form-input"
+                    value={profileFullName}
+                    onChange={e => setProfileFullName(e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                    required
                   />
                 </div>
 
                 <div className="form-group">
                   <label className="form-label">Số điện thoại liên hệ</label>
-                  <input 
-                    className="form-input" 
-                    value={profilePhone} 
-                    onChange={e => setProfilePhone(e.target.value)} 
-                    placeholder="0987654321" 
-                    required 
+                  <input
+                    className="form-input"
+                    value={profilePhone}
+                    onChange={e => setProfilePhone(e.target.value)}
+                    placeholder="0987654321"
+                    required
                   />
                 </div>
               </div>
 
               <div className="form-group">
                 <label className="form-label">Email nhận hóa đơn & thông báo</label>
-                <input 
-                  className="form-input" 
+                <input
+                  className="form-input"
                   type="email"
-                  value={profileEmail} 
-                  onChange={e => setProfileEmail(e.target.value)} 
-                  placeholder="name@example.com" 
-                  required 
+                  value={profileEmail}
+                  onChange={e => setProfileEmail(e.target.value)}
+                  placeholder="name@example.com"
+                  required
                 />
               </div>
 
               <div className="form-group">
                 <label className="form-label">Địa chỉ giao hàng chi tiết (Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành)</label>
-                <input 
-                  className="form-input" 
-                  value={profileAddress} 
-                  onChange={e => setProfileAddress(e.target.value)} 
-                  placeholder="Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội" 
-                  required 
+                <input
+                  className="form-input"
+                  value={profileAddress}
+                  onChange={e => setProfileAddress(e.target.value)}
+                  placeholder="Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội"
+                  required
                 />
               </div>
 
               <div className="form-group">
                 <label className="form-label">Ghi chú giao hàng mặc định</label>
-                <textarea 
-                  className="form-input" 
+                <textarea
+                  className="form-input"
                   rows={2}
-                  value={profileNotes} 
-                  onChange={e => setProfileNotes(e.target.value)} 
+                  value={profileNotes}
+                  onChange={e => setProfileNotes(e.target.value)}
                   placeholder="Ví dụ: Giao giờ hành chính, gọi điện trước khi giao..."
                 />
               </div>
 
               <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24, paddingTop: 18, borderTop: '1px solid var(--border-subtle)' }}>
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className="btn btn-secondary"
                   onClick={() => navigateTo('home')}
                 >
                   Hủy bỏ
                 </button>
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   className="btn btn-primary"
                   style={{ padding: '12px 28px', display: 'flex', alignItems: 'center', gap: 8 }}
                   disabled={savingProfile}
@@ -1954,10 +1954,10 @@ export default function App() {
 
             <div className="product-detail-layout">
               <div>
-                <img 
-                  src={selectedProduct.imageUrl} 
-                  alt={selectedProduct.name} 
-                  className="product-detail-image" 
+                <img
+                  src={selectedProduct.imageUrl}
+                  alt={selectedProduct.name}
+                  className="product-detail-image"
                 />
                 <div className="product-trust-badges">
                   <div className="product-trust-badge">
@@ -1980,11 +1980,11 @@ export default function App() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
                   <div className="star-rating">
                     {[1, 2, 3, 4, 5].map(st => (
-                      <Star 
-                        key={st} 
-                        size={16} 
-                        fill={st <= Math.round(selectedProduct.rating || 5) ? '#f59e0b' : 'transparent'} 
-                        color="#f59e0b" 
+                      <Star
+                        key={st}
+                        size={16}
+                        fill={st <= Math.round(selectedProduct.rating || 5) ? '#f59e0b' : 'transparent'}
+                        color="#f59e0b"
                       />
                     ))}
                   </div>
@@ -2033,8 +2033,8 @@ export default function App() {
                 </div>
 
                 <div style={{ display: 'flex', gap: 12 }}>
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     style={{ flex: 1, padding: '12px' }}
                     onClick={() => {
                       addToCart(selectedProduct, detailQuantity);
@@ -2043,8 +2043,8 @@ export default function App() {
                   >
                     <Plus size={16} /> Thêm vào giỏ hàng
                   </button>
-                  <button 
-                    className="btn btn-primary" 
+                  <button
+                    className="btn btn-primary"
                     style={{ flex: 1, padding: '12px' }}
                     onClick={() => {
                       addToCart(selectedProduct, detailQuantity);
@@ -2060,13 +2060,13 @@ export default function App() {
 
             {/* Modal Detail Tabs Header */}
             <div className="detail-tabs-header">
-              <button 
+              <button
                 className={`detail-tab-btn ${modalTab === 'description' ? 'active' : ''}`}
                 onClick={() => setModalTab('description')}
               >
                 <FileText size={17} /> Mô tả & Thông số chi tiết
               </button>
-              <button 
+              <button
                 className={`detail-tab-btn ${modalTab === 'reviews' ? 'active' : ''}`}
                 onClick={() => setModalTab('reviews')}
               >
@@ -2188,10 +2188,10 @@ export default function App() {
                     <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Để lại đánh giá của bạn:</span>
                     <div className="star-picker">
                       {[1, 2, 3, 4, 5].map(st => (
-                        <Star 
-                          key={st} 
-                          size={20} 
-                          fill={st <= reviewRating ? '#f59e0b' : 'transparent'} 
+                        <Star
+                          key={st}
+                          size={20}
+                          fill={st <= reviewRating ? '#f59e0b' : 'transparent'}
                           color="#f59e0b"
                           onClick={() => setReviewRating(st)}
                         />
@@ -2200,25 +2200,25 @@ export default function App() {
                   </div>
 
                   <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10, marginBottom: 10 }}>
-                    <input 
-                      className="form-input" 
-                      placeholder="Tên của bạn..." 
-                      value={reviewAuthor} 
-                      onChange={e => setReviewAuthor(e.target.value)} 
-                      required 
+                    <input
+                      className="form-input"
+                      placeholder="Tên của bạn..."
+                      value={reviewAuthor}
+                      onChange={e => setReviewAuthor(e.target.value)}
+                      required
                     />
-                    <input 
-                      className="form-input" 
-                      placeholder="Cảm nhận của bạn về sản phẩm..." 
-                      value={reviewComment} 
-                      onChange={e => setReviewComment(e.target.value)} 
-                      required 
+                    <input
+                      className="form-input"
+                      placeholder="Cảm nhận của bạn về sản phẩm..."
+                      value={reviewComment}
+                      onChange={e => setReviewComment(e.target.value)}
+                      required
                     />
                   </div>
 
-                  <button 
-                    type="submit" 
-                    className="btn btn-primary" 
+                  <button
+                    type="submit"
+                    className="btn btn-primary"
                     style={{ padding: '8px 16px', fontSize: '0.8rem', marginLeft: 'auto', display: 'flex' }}
                     disabled={submittingReview}
                   >
@@ -2239,11 +2239,11 @@ export default function App() {
                         </div>
                         <div className="star-rating">
                           {[1, 2, 3, 4, 5].map(st => (
-                            <Star 
-                              key={st} 
-                              size={13} 
-                              fill={st <= ev.rating ? '#f59e0b' : 'transparent'} 
-                              color="#f59e0b" 
+                            <Star
+                              key={st}
+                              size={13}
+                              fill={st <= ev.rating ? '#f59e0b' : 'transparent'}
+                              color="#f59e0b"
                             />
                           ))}
                         </div>
@@ -2292,10 +2292,10 @@ export default function App() {
                     <div style={{ maxHeight: 220, overflowY: 'auto', marginBottom: 16 }}>
                       {cart.map(item => (
                         <div key={item.product.id} className="cart-item">
-                          <img 
-                            src={item.product.imageUrl} 
-                            alt={item.product.name} 
-                            style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', marginRight: 12 }} 
+                          <img
+                            src={item.product.imageUrl}
+                            alt={item.product.name}
+                            style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', marginRight: 12 }}
                           />
                           <div className="cart-item-info">
                             <div className="cart-item-name">{item.product.name}</div>
@@ -2316,15 +2316,15 @@ export default function App() {
                         <Tag size={15} /> Nhập mã giảm giá / Voucher:
                       </div>
                       <div className="voucher-input-group">
-                        <input 
-                          className="form-input" 
-                          placeholder="Nhập mã voucher (VD: FORDEV, DAFL10)..." 
+                        <input
+                          className="form-input"
+                          placeholder="Nhập mã voucher (VD: FORDEV, DAFL10)..."
                           value={voucherCodeInput}
                           onChange={e => setVoucherCodeInput(e.target.value.toUpperCase())}
                         />
-                        <button 
+                        <button
                           type="button"
-                          className="btn btn-primary" 
+                          className="btn btn-primary"
                           style={{ padding: '0 18px', whiteSpace: 'nowrap' }}
                           onClick={() => handleApplyVoucher()}
                         >
@@ -2335,8 +2335,8 @@ export default function App() {
                       {/* Quick Available Vouchers Chips */}
                       <div className="voucher-chips">
                         {(vouchers.length ? vouchers : FALLBACK_VOUCHERS).map(v => (
-                          <span 
-                            key={v.id} 
+                          <span
+                            key={v.id}
                             className="voucher-chip"
                             onClick={() => {
                               setVoucherCodeInput(v.code);
@@ -2352,7 +2352,7 @@ export default function App() {
                       {appliedVoucher && (
                         <div className="applied-voucher-banner">
                           <span>✓ Đã áp dụng mã <strong>{appliedVoucher.code}</strong>: -{formatPrice(appliedVoucher.discountAmount)}</span>
-                          <button 
+                          <button
                             type="button"
                             style={{ background: 'none', border: 'none', color: '#f43f5e', cursor: 'pointer', fontWeight: 700 }}
                             onClick={() => {
@@ -2455,9 +2455,9 @@ export default function App() {
                         <strong style={{ color: '#e02e24', fontSize: '1.2rem' }}>{formatPrice(checkoutResult.totalAmount)}</strong>
                       </div>
                       <div style={{ display: 'flex', gap: 8 }}>
-                        <button 
+                        <button
                           type="button"
-                          className="btn btn-secondary" 
+                          className="btn btn-secondary"
                           style={{ padding: '6px 12px', fontSize: '0.75rem' }}
                           onClick={() => {
                             navigator.clipboard?.writeText(String(checkoutResult.orderCode));
@@ -2472,9 +2472,9 @@ export default function App() {
                     {/* Embedded PayOS Iframe directly on site */}
                     {checkoutResult.checkoutUrl ? (
                       <div className="payos-iframe-container">
-                        <iframe 
-                          src={checkoutResult.checkoutUrl} 
-                          className="payos-iframe" 
+                        <iframe
+                          src={checkoutResult.checkoutUrl}
+                          className="payos-iframe"
                           title={`Cổng thanh toán PayOS #${checkoutResult.orderCode}`}
                           allow="payment"
                         />
@@ -2492,18 +2492,18 @@ export default function App() {
                           <span>Hệ thống tự động đồng bộ trạng thái khi thanh toán thành công (SignalR)</span>
                         </div>
                         <div style={{ display: 'flex', gap: 8 }}>
-                          <button 
+                          <button
                             type="button"
-                            className="btn btn-secondary" 
+                            className="btn btn-secondary"
                             style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                             onClick={handleSimulatePaymentSuccess}
                             title="Xác nhận thanh toán mô phỏng"
                           >
                             ⚡ Test Xác nhận Thanh toán
                           </button>
-                          <button 
+                          <button
                             type="button"
-                            className="btn btn-secondary" 
+                            className="btn btn-secondary"
                             style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                             onClick={() => {
                               setIsCartOpen(false);
@@ -2569,13 +2569,13 @@ export default function App() {
 
             {/* Tabs */}
             <div className="modal-tabs">
-              <button 
+              <button
                 className={`tab-btn ${authTab === 'login' ? 'active' : ''}`}
                 onClick={() => { setAuthTab('login'); setAuthError(null); }}
               >
                 Đăng nhập
               </button>
-              <button 
+              <button
                 className={`tab-btn ${authTab === 'register' ? 'active' : ''}`}
                 onClick={() => { setAuthTab('register'); setAuthError(null); }}
               >
@@ -2593,22 +2593,22 @@ export default function App() {
               <form onSubmit={handleLogin}>
                 <div className="form-group">
                   <label className="form-label">Email đăng nhập</label>
-                  <input 
-                    className="form-input" 
-                    type="email" 
-                    value={loginEmail} 
-                    onChange={e => setLoginEmail(e.target.value)} 
-                    required 
+                  <input
+                    className="form-input"
+                    type="email"
+                    value={loginEmail}
+                    onChange={e => setLoginEmail(e.target.value)}
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Mật khẩu</label>
-                  <input 
-                    className="form-input" 
-                    type="password" 
-                    value={loginPassword} 
-                    onChange={e => setLoginPassword(e.target.value)} 
-                    required 
+                  <input
+                    className="form-input"
+                    type="password"
+                    value={loginPassword}
+                    onChange={e => setLoginPassword(e.target.value)}
+                    required
                   />
                 </div>
 
@@ -2617,9 +2617,9 @@ export default function App() {
                 </button>
 
                 <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                  <button 
+                  <button
                     type="button"
-                    className="btn btn-secondary" 
+                    className="btn btn-secondary"
                     style={{ width: '100%', fontSize: '0.8rem' }}
                     onClick={() => {
                       setLoginEmail('demo@dafl.vn');
@@ -2634,53 +2634,53 @@ export default function App() {
               <form onSubmit={handleRegister}>
                 <div className="form-group">
                   <label className="form-label">Họ và tên</label>
-                  <input 
-                    className="form-input" 
-                    value={registerName} 
-                    onChange={e => setRegisterName(e.target.value)} 
-                    placeholder="Nguyễn Văn A" 
-                    required 
+                  <input
+                    className="form-input"
+                    value={registerName}
+                    onChange={e => setRegisterName(e.target.value)}
+                    placeholder="Nguyễn Văn A"
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Email</label>
-                  <input 
-                    className="form-input" 
-                    type="email" 
-                    value={registerEmail} 
-                    onChange={e => setRegisterEmail(e.target.value)} 
-                    placeholder="name@example.com" 
-                    required 
+                  <input
+                    className="form-input"
+                    type="email"
+                    value={registerEmail}
+                    onChange={e => setRegisterEmail(e.target.value)}
+                    placeholder="name@example.com"
+                    required
                   />
                 </div>
                 <div className="form-group">
                   <label className="form-label">Mật khẩu</label>
-                  <input 
-                    className="form-input" 
-                    type="password" 
-                    value={registerPassword} 
-                    onChange={e => setRegisterPassword(e.target.value)} 
-                    placeholder="Tối thiểu 6 ký tự" 
-                    required 
+                  <input
+                    className="form-input"
+                    type="password"
+                    value={registerPassword}
+                    onChange={e => setRegisterPassword(e.target.value)}
+                    placeholder="Tối thiểu 6 ký tự"
+                    required
                   />
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
                   <div className="form-group">
                     <label className="form-label">Số điện thoại</label>
-                    <input 
-                      className="form-input" 
-                      value={registerPhone} 
-                      onChange={e => setRegisterPhone(e.target.value)} 
-                      placeholder="0987654321" 
+                    <input
+                      className="form-input"
+                      value={registerPhone}
+                      onChange={e => setRegisterPhone(e.target.value)}
+                      placeholder="0987654321"
                     />
                   </div>
                   <div className="form-group">
                     <label className="form-label">Địa chỉ</label>
-                    <input 
-                      className="form-input" 
-                      value={registerAddress} 
-                      onChange={e => setRegisterAddress(e.target.value)} 
-                      placeholder="Hà Nội, VN" 
+                    <input
+                      className="form-input"
+                      value={registerAddress}
+                      onChange={e => setRegisterAddress(e.target.value)}
+                      placeholder="Hà Nội, VN"
                     />
                   </div>
                 </div>
@@ -2729,8 +2729,8 @@ export default function App() {
                   </div>
                 </div>
 
-                <button 
-                  className="btn btn-secondary" 
+                <button
+                  className="btn btn-secondary"
                   style={{ width: '100%', marginTop: 20, color: '#f87171', borderColor: 'rgba(244, 63, 94, 0.3)' }}
                   onClick={handleLogout}
                 >
@@ -2742,8 +2742,8 @@ export default function App() {
               <div>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                   <h3 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Lịch sử đơn hàng</h3>
-                  <button 
-                    className="btn btn-secondary" 
+                  <button
+                    className="btn btn-secondary"
                     style={{ padding: '4px 10px', fontSize: '0.75rem' }}
                     onClick={openOrderHistory}
                   >
@@ -2764,7 +2764,7 @@ export default function App() {
                       <div key={order.id} style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)', borderRadius: 12, padding: 14, marginBottom: 12 }}>
                         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
                           <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>Đơn hàng #{order.orderCode}</span>
-                          <span className="tag" style={{ 
+                          <span className="tag" style={{
                             background: order.status === 'Paid' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(245, 158, 11, 0.2)',
                             color: order.status === 'Paid' ? '#34d399' : '#fbbf24',
                             border: 'none',
@@ -2817,7 +2817,7 @@ export default function App() {
               <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
                 Cập nhật tự động: <strong style={{ color: '#10b981' }}>Đang bật</strong>
               </span>
-              <button 
+              <button
                 style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer', fontSize: '0.8rem' }}
                 onClick={markAllNotificationsAsRead}
               >
@@ -2830,8 +2830,8 @@ export default function App() {
               <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 8 }}>
                 Bấm nút dưới để nhận thử thông báo chương trình khuyến mãi và voucher giảm giá mới nhất:
               </p>
-              <button 
-                className="btn btn-secondary" 
+              <button
+                className="btn btn-secondary"
                 style={{ width: '100%', fontSize: '0.8rem', padding: '8px' }}
                 onClick={handleSendTestSignalR}
               >
@@ -2844,8 +2844,8 @@ export default function App() {
                 <p style={{ textAlign: 'center', color: '#9ca3af', padding: '30px 0' }}>Không có thông báo nào.</p>
               ) : (
                 notifications.map(n => (
-                  <div 
-                    key={n.id} 
+                  <div
+                    key={n.id}
                     className={`notification-item ${!n.isRead ? 'unread' : ''}`}
                     onClick={() => markNotificationAsRead(n.id)}
                     style={{ cursor: 'pointer' }}
@@ -2901,9 +2901,9 @@ export default function App() {
                   <strong style={{ color: '#e02e24', fontSize: '1.25rem' }}>{formatPrice(embeddedPaymentModal.totalAmount)}</strong>
                 </div>
                 <div style={{ display: 'flex', gap: 8 }}>
-                  <button 
+                  <button
                     type="button"
-                    className="btn btn-secondary" 
+                    className="btn btn-secondary"
                     style={{ padding: '6px 12px', fontSize: '0.8rem' }}
                     onClick={() => {
                       navigator.clipboard?.writeText(String(embeddedPaymentModal.orderCode));
@@ -2917,9 +2917,9 @@ export default function App() {
 
               {/* Direct On-site PayOS embedded iframe */}
               <div className="payos-iframe-container" style={{ height: 600 }}>
-                <iframe 
-                  src={embeddedPaymentModal.checkoutUrl} 
-                  className="payos-iframe" 
+                <iframe
+                  src={embeddedPaymentModal.checkoutUrl}
+                  className="payos-iframe"
                   title={`Thanh toán PayOS #${embeddedPaymentModal.orderCode}`}
                   allow="payment"
                 />
@@ -2932,17 +2932,17 @@ export default function App() {
                     <span>Lắng nghe kết quả thanh toán từ VietQR / PayOS qua SignalR...</span>
                   </div>
                   <div style={{ display: 'flex', gap: 8 }}>
-                    <button 
+                    <button
                       type="button"
-                      className="btn btn-secondary" 
+                      className="btn btn-secondary"
                       style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                       onClick={() => handleSimulatePaymentForOrder(embeddedPaymentModal.orderCode, embeddedPaymentModal.totalAmount)}
                     >
                       ⚡ Test Xác nhận Thanh toán
                     </button>
-                    <button 
+                    <button
                       type="button"
-                      className="btn btn-secondary" 
+                      className="btn btn-secondary"
                       style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                       onClick={() => setEmbeddedPaymentModal(null)}
                     >
