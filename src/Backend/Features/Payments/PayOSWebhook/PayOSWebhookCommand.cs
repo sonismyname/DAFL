@@ -1,8 +1,10 @@
 using DAFL.Backend.Common;
 using DAFL.Backend.Infrastructure.Data;
+using DAFL.Backend.Infrastructure.Hubs;
 using DAFL.Backend.Infrastructure.Messaging;
 using DAFL.Backend.Infrastructure.Payments;
 using MediatR;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace DAFL.Backend.Features.Payments.PayOSWebhook;
@@ -14,17 +16,20 @@ public class PayOSWebhookCommandHandler : IRequestHandler<PayOSWebhookCommand, A
     private readonly AppDbContext _context;
     private readonly IPayOSService _payOSService;
     private readonly IKafkaProducer _kafkaProducer;
+    private readonly IHubContext<NotificationHub, INotificationClient> _hubContext;
     private readonly ILogger<PayOSWebhookCommandHandler> _logger;
 
     public PayOSWebhookCommandHandler(
         AppDbContext context,
         IPayOSService payOSService,
         IKafkaProducer kafkaProducer,
+        IHubContext<NotificationHub, INotificationClient> hubContext,
         ILogger<PayOSWebhookCommandHandler> logger)
     {
         _context = context;
         _payOSService = payOSService;
         _kafkaProducer = kafkaProducer;
+        _hubContext = hubContext;
         _logger = logger;
     }
 
@@ -87,13 +92,50 @@ public class PayOSWebhookCommandHandler : IRequestHandler<PayOSWebhookCommand, A
                 CreatedAt = DateTime.UtcNow
             };
 
+            // Record Order Status History
+            var statusHistory = new OrderStatusHistory
+            {
+                Id = Guid.NewGuid(),
+                OrderId = order.Id,
+                Status = OrderStatus.Paid,
+                Note = $"Thanh toán thành công qua PayOS (Mã GD: {payload.Data.Reference}). Đã trừ kho chính thức.",
+                Timestamp = DateTime.UtcNow
+            };
+
+            // Create In-app Notification
+            var notification = new Notification
+            {
+                Id = Guid.NewGuid(),
+                UserId = order.UserId,
+                Title = $"Đơn hàng #{order.OrderCode} đã thanh toán thành công!",
+                Message = $"Cảm ơn quý khách {order.CustomerName}. Đơn hàng {order.TotalAmount:N0}đ đã được thanh toán qua PayOS và đang được đóng gói giao hàng.",
+                Type = "Payment",
+                IsRead = false,
+                CreatedAt = DateTime.UtcNow
+            };
+
             await _context.PaymentTransactions.AddAsync(paymentTx, cancellationToken);
+            await _context.OrderStatusHistories.AddAsync(statusHistory, cancellationToken);
+            await _context.Notifications.AddAsync(notification, cancellationToken);
             await _context.SaveChangesAsync(cancellationToken);
             await transaction.CommitAsync(cancellationToken);
 
             _logger.LogInformation("Order #{OrderCode} marked as PAID. Inventory permanently updated.", orderCode);
 
-            // 4. Asynchronously stream event to Kafka topic 'payment-events'
+            // 4. SignalR Real-time notification dispatch
+            var notifDto = new
+            {
+                Id = notification.Id,
+                Title = notification.Title,
+                Message = notification.Message,
+                Type = notification.Type,
+                IsRead = false,
+                CreatedAt = notification.CreatedAt
+            };
+            await _hubContext.Clients.All.ReceiveNotification(notifDto);
+            await _hubContext.Clients.All.ReceiveOrderStatusUpdate(order.OrderCode, "Paid", "Thanh toán thành công qua PayOS!");
+
+            // 5. Asynchronously stream event to Kafka topic 'payment-events'
             var orderPaidEvent = new OrderPaidEvent(
                 order.OrderCode,
                 order.Id,

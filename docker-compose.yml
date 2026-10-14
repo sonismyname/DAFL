@@ -1,44 +1,26 @@
-version: '3.8'
-
 services:
-  # 1. Microsoft SQL Server 2022
-  sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
-    container_name: dafl-sqlserver
+  # 1. PostgreSQL 16 Alpine (Lightweight for demo, ~80MB vs 2GB+ SQL Server)
+  postgres:
+    image: postgres:16-alpine
+    container_name: dafl-postgres
     restart: unless-stopped
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=${SA_PASSWORD:-YourStrong@Passw0rd123!}
-      - MSSQL_PID=Developer
+      POSTGRES_DB: ${POSTGRES_DB:-dafl_db}
+      POSTGRES_USER: ${POSTGRES_USER:-dafl}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dafl_password123}
     ports:
-      - "1433:1433"
+      - "5432:5432"
     volumes:
-      - mssql_data:/var/opt/mssql
+      - postgres_data:/var/lib/postgresql/data
     networks:
       - dafl-network
     healthcheck:
-      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$${MSSQL_SA_PASSWORD}\" -Q 'SELECT 1' -C || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 15s
-
-  # 2. Redis 7 Alpine
-  redis:
-    image: redis:7.2-alpine
-    container_name: dafl-redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - dafl-network
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER:-dafl} -d $${POSTGRES_DB:-dafl_db} || exit 1"]
       interval: 5s
       timeout: 3s
-      retries: 5
+      retries: 10
+      start_period: 5s
+
 
   # 3. Apache Kafka 3.7+ in KRaft Mode (No Zookeeper required)
   kafka:
@@ -59,8 +41,6 @@ services:
       KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
       KAFKA_LOG_DIRS: /tmp/kraft-combined-logs
       CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
-    volumes:
-      - kafka_data:/tmp/kraft-combined-logs
     networks:
       - dafl-network
     healthcheck:
@@ -82,17 +62,14 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=DAFL_DB;User Id=sa;Password=${SA_PASSWORD:-YourStrong@Passw0rd123!};TrustServerCertificate=True;MultipleActiveResultSets=true;
-      - CacheSettings__Enabled=${CACHE_ENABLED:-true}
-      - CacheSettings__ConnectionString=redis:6379,abortConnect=false,connectTimeout=2000
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=dafl_db;Username=dafl;Password=dafl_password123;
+      - CacheSettings__Enabled=false
       - KafkaSettings__BootstrapServers=kafka:9092
       - PayOS__ClientId=${PAYOS_CLIENT_ID:-demo_client_id}
       - PayOS__ApiKey=${PAYOS_API_KEY:-demo_api_key}
       - PayOS__ChecksumKey=${PAYOS_CHECKSUM_KEY:-demo_checksum_key}
     depends_on:
-      sqlserver:
-        condition: service_healthy
-      redis:
+      postgres:
         condition: service_healthy
     networks:
       - dafl-network
@@ -118,6 +95,5 @@ networks:
     driver: bridge
 
 volumes:
-  mssql_data:
-  redis_data:
-  kafka_data:
+  postgres_data:
+    name: dafl_postgres_data

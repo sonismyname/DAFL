@@ -13,13 +13,16 @@ public record ProductDto(
     string Slug,
     string Description,
     decimal Price,
+    decimal? OriginalPrice,
     int AvailableStock,
-    string ImageUrl);
+    string ImageUrl,
+    double Rating,
+    int ReviewCount);
 
-public record ListProductsQuery(Guid? CategoryId = null, string? Search = null) 
+public record ListProductsQuery(Guid? CategoryId = null, string? Search = null, int? Page = null, int? PageSize = null) 
     : IRequest<ApiResponse<List<ProductDto>>>, ICacheableQuery
 {
-    public string CacheKey => $"products:cat={CategoryId}:q={Search?.Trim().ToLowerInvariant()}";
+    public string CacheKey => $"products:cat={CategoryId}:q={Search?.Trim().ToLowerInvariant()}:p={Page}:s={PageSize}";
     public TimeSpan? Expiration => TimeSpan.FromMinutes(10);
 }
 
@@ -50,8 +53,14 @@ public class ListProductsQueryHandler : IRequestHandler<ListProductsQuery, ApiRe
             query = query.Where(p => p.Name.ToLower().Contains(search) || p.Description.ToLower().Contains(search));
         }
 
+        query = query.OrderByDescending(p => p.CreatedAt);
+
+        if (request.Page.HasValue && request.PageSize.HasValue && request.Page.Value > 0 && request.PageSize.Value > 0)
+        {
+            query = query.Skip((request.Page.Value - 1) * request.PageSize.Value).Take(request.PageSize.Value);
+        }
+
         var products = await query
-            .OrderByDescending(p => p.CreatedAt)
             .Select(p => new ProductDto(
                 p.Id,
                 p.CategoryId,
@@ -60,8 +69,11 @@ public class ListProductsQueryHandler : IRequestHandler<ListProductsQuery, ApiRe
                 p.Slug,
                 p.Description,
                 p.Price,
+                p.OriginalPrice,
                 p.Stock - p.ReservedStock,
-                p.ImageUrl))
+                p.ImageUrl,
+                p.Rating,
+                p.ReviewCount))
             .ToListAsync(cancellationToken);
 
         return ApiResponse<List<ProductDto>>.Ok(products);
