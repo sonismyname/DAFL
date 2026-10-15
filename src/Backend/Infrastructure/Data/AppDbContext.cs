@@ -284,7 +284,10 @@ public class AppDbContext : DbContext
             entity.Property(p => p.Price).HasPrecision(18, 2);
             entity.Property(p => p.OriginalPrice).HasPrecision(18, 2);
 
-            entity.Property(p => p.Version).IsRowVersion();
+            if (Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            {
+                entity.Property(p => p.Version).IsRowVersion();
+            }
 
             entity.HasOne(p => p.Category)
                   .WithMany(c => c.Products)

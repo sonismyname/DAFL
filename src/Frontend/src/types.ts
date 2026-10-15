@@ -64,6 +64,11 @@ export interface CheckoutResult {
   discountAmount?: number;
   totalAmount: number;
   checkoutUrl?: string;
+  qrCode?: string;
+  accountNumber?: string;
+  accountName?: string;
+  bin?: number | string;
+  paymentDescription?: string;
   expiresAt: string;
 }
 

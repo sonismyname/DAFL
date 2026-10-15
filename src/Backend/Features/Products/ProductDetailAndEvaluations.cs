@@ -119,6 +119,7 @@ public class AddEvaluationCommandHandler : IRequestHandler<AddEvaluationCommand,
             CreatedAt = DateTime.UtcNow
         };
 
+        _context.Evaluations.Add(evaluation);
         product.Evaluations.Add(evaluation);
         product.ReviewCount = product.Evaluations.Count;
         product.Rating = Math.Round(product.Evaluations.Average(e => e.Rating), 1);

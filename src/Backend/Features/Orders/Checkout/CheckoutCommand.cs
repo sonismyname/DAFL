@@ -27,6 +27,11 @@ public record CheckoutResultDto(
     decimal DiscountAmount,
     decimal TotalAmount,
     string? CheckoutUrl,
+    string? QrCode,
+    string? AccountNumber,
+    string? AccountName,
+    int? Bin,
+    string? PaymentDescription,
     DateTime ExpiresAt);
 
 public class CheckoutCommandValidator : AbstractValidator<CheckoutCommand>
@@ -231,6 +236,11 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, ApiRespon
                     discountAmount,
                     totalAmount,
                     payOsResponse.CheckoutUrl,
+                    payOsResponse.QrCode,
+                    payOsResponse.AccountNumber,
+                    payOsResponse.AccountName,
+                    payOsResponse.Bin,
+                    payOsResponse.Description,
                     expiresAt), "Tạo đơn hàng và link thanh toán PayOS thành công.");
             }
             catch (Exception ex)
