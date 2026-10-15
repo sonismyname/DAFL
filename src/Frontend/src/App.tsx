@@ -1287,7 +1287,7 @@ export default function App() {
                   <span>Săn Deal Giá Sốc • Mua Sắm Tiết Kiệm</span>
                 </div>
                 <h1 className="hero-title">
-                  Sàn Thương Mại Điện Tử DAFL • CI/CD Webhook
+                  Sàn Thương Mại Điện Tử DAFL • CI/CD Webhook 123123123
                 </h1>
                 <p className="hero-subtitle">
                   <strong>Càng Mua Càng Rẻ</strong> — Mua sắm thông minh, ngập tràn deal sốc mỗi ngày! Khám phá 26 ngành hàng đa dạng từ Thời trang, Điện thoại, Gia dụng đến Hàng tiêu dùng với mức giá ưu đãi nhất thị trường và bảo đảm quyền lợi người mua 100%.
