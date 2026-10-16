@@ -18,6 +18,10 @@ public record CreatePaymentLinkResponse(
     bool Success,
     string? CheckoutUrl,
     string? QrCode,
+    string? AccountNumber,
+    string? AccountName,
+    int? Bin,
+    string? Description,
     string? Message);
 
 public record PayOSWebhookPayload(
@@ -41,6 +45,7 @@ public record PayOSWebhookData(
 public interface IPayOSService
 {
     Task<CreatePaymentLinkResponse> CreatePaymentLinkAsync(CreatePaymentLinkRequest request, CancellationToken cancellationToken = default);
+    Task<string?> GetPaymentStatusFromPayOSAsync(long orderCode, CancellationToken cancellationToken = default);
     bool VerifyWebhookSignature(PayOSWebhookPayload payload);
 }
 
@@ -84,7 +89,7 @@ public class PayOSService : IPayOSService
         {
             _logger.LogInformation("[PayOS Demo Mode] Generated mock payment link for Order #{OrderCode}. Amount: {Amount}", request.OrderCode, amountInt);
             var mockUrl = $"http://localhost:3000/mock-payos?orderCode={request.OrderCode}&amount={amountInt}";
-            return new CreatePaymentLinkResponse(true, mockUrl, "data:image/svg+xml;base64,mock_qr", "Demo payment link created");
+            return new CreatePaymentLinkResponse(true, mockUrl, "data:image/svg+xml;base64,mock_qr", "0987654321", "DAFL STORE", 970422, request.Description, "Demo payment link created");
         }
 
         try
@@ -107,18 +112,57 @@ public class PayOSService : IPayOSService
             {
                 var checkoutUrl = dataElem.GetProperty("checkoutUrl").GetString();
                 var qrCode = dataElem.TryGetProperty("qrCode", out var qr) ? qr.GetString() : null;
-                return new CreatePaymentLinkResponse(true, checkoutUrl, qrCode, "Success");
+                var accountNumber = dataElem.TryGetProperty("accountNumber", out var acc) ? acc.GetString() : null;
+                var accountName = dataElem.TryGetProperty("accountName", out var accName) ? accName.GetString() : null;
+                var bin = dataElem.TryGetProperty("bin", out var binElem)
+                    ? (binElem.ValueKind == JsonValueKind.Number ? binElem.GetInt32() : (int.TryParse(binElem.GetString(), out var bVal) ? bVal : (int?)null))
+                    : null;
+                var description = dataElem.TryGetProperty("description", out var descElem) ? descElem.GetString() : null;
+
+                return new CreatePaymentLinkResponse(true, checkoutUrl, qrCode, accountNumber, accountName, bin, description, "Success");
             }
 
             var desc = root.TryGetProperty("desc", out var d) ? d.GetString() : "PayOS request failed";
             _logger.LogWarning("PayOS returned error code {Code}: {Desc}", code, desc);
-            return new CreatePaymentLinkResponse(false, null, null, desc);
+            return new CreatePaymentLinkResponse(false, null, null, null, null, null, null, desc);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to call PayOS API: {Message}", ex.Message);
-            return new CreatePaymentLinkResponse(false, null, null, ex.Message);
+            return new CreatePaymentLinkResponse(false, null, null, null, null, null, null, ex.Message);
         }
+    }
+
+    public async Task<string?> GetPaymentStatusFromPayOSAsync(long orderCode, CancellationToken cancellationToken = default)
+    {
+        if (_clientId == "demo_client_id" || _apiKey == "demo_api_key") return null;
+
+        try
+        {
+            var httpRequest = new HttpRequestMessage(HttpMethod.Get, $"https://api-merchant.payos.vn/v2/payment-requests/{orderCode}");
+            httpRequest.Headers.Add("x-client-id", _clientId);
+            httpRequest.Headers.Add("x-api-key", _apiKey);
+
+            var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
+            if (!response.IsSuccessStatusCode) return null;
+
+            var responseString = await response.Content.ReadAsStringAsync(cancellationToken);
+            using var doc = JsonDocument.Parse(responseString);
+            var root = doc.RootElement;
+            if (root.GetProperty("code").GetString() == "00" && root.TryGetProperty("data", out var dataElem))
+            {
+                if (dataElem.TryGetProperty("status", out var statusProp))
+                {
+                    return statusProp.GetString();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to query PayOS status for #{OrderCode}: {Message}", orderCode, ex.Message);
+        }
+
+        return null;
     }
 
     public bool VerifyWebhookSignature(PayOSWebhookPayload payload)

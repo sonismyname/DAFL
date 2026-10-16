@@ -15,6 +15,12 @@ import {
   FALLBACK_CATEGORIES, FALLBACK_PRODUCTS, FALLBACK_VOUCHERS, FALLBACK_NOTIFICATIONS
 } from './mockData';
 import { getProductDetailExtra } from './productDetailHelper';
+import { Header } from './components/common/Header';
+import { CategoryFilter } from './components/product/CategoryFilter';
+import { ProductCard } from './components/product/ProductCard';
+import { CartDrawer } from './components/cart/CartDrawer';
+import { AuthModal } from './components/auth/AuthModal';
+import { PayOSGatewayView } from './components/checkout/PayOSGatewayView';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 
@@ -1037,243 +1043,27 @@ export default function App() {
       )}
 
       {/* Header */}
-      <header className="header">
-        <a href="#" onClick={(e) => { e.preventDefault(); navigateTo('home'); }} className="brand">
-          <div style={{
-            width: 38, height: 38, borderRadius: 10,
-            background: 'linear-gradient(135deg, #e02e24, #ff5722)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff'
-          }}>
-            <ShoppingBag size={22} />
-          </div>
-          <span>DAFL Store</span>
-          <span className="brand-badge">Deal Giá Sốc</span>
-        </a>
-
-        {/* Search Bar with Debounce & Clear button */}
-        <div className="search-bar">
-          <Search className="search-icon" size={18} />
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Tìm kiếm sản phẩm trong 26 ngành hàng..."
-            value={searchQuery}
-            onChange={e => {
-              setSearchQuery(e.target.value);
-              if (currentRoute !== 'home') setCurrentRoute('home');
-            }}
-          />
-          {searchQuery && (
-            <button
-              type="button"
-              onClick={() => setSearchQuery('')}
-              style={{ background: 'none', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', display: 'flex', padding: 2 }}
-              title="Xóa tìm kiếm"
-            >
-              <X size={16} />
-            </button>
-          )}
-        </div>
-
-        {/* Header Actions */}
-        <div className="header-actions">
-          {/* Theme Switch Toggle Button */}
-          <button
-            type="button"
-            className="btn-theme-toggle"
-            onClick={toggleTheme}
-            title={theme === 'dark' ? 'Chuyển sang giao diện Sáng' : 'Chuyển sang giao diện Tối'}
-            aria-label="Chuyển đổi giao diện Sáng / Tối"
-          >
-            <div className="theme-toggle-switch">
-              <div className="theme-toggle-knob">
-                {theme === 'dark' ? <Moon size={10} color="#1f2937" /> : <Sun size={10} color="#e02e24" />}
-              </div>
-            </div>
-            <span>{theme === 'dark' ? 'Theme Tối' : 'Theme Sáng'}</span>
-          </button>
-
-          {/* Notification Bell */}
-          <button
-            className="btn-icon"
-            onClick={() => setIsNotifOpen(!isNotifOpen)}
-            title="Thông báo đơn hàng & khuyến mãi"
-          >
-            <Bell size={19} />
-            {unreadCount > 0 && <span className="badge-count">{unreadCount}</span>}
-          </button>
-
-          {/* User Account Button with Dropdown Toggle Menu below */}
-          <div className="account-dropdown-wrapper" ref={accountDropdownRef}>
-            <button
-              type="button"
-              className={`btn btn-secondary btn-account-toggle ${isAccountDropdownOpen ? 'active' : ''}`}
-              onClick={() => setIsAccountDropdownOpen(!isAccountDropdownOpen)}
-              title="Menu tài khoản & điều hướng các trang"
-            >
-              <div className="account-avatar-mini">
-                {(user?.fullName || profileFullName || 'D').charAt(0).toUpperCase()}
-              </div>
-              <span className="account-toggle-name">{user ? user.fullName : profileFullName || 'Tài khoản'}</span>
-              <ChevronDown size={14} className={`dropdown-chevron ${isAccountDropdownOpen ? 'open' : ''}`} />
-            </button>
-
-            {/* Dropdown Menu directly under the account button */}
-            {isAccountDropdownOpen && (
-              <div className="account-dropdown-menu">
-                {/* User Summary Header */}
-                <div className="dropdown-user-header">
-                  <div className="dropdown-user-avatar">
-                    {(user?.fullName || profileFullName || 'D').charAt(0).toUpperCase()}
-                  </div>
-                  <div className="dropdown-user-info">
-                    <div className="dropdown-user-name">
-                      {user ? user.fullName : profileFullName}
-                    </div>
-                    <div className="dropdown-user-role">
-                      <span className="brand-badge" style={{ fontSize: '0.68rem', padding: '1px 6px' }}>
-                        {user?.role || 'Khách hàng VIP'}
-                      </span>
-                    </div>
-                    <div className="dropdown-user-email">
-                      {user ? user.email : profileEmail}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="dropdown-divider" />
-
-                {/* Navigation Links to Pages */}
-                <div className="dropdown-nav-group">
-                  <div className="dropdown-group-title">Điều hướng các trang</div>
-                  <button
-                    type="button"
-                    className={`dropdown-nav-item ${currentRoute === 'home' ? 'active' : ''}`}
-                    onClick={() => {
-                      navigateTo('home');
-                      setIsAccountDropdownOpen(false);
-                    }}
-                  >
-                    <ShoppingBag size={16} className="dropdown-item-icon" />
-                    <span className="dropdown-item-label">Trang chủ mua sắm</span>
-                    {currentRoute === 'home' && <span className="dropdown-active-dot" />}
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`dropdown-nav-item ${currentRoute === 'orders' ? 'active' : ''}`}
-                    onClick={() => {
-                      navigateTo('orders');
-                      setIsAccountDropdownOpen(false);
-                    }}
-                  >
-                    <Package size={16} className="dropdown-item-icon" />
-                    <span className="dropdown-item-label">Quản lý đơn mua & Lịch sử</span>
-                    {orderHistory.length > 0 && (
-                      <span className="dropdown-item-badge">
-                        {orderHistory.length}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    className={`dropdown-nav-item ${currentRoute === 'profile' ? 'active' : ''}`}
-                    onClick={() => {
-                      navigateTo('profile');
-                      setIsAccountDropdownOpen(false);
-                    }}
-                  >
-                    <MapPin size={16} className="dropdown-item-icon" />
-                    <span className="dropdown-item-label">Cấu hình địa chỉ nhận hàng</span>
-                    {currentRoute === 'profile' && <span className="dropdown-active-dot" />}
-                  </button>
-                </div>
-
-                <div className="dropdown-divider" />
-
-                {/* Quick Utilities */}
-                <div className="dropdown-nav-group">
-                  <div className="dropdown-group-title">Tiện ích mua sắm</div>
-                  <button
-                    type="button"
-                    className="dropdown-nav-item"
-                    onClick={() => {
-                      setIsNotifOpen(true);
-                      setIsAccountDropdownOpen(false);
-                    }}
-                  >
-                    <Bell size={16} className="dropdown-item-icon" />
-                    <span className="dropdown-item-label">Hộp thư thông báo</span>
-                    {unreadCount > 0 && (
-                      <span className="dropdown-item-badge" style={{ background: '#e02e24' }}>
-                        {unreadCount}
-                      </span>
-                    )}
-                  </button>
-
-                  <button
-                    type="button"
-                    className="dropdown-nav-item"
-                    onClick={() => {
-                      setIsCartOpen(true);
-                      setIsAccountDropdownOpen(false);
-                    }}
-                  >
-                    <Tag size={16} className="dropdown-item-icon" />
-                    <span className="dropdown-item-label">Giỏ hàng & Khuyến mãi</span>
-                    {totalItemCount > 0 && (
-                      <span className="dropdown-item-badge">
-                        {totalItemCount}
-                      </span>
-                    )}
-                  </button>
-                </div>
-
-                <div className="dropdown-divider" />
-
-                {/* Footer Action */}
-                <div className="dropdown-footer">
-                  {user ? (
-                    <button
-                      type="button"
-                      className="dropdown-logout-btn"
-                      onClick={() => {
-                        handleLogout();
-                        setIsAccountDropdownOpen(false);
-                      }}
-                    >
-                      <LogOut size={15} />
-                      <span>Đăng xuất tài khoản</span>
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      className="btn btn-primary"
-                      style={{ width: '100%', padding: '8px 14px', fontSize: '0.85rem' }}
-                      onClick={() => {
-                        setAuthTab('login');
-                        setIsAuthModalOpen(true);
-                        setIsAccountDropdownOpen(false);
-                      }}
-                    >
-                      <UserIcon size={15} />
-                      <span>Đăng nhập / Đăng ký</span>
-                    </button>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Cart Button */}
-          <button className="btn btn-cart" onClick={() => setIsCartOpen(true)}>
-            <ShoppingBag size={18} />
-            <span>Giỏ hàng</span>
-            {totalItemCount > 0 && <span className="badge-count" style={{ position: 'static', marginLeft: 4 }}>{totalItemCount}</span>}
-          </button>
-        </div>
-      </header>
+      <Header
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onNavigate={navigateTo}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+        unreadCount={unreadCount}
+        onToggleNotif={() => setIsNotifOpen(!isNotifOpen)}
+        user={user}
+        profileFullName={profileFullName}
+        isAccountDropdownOpen={isAccountDropdownOpen}
+        setIsAccountDropdownOpen={setIsAccountDropdownOpen}
+        accountDropdownRef={accountDropdownRef}
+        onLogout={handleLogout}
+        onOpenAuth={() => {
+          setAuthTab('login');
+          setIsAuthModalOpen(true);
+        }}
+        totalItemCount={totalItemCount}
+        onOpenCart={() => setIsCartOpen(true)}
+      />
 
       {/* Home Route View */}
       {currentRoute === 'home' && (
@@ -1352,39 +1142,12 @@ export default function App() {
             </div>
           </section>
 
-          {/* 26 Categories Carousel / Filter Bar */}
-          <section>
-            <div className="section-title">
-              <span>Danh mục ngành hàng ({categories.length} hạng mục)</span>
-              {selectedCategory && (
-                <button
-                  style={{ background: 'none', border: 'none', color: 'var(--primary)', cursor: 'pointer', fontSize: '0.85rem', fontWeight: 600 }}
-                  onClick={() => setSelectedCategory(null)}
-                >
-                  Xem tất cả
-                </button>
-              )}
-            </div>
-
-            <div className="categories-bar">
-              <button
-                className={`category-pill ${selectedCategory === null ? 'active' : ''}`}
-                onClick={() => setSelectedCategory(null)}
-              >
-                Tất cả danh mục
-              </button>
-              {categories.map(cat => (
-                <button
-                  key={cat.id}
-                  className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
-                  onClick={() => setSelectedCategory(cat.id)}
-                >
-                  <span style={{ marginRight: 6 }}>{cat.iconUrl || '📦'}</span>
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-          </section>
+          {/* Categories Filter Bar */}
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+          />
 
           {/* Products Grid */}
           <section id="products-section">
@@ -1413,61 +1176,12 @@ export default function App() {
               <>
                 <div className="products-grid">
                   {products.slice(0, visibleCount).map(product => (
-                    <div
+                    <ProductCard
                       key={product.id}
-                      className="product-card"
-                      onClick={() => openProductDetail(product)}
-                    >
-                      <div className="product-image-wrap">
-                        <img
-                          src={product.imageUrl}
-                          alt={product.name}
-                          className="product-image"
-                          loading="lazy"
-                          decoding="async"
-                        />
-                        <span className="product-category-badge">{product.categoryName}</span>
-                        {product.originalPrice && product.originalPrice > product.price && (
-                          <span className="product-discount-badge">
-                            -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                          </span>
-                        )}
-                      </div>
-                      <div className="product-content">
-                        <h3 className="product-name">{product.name}</h3>
-                        <p className="product-desc">{product.description}</p>
-
-                        <div className="product-meta">
-                          <span className="product-rating">
-                            <Star size={13} fill="#f59e0b" color="#f59e0b" />
-                            {product.rating ? product.rating.toFixed(1) : '5.0'}
-                          </span>
-                          <span>•</span>
-                          <span>{product.reviewCount || 0} đánh giá</span>
-                        </div>
-
-                        <div className="product-footer">
-                          <div>
-                            <div className="product-price">{formatPrice(product.price)}</div>
-                            {product.originalPrice && (
-                              <div className="product-original-price">{formatPrice(product.originalPrice)}</div>
-                            )}
-                            <div className="product-stock">Còn {product.availableStock} sản phẩm</div>
-                          </div>
-                          <button
-                            className="btn btn-primary"
-                            style={{ padding: '8px 14px', fontSize: '0.8rem' }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              addToCart(product);
-                            }}
-                            disabled={product.availableStock <= 0}
-                          >
-                            <Plus size={15} /> Thêm
-                          </button>
-                        </div>
-                      </div>
-                    </div>
+                      product={product}
+                      onOpenDetail={openProductDetail}
+                      onAddToCart={addToCart}
+                    />
                   ))}
                 </div>
 
@@ -2268,431 +1982,70 @@ export default function App() {
       {/* ============================================================== */}
       {/* MODAL 2: Cart, Voucher & Checkout Drawer */}
       {/* ============================================================== */}
-      {isCartOpen && (
-        <div className="modal-overlay" onClick={() => setIsCartOpen(false)}>
-          <div className={`modal-content ${checkoutResult ? 'modal-content-lg' : ''}`} onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">
-                {checkoutResult ? 'Thanh toán đơn hàng PayOS (Trực tiếp)' : 'Giỏ hàng của bạn'}
-              </h2>
-              <button className="close-btn" onClick={() => setIsCartOpen(false)}><X size={20} /></button>
-            </div>
-
-            {/* View 1: Cart Items, Voucher, and Checkout Form */}
-            {!checkoutResult ? (
-              <>
-                {cart.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '40px 0', color: '#9ca3af' }}>
-                    <ShoppingBag size={48} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
-                    <p>Giỏ hàng của bạn đang trống.</p>
-                  </div>
-                ) : (
-                  <>
-                    {/* Cart Items List */}
-                    <div style={{ maxHeight: 220, overflowY: 'auto', marginBottom: 16 }}>
-                      {cart.map(item => (
-                        <div key={item.product.id} className="cart-item">
-                          <img
-                            src={item.product.imageUrl}
-                            alt={item.product.name}
-                            style={{ width: 44, height: 44, borderRadius: 8, objectFit: 'cover', marginRight: 12 }}
-                          />
-                          <div className="cart-item-info">
-                            <div className="cart-item-name">{item.product.name}</div>
-                            <div className="cart-item-price">{formatPrice(item.product.price)}</div>
-                          </div>
-                          <div className="cart-item-actions">
-                            <button className="qty-btn" onClick={() => updateQuantity(item.product.id, -1)}><Minus size={14} /></button>
-                            <span style={{ minWidth: 20, textAlign: 'center', fontWeight: 600 }}>{item.quantity}</span>
-                            <button className="qty-btn" onClick={() => updateQuantity(item.product.id, 1)}><Plus size={14} /></button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Voucher Input Section */}
-                    <div className="voucher-section">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8, fontSize: '0.85rem', fontWeight: 700, color: 'var(--primary)' }}>
-                        <Tag size={15} /> Nhập mã giảm giá / Voucher:
-                      </div>
-                      <div className="voucher-input-group">
-                        <input
-                          className="form-input"
-                          placeholder="Nhập mã voucher (VD: FORDEV, DAFL10)..."
-                          value={voucherCodeInput}
-                          onChange={e => setVoucherCodeInput(e.target.value.toUpperCase())}
-                        />
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          style={{ padding: '0 18px', whiteSpace: 'nowrap' }}
-                          onClick={() => handleApplyVoucher()}
-                        >
-                          Áp dụng
-                        </button>
-                      </div>
-
-                      {/* Quick Available Vouchers Chips */}
-                      <div className="voucher-chips">
-                        {(vouchers.length ? vouchers : FALLBACK_VOUCHERS).map(v => (
-                          <span
-                            key={v.id}
-                            className="voucher-chip"
-                            onClick={() => {
-                              setVoucherCodeInput(v.code);
-                              handleApplyVoucher(v.code);
-                            }}
-                            title={v.description}
-                          >
-                            🏷️ {v.code} ({v.discountType === 'Percentage' ? `-${v.discountValue}%` : `-${formatPrice(v.discountValue)}`})
-                          </span>
-                        ))}
-                      </div>
-
-                      {appliedVoucher && (
-                        <div className="applied-voucher-banner">
-                          <span>✓ Đã áp dụng mã <strong>{appliedVoucher.code}</strong>: -{formatPrice(appliedVoucher.discountAmount)}</span>
-                          <button
-                            type="button"
-                            style={{ background: 'none', border: 'none', color: '#f43f5e', cursor: 'pointer', fontWeight: 700 }}
-                            onClick={() => {
-                              setAppliedVoucher(null);
-                              setVoucherMessage(null);
-                            }}
-                          >
-                            Bỏ chọn
-                          </button>
-                        </div>
-                      )}
-
-                      {voucherMessage && !appliedVoucher && (
-                        <div style={{ fontSize: '0.8rem', color: '#f87171', marginTop: 6 }}>{voucherMessage}</div>
-                      )}
-                    </div>
-
-                    {/* Pricing Summary */}
-                    <div style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)', padding: 14, borderRadius: 10, marginBottom: 20 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.9rem', color: 'var(--text-muted)' }}>
-                        <span>Tạm tính ({totalItemCount} sản phẩm):</span>
-                        <span>{formatPrice(rawSubTotal)}</span>
-                      </div>
-                      {appliedVoucher && (
-                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6, fontSize: '0.9rem', color: '#10b981' }}>
-                          <span>Khuyến mãi Voucher ({appliedVoucher.code}):</span>
-                          <span>-{formatPrice(appliedVoucher.discountAmount)}</span>
-                        </div>
-                      )}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: 8, borderTop: '1px solid var(--border-subtle)', fontSize: '1.15rem', fontWeight: 800 }}>
-                        <span>Tổng thanh toán:</span>
-                        <span style={{ color: '#e02e24' }}>{formatPrice(finalTotal)}</span>
-                      </div>
-                    </div>
-
-                    {/* Checkout Form */}
-                    <form onSubmit={handleCheckout}>
-                      <div className="form-group">
-                        <label className="form-label">Họ tên người nhận</label>
-                        <input className="form-input" value={customerName} onChange={e => setCustomerName(e.target.value)} required />
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Email nhận hóa đơn & thông tin giao hàng</label>
-                        <input className="form-input" type="email" value={customerEmail} onChange={e => setCustomerEmail(e.target.value)} required />
-                      </div>
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                        <div className="form-group">
-                          <label className="form-label">Số điện thoại</label>
-                          <input className="form-input" value={customerPhone} onChange={e => setCustomerPhone(e.target.value)} required />
-                        </div>
-                        <div className="form-group">
-                          <label className="form-label">Địa chỉ giao hàng</label>
-                          <input className="form-input" value={shippingAddress} onChange={e => setShippingAddress(e.target.value)} required />
-                        </div>
-                      </div>
-
-                      <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '14px', marginTop: 10 }} disabled={isCheckingOut}>
-                        {isCheckingOut ? 'Đang tạo cổng thanh toán PayOS...' : `Thanh toán trực tiếp PayOS (${formatPrice(finalTotal)})`}
-                      </button>
-                    </form>
-                  </>
-                )}
-              </>
-            ) : (
-              /* View 2: Embedded PayOS Payment View directly on the web page */
-              <div>
-                <div style={{ textAlign: 'center', marginBottom: 16 }}>
-                  <h3 style={{ fontSize: '1.25rem', marginBottom: 4, fontWeight: 800 }}>
-                    Đơn hàng #{checkoutResult.orderCode}
-                  </h3>
-                  <p style={{ color: 'var(--text-muted)', fontSize: '0.875rem' }}>
-                    Thanh toán an toàn được xử lý trực tiếp tại trang web — Không mở tab trắng
-                  </p>
-                </div>
-
-                {orderStatus === 'Pending' && (
-                  <div className="payos-embedded-card" style={{ marginTop: 0 }}>
-                    <div className="payos-embedded-header">
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                        <div style={{ width: 34, height: 34, borderRadius: 8, background: 'var(--primary)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                          <CreditCard size={18} />
-                        </div>
-                        <div>
-                          <div style={{ fontWeight: 800, fontSize: '0.95rem', color: 'var(--text-main)' }}>
-                            Cổng thanh toán PayOS (Thực hiện trực tiếp)
-                          </div>
-                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-                            Quét mã QR VietQR hoặc chuyển khoản trực tiếp qua ngân hàng
-                          </div>
-                        </div>
-                      </div>
-                      <div className="timer-badge" style={{ margin: 0 }}>
-                        <Clock size={13} /> {formatTime(timeLeft)}
-                      </div>
-                    </div>
-
-                    <div className="payos-summary-bar">
-                      <div>
-                        <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>Số tiền thanh toán: </span>
-                        <strong style={{ color: '#e02e24', fontSize: '1.2rem' }}>{formatPrice(checkoutResult.totalAmount)}</strong>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          style={{ padding: '6px 12px', fontSize: '0.75rem' }}
-                          onClick={() => {
-                            navigator.clipboard?.writeText(String(checkoutResult.orderCode));
-                            showToast('Đã chép mã', `Mã đơn #${checkoutResult.orderCode}`, 'System');
-                          }}
-                        >
-                          <Copy size={12} /> Sao chép mã
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Embedded PayOS Iframe directly on site */}
-                    {checkoutResult.checkoutUrl ? (
-                      <div className="payos-iframe-container">
-                        <iframe
-                          src={checkoutResult.checkoutUrl}
-                          className="payos-iframe"
-                          title={`Cổng thanh toán PayOS #${checkoutResult.orderCode}`}
-                          allow="payment"
-                        />
-                      </div>
-                    ) : (
-                      <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
-                        Đang kết nối cổng thanh toán PayOS...
-                      </div>
-                    )}
-
-                    <div className="payos-sync-footer">
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                          <RefreshCw size={14} className="spin" color="#10b981" />
-                          <span>Hệ thống tự động đồng bộ trạng thái khi thanh toán thành công (SignalR)</span>
-                        </div>
-                        <div style={{ display: 'flex', gap: 8 }}>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            style={{ fontSize: '0.775rem', padding: '6px 12px' }}
-                            onClick={handleSimulatePaymentSuccess}
-                            title="Xác nhận thanh toán mô phỏng"
-                          >
-                            ⚡ Test Xác nhận Thanh toán
-                          </button>
-                          <button
-                            type="button"
-                            className="btn btn-secondary"
-                            style={{ fontSize: '0.775rem', padding: '6px 12px' }}
-                            onClick={() => {
-                              setIsCartOpen(false);
-                              navigateTo('orders');
-                            }}
-                          >
-                            Xem trong Quản lý đơn hàng
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {orderStatus === 'Paid' && (
-                  <div style={{ textAlign: 'center', padding: '30px 0' }}>
-                    <CheckCircle2 size={56} color="#10b981" style={{ margin: '0 auto 16px' }} />
-                    <h3 style={{ fontSize: '1.4rem', color: '#10b981', marginBottom: 8 }}>Thanh toán thành công!</h3>
-                    <p style={{ color: '#9ca3af', fontSize: '0.9rem', marginBottom: 20 }}>
-                      Đơn hàng #{checkoutResult.orderCode} đã được thanh toán thành công. Chúng tôi đang chuẩn bị hàng và sẽ sớm giao đến địa chỉ của bạn!
-                    </p>
-                    <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
-                      <button type="button" className="btn btn-secondary" onClick={() => { setCheckoutResult(null); setIsCartOpen(false); navigateTo('orders'); }}>
-                        Xem lịch sử đơn hàng
-                      </button>
-                      <button type="button" className="btn btn-primary" onClick={() => { setCheckoutResult(null); setIsCartOpen(false); navigateTo('home'); }}>
-                        Tiếp tục mua hàng
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {orderStatus === 'Expired' && (
-                  <div style={{ textAlign: 'center', padding: '30px 0' }}>
-                    <Clock size={56} color="#f43f5e" style={{ margin: '0 auto 16px' }} />
-                    <h3 style={{ fontSize: '1.3rem', color: '#f43f5e', marginBottom: 8 }}>Đơn hàng đã hết hạn giữ chỗ!</h3>
-                    <p style={{ color: '#9ca3af', fontSize: '0.9rem', marginBottom: 20 }}>
-                      Đã quá 15 phút mà đơn hàng chưa được thanh toán. Số lượng tồn kho đã được hoàn trả lại cho hệ thống.
-                    </p>
-                    <button type="button" className="btn btn-secondary" onClick={() => { setCheckoutResult(null); }}>
-                      Tạo lại đơn hàng
-                    </button>
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
+      <CartDrawer
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        cart={cart}
+        vouchers={vouchers}
+        voucherCodeInput={voucherCodeInput}
+        setVoucherCodeInput={setVoucherCodeInput}
+        appliedVoucher={appliedVoucher}
+        voucherMessage={voucherMessage}
+        rawSubTotal={rawSubTotal}
+        finalTotal={finalTotal}
+        totalItemCount={totalItemCount}
+        customerName={customerName}
+        setCustomerName={setCustomerName}
+        customerEmail={customerEmail}
+        setCustomerEmail={setCustomerEmail}
+        customerPhone={customerPhone}
+        setCustomerPhone={setCustomerPhone}
+        shippingAddress={shippingAddress}
+        setShippingAddress={setShippingAddress}
+        checkoutResult={checkoutResult}
+        isCheckingOut={isCheckingOut}
+        orderStatus={orderStatus}
+        timeLeft={timeLeft}
+        onUpdateQuantity={updateQuantity}
+        onApplyVoucher={handleApplyVoucher}
+        onRemoveVoucher={() => { setAppliedVoucher(null); setVoucherMessage(null); }}
+        onCheckout={handleCheckout}
+        onSimulateSuccess={handleSimulatePaymentSuccess}
+        onNavigateToOrders={() => { setCheckoutResult(null); setIsCartOpen(false); navigateTo('orders'); }}
+        onNavigateToHome={() => { setCheckoutResult(null); setIsCartOpen(false); navigateTo('home'); }}
+        onCopyOrderCode={(code) => {
+          navigator.clipboard?.writeText(String(code));
+          showToast('Đã chép mã', `Mã đơn #${code}`, 'System');
+        }}
+      />
 
       {/* ============================================================== */}
       {/* MODAL 3: Auth Modal (Login / Register) */}
       {/* ============================================================== */}
-      {isAuthModalOpen && (
-        <div className="modal-overlay" onClick={() => setIsAuthModalOpen(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h2 className="modal-title">
-                {authTab === 'login' ? 'Đăng nhập tài khoản' : 'Đăng ký thành viên mới'}
-              </h2>
-              <button className="close-btn" onClick={() => setIsAuthModalOpen(false)}><X size={20} /></button>
-            </div>
-
-            {/* Tabs */}
-            <div className="modal-tabs">
-              <button
-                className={`tab-btn ${authTab === 'login' ? 'active' : ''}`}
-                onClick={() => { setAuthTab('login'); setAuthError(null); }}
-              >
-                Đăng nhập
-              </button>
-              <button
-                className={`tab-btn ${authTab === 'register' ? 'active' : ''}`}
-                onClick={() => { setAuthTab('register'); setAuthError(null); }}
-              >
-                Đăng ký
-              </button>
-            </div>
-
-            {authError && (
-              <div style={{ background: 'rgba(244, 63, 94, 0.15)', border: '1px solid #f43f5e', color: '#fca5a5', padding: '10px 14px', borderRadius: 8, marginBottom: 16, fontSize: '0.85rem' }}>
-                {authError}
-              </div>
-            )}
-
-            {authTab === 'login' ? (
-              <form onSubmit={handleLogin}>
-                <div className="form-group">
-                  <label className="form-label">Email đăng nhập</label>
-                  <input
-                    className="form-input"
-                    type="email"
-                    value={loginEmail}
-                    onChange={e => setLoginEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Mật khẩu</label>
-                  <input
-                    className="form-input"
-                    type="password"
-                    value={loginPassword}
-                    onChange={e => setLoginPassword(e.target.value)}
-                    required
-                  />
-                </div>
-
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', marginTop: 10 }} disabled={authLoading}>
-                  {authLoading ? 'Đang xử lý...' : 'Đăng nhập'}
-                </button>
-
-                <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-                  <button
-                    type="button"
-                    className="btn btn-secondary"
-                    style={{ width: '100%', fontSize: '0.8rem' }}
-                    onClick={() => {
-                      setLoginEmail('demo@dafl.vn');
-                      setLoginPassword('Password123!');
-                    }}
-                  >
-                    ⚡ Dùng tài khoản Demo (demo@dafl.vn)
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <form onSubmit={handleRegister}>
-                <div className="form-group">
-                  <label className="form-label">Họ và tên</label>
-                  <input
-                    className="form-input"
-                    value={registerName}
-                    onChange={e => setRegisterName(e.target.value)}
-                    placeholder="Nguyễn Văn A"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Email</label>
-                  <input
-                    className="form-input"
-                    type="email"
-                    value={registerEmail}
-                    onChange={e => setRegisterEmail(e.target.value)}
-                    placeholder="name@example.com"
-                    required
-                  />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Mật khẩu</label>
-                  <input
-                    className="form-input"
-                    type="password"
-                    value={registerPassword}
-                    onChange={e => setRegisterPassword(e.target.value)}
-                    placeholder="Tối thiểu 6 ký tự"
-                    required
-                  />
-                </div>
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                  <div className="form-group">
-                    <label className="form-label">Số điện thoại</label>
-                    <input
-                      className="form-input"
-                      value={registerPhone}
-                      onChange={e => setRegisterPhone(e.target.value)}
-                      placeholder="0987654321"
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Địa chỉ</label>
-                    <input
-                      className="form-input"
-                      value={registerAddress}
-                      onChange={e => setRegisterAddress(e.target.value)}
-                      placeholder="Hà Nội, VN"
-                    />
-                  </div>
-                </div>
-
-                <button type="submit" className="btn btn-primary" style={{ width: '100%', padding: '12px', marginTop: 10 }} disabled={authLoading}>
-                  {authLoading ? 'Đang tạo tài khoản...' : 'Đăng ký ngay'}
-                </button>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        authTab={authTab}
+        setAuthTab={setAuthTab}
+        authError={authError}
+        authLoading={authLoading}
+        loginEmail={loginEmail}
+        setLoginEmail={setLoginEmail}
+        loginPassword={loginPassword}
+        setLoginPassword={setLoginPassword}
+        registerName={registerName}
+        setRegisterName={setRegisterName}
+        registerEmail={registerEmail}
+        setRegisterEmail={setRegisterEmail}
+        registerPassword={registerPassword}
+        setRegisterPassword={setRegisterPassword}
+        registerPhone={registerPhone}
+        setRegisterPhone={setRegisterPhone}
+        registerAddress={registerAddress}
+        setRegisterAddress={setRegisterAddress}
+        onLogin={handleLogin}
+        onRegister={handleRegister}
+      />
 
       {/* ============================================================== */}
       {/* MODAL 4: User Profile & Order History Drawer */}
@@ -2915,15 +2268,17 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Direct On-site PayOS embedded iframe */}
-              <div className="payos-iframe-container" style={{ height: 600 }}>
-                <iframe
-                  src={embeddedPaymentModal.checkoutUrl}
-                  className="payos-iframe"
-                  title={`Thanh toán PayOS #${embeddedPaymentModal.orderCode}`}
-                  allow="payment"
-                />
-              </div>
+              {/* Direct On-site PayOS Gateway (VietQR / Real iframe) */}
+              <PayOSGatewayView
+                orderCode={embeddedPaymentModal.orderCode}
+                totalAmount={embeddedPaymentModal.totalAmount}
+                checkoutUrl={embeddedPaymentModal.checkoutUrl}
+                onSimulateSuccess={() => handleSimulatePaymentForOrder(embeddedPaymentModal.orderCode, embeddedPaymentModal.totalAmount)}
+                onCopyOrderCode={() => {
+                  navigator.clipboard?.writeText(String(embeddedPaymentModal.orderCode));
+                  showToast('Sao chép', `Đã chép mã đơn #${embeddedPaymentModal.orderCode}`, 'System');
+                }}
+              />
 
               <div className="payos-sync-footer">
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>

@@ -62,11 +62,14 @@ public class PayOSWebhookCommandHandler : IRequestHandler<PayOSWebhookCommand, A
             return ApiResponse<string>.Ok("Đơn hàng đã được thanh toán trước đó (Idempotent OK).");
         }
 
-        // 3. Begin transaction to commit order and finalize inventory deduction
-        await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
-        try
+        // 3. Begin transaction with execution strategy to commit order and finalize inventory deduction
+        var strategy = _context.Database.CreateExecutionStrategy();
+        return await strategy.ExecuteAsync(async () =>
         {
-            order.Status = OrderStatus.Paid;
+            await using var transaction = await _context.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                order.Status = OrderStatus.Paid;
 
             // Convert reserved stock into finalized deduction
             foreach (var item in order.Items)
@@ -157,5 +160,6 @@ public class PayOSWebhookCommandHandler : IRequestHandler<PayOSWebhookCommand, A
             _logger.LogError(ex, "Lỗi xử lý webhook cho đơn hàng #{OrderCode}: {Message}", orderCode, ex.Message);
             return ApiResponse<string>.Fail("Lỗi nội bộ khi xác nhận thanh toán.");
         }
-    }
+    });
+}
 }
