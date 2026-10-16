@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="DAFL Functional Regression Suite" verbose="1">
+    <test name="E2E Regression Tests">
+        <classes>
+            <class name="vn.dafl.tests.HomePageTest" />
+            <class name="vn.dafl.tests.CatalogAndCartTest" />
+            <class name="vn.dafl.tests.AuthModalTest" />
+        </classes>
+    </test>
+</suite>
