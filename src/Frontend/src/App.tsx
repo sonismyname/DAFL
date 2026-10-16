@@ -523,6 +523,8 @@ export default function App() {
   // Cart & Voucher Operations
   // ------------------------------------------
   const addToCart = (product: Product, qty: number = 1) => {
+    setCheckoutResult(null);
+    setOrderStatus('Pending');
     setCart(prev => {
       const existing = prev.find(item => item.product.id === product.id);
       if (existing) {
@@ -532,6 +534,14 @@ export default function App() {
       }
       return [...prev, { product, quantity: qty }];
     });
+    setIsCartOpen(true);
+  };
+
+  const handleBuyNow = (product: Product, qty: number = 1) => {
+    setCheckoutResult(null);
+    setOrderStatus('Pending');
+    setCart([{ product, quantity: qty }]);
+    setSelectedProduct(null);
     setIsCartOpen(true);
   };
 
@@ -1655,9 +1665,9 @@ export default function App() {
                     className="btn btn-primary"
                     style={{ flex: 1, padding: '12px' }}
                     onClick={() => {
-                      addToCart(selectedProduct, detailQuantity);
-                      setSelectedProduct(null);
-                      setIsCartOpen(true);
+                      if (selectedProduct) {
+                        handleBuyNow(selectedProduct, detailQuantity);
+                      }
                     }}
                   >
                     Mua ngay
@@ -1878,7 +1888,10 @@ export default function App() {
       {/* ============================================================== */}
       <CartDrawer
         isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
+        onClose={() => {
+          setIsCartOpen(false);
+          setCheckoutResult(null);
+        }}
         cart={cart}
         vouchers={vouchers}
         voucherCodeInput={voucherCodeInput}
@@ -1905,6 +1918,7 @@ export default function App() {
         onRemoveVoucher={() => { setAppliedVoucher(null); setVoucherMessage(null); }}
         onCheckout={handleCheckout}
         onSimulateSuccess={handleSimulatePaymentSuccess}
+        onResetCheckout={() => setCheckoutResult(null)}
         onNavigateToOrders={() => { setCheckoutResult(null); setIsCartOpen(false); navigateTo('orders'); }}
         onNavigateToHome={() => { setCheckoutResult(null); setIsCartOpen(false); navigateTo('home'); }}
         onCopyOrderCode={(code) => {

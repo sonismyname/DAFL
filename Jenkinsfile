@@ -39,6 +39,15 @@ pipeline {
                     git fetch origin ${TARGET_BRANCH}
                     git worktree add --force --detach ${WORKTREE_DIR} origin/${TARGET_BRANCH}
 
+                    # Nạp file .env chứa PayOS API Keys thật từ máy chủ vào worktree
+                    if [ -f /var/repo/DAFL/.env ]; then
+                        cp /var/repo/DAFL/.env ${WORKTREE_DIR}/.env
+                        echo "✅ Đã nạp file .env từ /var/repo/DAFL vào ${WORKTREE_DIR}"
+                    elif [ -f .env ]; then
+                        cp .env ${WORKTREE_DIR}/.env
+                        echo "✅ Đã nạp file .env từ workspace vào ${WORKTREE_DIR}"
+                    fi
+
                     echo "Danh sách worktrees hiện tại:"
                     git worktree list
                 """
