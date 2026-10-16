@@ -40,6 +40,7 @@ export interface CartDrawerProps {
   onCopyOrderCode?: (orderCode: number) => void;
   onManualRecheckOrder?: (orderCode: number) => void;
   onSimulateSuccess?: () => void;
+  onResetCheckout?: () => void;
 }
 
 export const CartDrawer: React.FC<CartDrawerProps> = ({
@@ -75,6 +76,7 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
   onCopyOrderCode,
   onManualRecheckOrder,
   onSimulateSuccess,
+  onResetCheckout,
 }) => {
   if (!isOpen) return null;
 
@@ -220,6 +222,18 @@ export const CartDrawer: React.FC<CartDrawerProps> = ({
                     >
                       <Copy size={12} /> Sao chép mã
                     </button>
+                    {onResetCheckout && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 4 }}
+                        onClick={onResetCheckout}
+                        data-testid="back-to-cart-btn"
+                        title="Quay lại giỏ hàng để chọn hoặc thay đổi sản phẩm"
+                      >
+                        <RotateCcw size={12} /> Đổi giỏ hàng
+                      </button>
+                    )}
                   </div>
                 </div>
 
