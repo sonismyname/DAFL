@@ -72,15 +72,15 @@ pipeline {
                         # Dọn dẹp kết quả test cũ
                         rm -rf target/surefire-reports target/allure-results || true
 
-                        # Chạy container Maven + Chrome Headless kết nối trực tiếp vào mạng SUT
+                        # Chạy container Maven + Chrome Headless chia sẻ volume với dafl-jenkins
                         docker run --rm \
                             --name dafl-selenium-runner \
                             --network ${DOCKER_NETWORK} \
+                            --volumes-from dafl-jenkins \
+                            -w \$(pwd) \
                             --memory=1.2g \
                             --cpus=1.5 \
                             -e APP_URL="http://dafl-frontend:80" \
-                            -v \$(pwd):/app \
-                            -w /app \
                             markhobson/maven-chrome:jdk-17 \
                             mvn clean test -DsuiteXmlFile=testng.xml || true
                     """
@@ -124,21 +124,21 @@ pipeline {
                         # Chuẩn bị thư mục kết quả
                         rm -rf results && mkdir -p results
 
-                        # Chạy JMeter ở chế độ CLI Non-GUI, xuất log vào .jtl và sinh sẵn HTML Dashboard
+                        # Chạy JMeter CLI Non-GUI chia sẻ volume với dafl-jenkins
                         docker run --rm \
                             --name dafl-jmeter-runner \
                             --network ${DOCKER_NETWORK} \
+                            --volumes-from dafl-jenkins \
+                            -w \$(pwd) \
                             --memory=768m \
                             --cpus=1.0 \
-                            -e JVM_ARGS="-Xms256m -Xmx512m" \
-                            -e HEAP="-Xms256m -Xmx512m" \
-                            -v \$(pwd):/jmeter \
+                            -e JVM_XMS=256 -e JVM_XMX=512 -e JVM_XMN=128 \
                             justb4/jmeter:5.5 \
-                            -n -t /jmeter/dafl-loadtest.jmx \
+                            -n -t dafl-loadtest.jmx \
                             -Jtarget_host=dafl-backend \
                             -Jtarget_port=8080 \
-                            -l /jmeter/results/result.jtl \
-                            -e -o /jmeter/results/dashboard
+                            -l results/result.jtl \
+                            -e -o results/dashboard
                     """
                 }
             }
