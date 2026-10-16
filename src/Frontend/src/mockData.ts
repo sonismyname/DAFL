@@ -1684,7 +1684,7 @@ export const FALLBACK_VOUCHERS: Voucher[] = [
   {
     id: 'vouch-5',
     code: 'FORDEV',
-    description: 'Voucher Dev Test PayOS - Đơn hàng chỉ còn 2.000đ',
+    description: 'Voucher thử nghiệm PayOS - Đơn hàng chỉ còn 2.000đ',
     discountType: 'Fixed',
     discountValue: 0,
     minOrderAmount: 0,

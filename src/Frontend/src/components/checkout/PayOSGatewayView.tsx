@@ -123,7 +123,7 @@ export const PayOSGatewayView: React.FC<PayOSGatewayViewProps> = ({
               alt={`Mã QR thanh toán đơn hàng #${orderCode}`}
               style={{ width: '100%', maxWidth: 220, borderRadius: 8, margin: '0 auto', display: 'block', boxShadow: '0 2px 8px rgba(0,0,0,0.06)' }}
               onError={(e) => {
-                (e.target as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="95" font-size="14" text-anchor="middle" fill="%23e02e24" font-weight="bold">VIETQR DEMO</text><text x="100" y="115" font-size="12" text-anchor="middle" fill="%234b5563">Quét mã thanh toán</text></svg>';
+                (e.target as HTMLImageElement).src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200"><rect width="200" height="200" fill="%23f3f4f6"/><text x="100" y="95" font-size="14" text-anchor="middle" fill="%23e02e24" font-weight="bold">VIETQR</text><text x="100" y="115" font-size="12" text-anchor="middle" fill="%234b5563">Quét mã thanh toán</text></svg>';
               }}
             />
             <div style={{ fontSize: '0.75rem', color: 'var(--text-muted, #9ca3af)', marginTop: 8 }}>
@@ -184,7 +184,7 @@ export const PayOSGatewayView: React.FC<PayOSGatewayViewProps> = ({
                 onClick={onSimulateSuccess}
                 data-testid="simulate-payos-success-btn"
               >
-                <Zap size={16} /> Tôi đã chuyển khoản xong (Xác nhận hoàn tất)
+                <Zap size={16} /> Tôi đã chuyển khoản xong (Kiểm tra thanh toán)
               </button>
             )}
           </div>
@@ -193,14 +193,14 @@ export const PayOSGatewayView: React.FC<PayOSGatewayViewProps> = ({
         /* Embedded Iframe Tab */
         <div>
           <div style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#92400e', padding: '8px 12px', borderRadius: 8, fontSize: '0.8rem', marginBottom: 10, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span>Lưu ý: Nếu trình duyệt chặn nhúng iframe hoặc bạn đã chuyển tiền xong, bấm nút xác nhận bên dưới.</span>
+            <span>Lưu ý: Nếu trình duyệt chặn nhúng iframe hoặc bạn đã chuyển tiền xong, bấm nút kiểm tra bên dưới.</span>
             {onSimulateSuccess && (
               <button
                 type="button"
                 onClick={onSimulateSuccess}
                 style={{ background: '#e02e24', color: '#fff', border: 'none', padding: '4px 10px', borderRadius: 6, fontWeight: 700, cursor: 'pointer', fontSize: '0.75rem' }}
               >
-                ⚡ Xác nhận đã thanh toán
+                Kiểm tra trạng thái thanh toán
               </button>
             )}
           </div>

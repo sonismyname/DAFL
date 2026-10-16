@@ -33,35 +33,6 @@ export default function App() {
     return 'home';
   });
 
-  const navigateTo = (route: 'home' | 'orders' | 'profile') => {
-    setCurrentRoute(route);
-    if (route === 'home') {
-      window.location.hash = '';
-    } else {
-      window.location.hash = `#/${route}`;
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    if (route === 'orders') {
-      fetchOrderHistory();
-    }
-  };
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
-      if (hash === '#/orders' || hash === '#orders') {
-        setCurrentRoute('orders');
-        fetchOrderHistory();
-      } else if (hash === '#/profile' || hash === '#profile') {
-        setCurrentRoute('profile');
-      } else {
-        setCurrentRoute('home');
-      }
-    };
-    window.addEventListener('hashchange', handleHashChange);
-    return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
-
   // Navigation & Catalogs
   const [categories, setCategories] = useState<Category[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -96,10 +67,10 @@ export default function App() {
   const [voucherMessage, setVoucherMessage] = useState<string | null>(null);
 
   // Checkout State
-  const [customerName, setCustomerName] = useState('Nguyễn Văn Demo');
-  const [customerEmail, setCustomerEmail] = useState('demo@dafl.vn');
-  const [customerPhone, setCustomerPhone] = useState('0987654321');
-  const [shippingAddress, setShippingAddress] = useState('Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội');
+  const [customerName, setCustomerName] = useState('');
+  const [customerEmail, setCustomerEmail] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+  const [shippingAddress, setShippingAddress] = useState('');
   const [checkoutResult, setCheckoutResult] = useState<CheckoutResult | null>(null);
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [orderStatus, setOrderStatus] = useState<string>('Pending');
@@ -116,22 +87,23 @@ export default function App() {
   const [orderFilter, setOrderFilter] = useState<'all' | 'Pending' | 'Paid' | 'Shipping' | 'Completed' | 'Cancelled'>('all');
 
   // Profile & Address Configuration State
-  const [profileFullName, setProfileFullName] = useState('Nguyễn Văn Demo');
-  const [profilePhone, setProfilePhone] = useState('0987654321');
-  const [profileEmail, setProfileEmail] = useState('demo@dafl.vn');
-  const [profileAddress, setProfileAddress] = useState('Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội');
-  const [profileNotes, setProfileNotes] = useState('Giao hàng vào giờ hành chính, gọi điện trước khi tới.');
+  const [profileFullName, setProfileFullName] = useState('');
+  const [profilePhone, setProfilePhone] = useState('');
+  const [profileEmail, setProfileEmail] = useState('');
+  const [profileAddress, setProfileAddress] = useState('');
+  const [profileNotes, setProfileNotes] = useState('');
   const [savingProfile, setSavingProfile] = useState(false);
 
   // Auth State
   const [user, setUser] = useState<User | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authTab, setAuthTab] = useState<'login' | 'register'>('login');
-  const [loginEmail, setLoginEmail] = useState('demo@dafl.vn');
-  const [loginPassword, setLoginPassword] = useState('Password123!');
+  const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
+  const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
   const [registerPhone, setRegisterPhone] = useState('');
   const [registerAddress, setRegisterAddress] = useState('');
   const [authLoading, setAuthLoading] = useState(false);
@@ -184,10 +156,16 @@ export default function App() {
   // Sync profile form when user session updates
   useEffect(() => {
     if (user) {
-      setProfileFullName(user.fullName || customerName);
+      setProfileFullName(user.fullName);
       if (user.phoneNumber) setProfilePhone(user.phoneNumber);
       if (user.address) setProfileAddress(user.address);
       if (user.email) setProfileEmail(user.email);
+    } else {
+      setProfileFullName('');
+      setProfilePhone('');
+      setProfileAddress('');
+      setProfileEmail('');
+      setProfileNotes('');
     }
   }, [user]);
 
@@ -658,19 +636,8 @@ export default function App() {
         alert(json.message || 'Không thể tạo đơn hàng.');
       }
     } catch (err) {
-      console.warn('API checkout offline, simulating PayOS demo order:', err);
-      const mockOrderCode = Number(Date.now().toString().slice(-6));
-      setCheckoutResult({
-        orderId: 'demo-order-' + mockOrderCode,
-        orderCode: mockOrderCode,
-        subTotal: rawSubTotal,
-        discountAmount,
-        totalAmount: finalTotal,
-        checkoutUrl: 'https://pay.payos.vn/web/demo-payment',
-        expiresAt: new Date(Date.now() + 15 * 60 * 1000).toISOString()
-      });
-      setOrderStatus('Pending');
-      setTimeLeft(15 * 60);
+      console.error('API checkout error:', err);
+      alert('Không thể kết nối đến máy chủ thanh toán. Vui lòng kiểm tra kết nối mạng và thử lại sau.');
     } finally {
       setIsCheckingOut(false);
     }
@@ -679,35 +646,19 @@ export default function App() {
   const handleSimulatePaymentSuccess = async () => {
     if (!checkoutResult) return;
     try {
-      const webhookPayload = {
-        code: '00',
-        desc: 'success',
-        data: {
-          orderCode: checkoutResult.orderCode,
-          amount: checkoutResult.totalAmount,
-          description: `DH ${checkoutResult.orderCode}`,
-          accountNumber: '9999888877',
-          reference: 'SIMULATED_TX_' + Date.now(),
-          transactionDateTime: new Date().toISOString(),
-          currency: 'VND',
-          paymentLinkId: 'demo_link_id',
-          code: '00',
-          desc: 'success'
-        },
-        signature: 'simulated_valid_hmac_signature'
-      };
-
-      await fetch(`${API_BASE}/api/payments/payos-webhook`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(webhookPayload)
-      });
+      const res = await fetch(`${API_BASE}/api/payments/status/${checkoutResult.orderCode}`);
+      const json: ApiResponse<any> = await res.json();
+      if (json.success && json.data?.status === 'Paid') {
+        setOrderStatus('Paid');
+        setCart([]);
+        fetchOrderHistory();
+        showToast('Thanh toán thành công', `Đơn hàng #${checkoutResult.orderCode} đã xác nhận thanh toán qua PayOS!`, 'Payment');
+      } else {
+        showToast('Đang chờ thanh toán', `Đơn hàng #${checkoutResult.orderCode} đang chờ giao dịch chuyển khoản...`, 'Payment');
+      }
     } catch (err) {
-      console.warn('Webhook API offline, applying UI state directly:', err);
-    } finally {
-      setOrderStatus('Paid');
-      setCart([]);
-      showToast('Thanh toán thành công', `Đơn hàng #${checkoutResult.orderCode} đã xác nhận thanh toán qua PayOS!`, 'Payment');
+      console.warn('Status check offline:', err);
+      showToast('Thông báo', 'Chưa thể kết nối tới máy chủ thanh toán. Vui lòng thử lại sau.', 'Payment');
     }
   };
 
@@ -731,27 +682,15 @@ export default function App() {
         setUser(json.data);
         setCustomerName(json.data.fullName);
         setCustomerEmail(json.data.email);
+        if (json.data.phoneNumber) setCustomerPhone(json.data.phoneNumber);
+        if (json.data.address) setShippingAddress(json.data.address);
         setIsAuthModalOpen(false);
         showToast('Đăng nhập thành công', `Xin chào mừng trở lại, ${json.data.fullName}!`, 'System');
       } else {
         setAuthError(json.message || 'Email hoặc mật khẩu không chính xác.');
       }
     } catch {
-      // Offline fallback demo user
-      const demoUser: User = {
-        id: '11111111-1111-1111-1111-111111111111',
-        email: loginEmail,
-        fullName: loginEmail.includes('demo') ? 'Nguyễn Văn Demo' : 'Người Dùng DAFL',
-        phoneNumber: '0987654321',
-        address: 'Hà Nội, Việt Nam',
-        role: 'Customer',
-        sessionId: 'demo-session-' + Date.now()
-      };
-      setUser(demoUser);
-      setCustomerName(demoUser.fullName);
-      setCustomerEmail(demoUser.email);
-      setIsAuthModalOpen(false);
-      showToast('Đăng nhập demo', `Xin chào, ${demoUser.fullName}!`, 'System');
+      setAuthError('Không thể kết nối đến máy chủ. Vui lòng kiểm tra mạng và thử lại sau.');
     } finally {
       setAuthLoading(false);
     }
@@ -761,6 +700,12 @@ export default function App() {
     e.preventDefault();
     setAuthLoading(true);
     setAuthError(null);
+
+    if (registerPassword !== registerConfirmPassword) {
+      setAuthError('Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại.');
+      setAuthLoading(false);
+      return;
+    }
 
     try {
       const res = await fetch(`${API_BASE}/api/auth/register`, {
@@ -780,26 +725,17 @@ export default function App() {
         setUser(json.data);
         setCustomerName(json.data.fullName);
         setCustomerEmail(json.data.email);
+        if (json.data.phoneNumber) setCustomerPhone(json.data.phoneNumber);
+        if (json.data.address) setShippingAddress(json.data.address);
         setIsAuthModalOpen(false);
+        setRegisterPassword('');
+        setRegisterConfirmPassword('');
         showToast('Đăng ký thành công', `Chào mừng ${json.data.fullName} đến với DAFL Store!`, 'Promotion');
       } else {
         setAuthError(json.message || 'Không thể đăng ký tài khoản.');
       }
     } catch {
-      const newUser: User = {
-        id: 'user-' + Date.now(),
-        email: registerEmail,
-        fullName: registerName,
-        phoneNumber: registerPhone,
-        address: registerAddress,
-        role: 'Customer',
-        sessionId: 'session-' + Date.now()
-      };
-      setUser(newUser);
-      setCustomerName(newUser.fullName);
-      setCustomerEmail(newUser.email);
-      setIsAuthModalOpen(false);
-      showToast('Đăng ký thành công', `Chào mừng ${newUser.fullName} đến với DAFL!`, 'Promotion');
+      setAuthError('Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
     } finally {
       setAuthLoading(false);
     }
@@ -812,7 +748,20 @@ export default function App() {
       console.warn('Logout API offline:', err);
     } finally {
       setUser(null);
+      setProfileFullName('');
+      setProfileEmail('');
+      setProfilePhone('');
+      setProfileAddress('');
+      setProfileNotes('');
+      setCustomerName('');
+      setCustomerEmail('');
+      setCustomerPhone('');
+      setShippingAddress('');
+      setOrderHistory([]);
       setIsProfileOpen(false);
+      setCurrentRoute('home');
+      window.location.hash = '';
+      localStorage.removeItem('dafl_saved_address');
       showToast('Đã đăng xuất', 'Hẹn gặp lại bạn!', 'System');
     }
   };
@@ -825,17 +774,17 @@ export default function App() {
       const email = user?.email || customerEmail;
       if (!user?.id && email) params.append('email', email);
 
-      let res = await fetch(`${API_BASE}/api/orders/history?${params.toString()}`);
-      let json: ApiResponse<OrderHistory[]> = await res.json();
-      if (json.success && json.data && json.data.length > 0) {
+      if (!user?.id && !email) {
+        setOrderHistory([]);
+        return;
+      }
+
+      const res = await fetch(`${API_BASE}/api/orders/history?${params.toString()}`);
+      const json: ApiResponse<OrderHistory[]> = await res.json();
+      if (json.success && json.data) {
         setOrderHistory(json.data);
       } else {
-        // Fallback: fetch without filters to show store demo orders
-        res = await fetch(`${API_BASE}/api/orders/history`);
-        json = await res.json();
-        if (json.success && json.data) {
-          setOrderHistory(json.data);
-        }
+        setOrderHistory([]);
       }
     } catch {
       setOrderHistory([]);
@@ -843,6 +792,65 @@ export default function App() {
       setOrderHistoryLoading(false);
     }
   };
+
+  const navigateTo = (route: 'home' | 'orders' | 'profile') => {
+    if ((route === 'orders' || route === 'profile') && !user) {
+      setIsAuthModalOpen(true);
+      setAuthTab('login');
+      showToast('Yêu cầu đăng nhập', 'Vui lòng đăng nhập để truy cập trang này.', 'System');
+      return;
+    }
+    setCurrentRoute(route);
+    if (route === 'home') {
+      window.location.hash = '';
+    } else {
+      window.location.hash = `#/${route}`;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    if (route === 'orders') {
+      fetchOrderHistory();
+    }
+  };
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash;
+      if (hash === '#/orders' || hash === '#orders') {
+        if (!user) {
+          setCurrentRoute('home');
+          window.location.hash = '';
+          setIsAuthModalOpen(true);
+          setAuthTab('login');
+          showToast('Yêu cầu đăng nhập', 'Vui lòng đăng nhập để xem đơn hàng.', 'System');
+          return;
+        }
+        setCurrentRoute('orders');
+        fetchOrderHistory();
+      } else if (hash === '#/profile' || hash === '#profile') {
+        if (!user) {
+          setCurrentRoute('home');
+          window.location.hash = '';
+          setIsAuthModalOpen(true);
+          setAuthTab('login');
+          showToast('Yêu cầu đăng nhập', 'Vui lòng đăng nhập để xem thông tin tài khoản.', 'System');
+          return;
+        }
+        setCurrentRoute('profile');
+      } else {
+        setCurrentRoute('home');
+      }
+    };
+    handleHashChange();
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user && (currentRoute === 'orders' || currentRoute === 'profile')) {
+      setCurrentRoute('home');
+      window.location.hash = '';
+    }
+  }, [user, currentRoute]);
 
   const openOrderHistory = async () => {
     navigateTo('orders');
@@ -894,17 +902,6 @@ export default function App() {
     }
   };
 
-  const applyAddressPreset = (name: string, phone: string, address: string, note: string) => {
-    setProfileFullName(name);
-    setProfilePhone(phone);
-    setProfileAddress(address);
-    setProfileNotes(note);
-    setCustomerName(name);
-    setCustomerPhone(phone);
-    setShippingAddress(address);
-    showToast('Chọn địa chỉ', `Đã chọn: ${address.split(',')[0]}`, 'System');
-  };
-
   const handleReorder = (order: OrderHistory) => {
     const newItems: CartItem[] = [];
     order.items.forEach(it => {
@@ -927,43 +924,26 @@ export default function App() {
     showToast('Đã thêm vào giỏ', `Đã thêm ${newItems.length} món từ đơn #${order.orderCode} vào giỏ hàng!`, 'Promotion');
   };
 
-  const handleSimulatePaymentForOrder = async (orderCode: number, totalAmount: number) => {
+  const handleSimulatePaymentForOrder = async (orderCode: number, _totalAmount?: number) => {
     try {
-      const webhookPayload = {
-        code: '00',
-        desc: 'success',
-        data: {
-          orderCode,
-          amount: totalAmount,
-          description: `DH ${orderCode}`,
-          accountNumber: '9999888877',
-          reference: 'SIMULATED_TX_' + Date.now(),
-          transactionDateTime: new Date().toISOString(),
-          currency: 'VND',
-          paymentLinkId: 'demo_link_id',
-          code: '00',
-          desc: 'success'
-        },
-        signature: 'simulated_valid_hmac_signature'
-      };
-
-      await fetch(`${API_BASE}/api/payments/payos-webhook`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(webhookPayload)
-      });
+      const res = await fetch(`${API_BASE}/api/payments/status/${orderCode}`);
+      const json: ApiResponse<any> = await res.json();
+      if (json.success && json.data?.status === 'Paid') {
+        if (checkoutResult && checkoutResult.orderCode === orderCode) {
+          setOrderStatus('Paid');
+          setCart([]);
+        }
+        if (embeddedPaymentModal && embeddedPaymentModal.orderCode === orderCode) {
+          setEmbeddedPaymentModal(null);
+        }
+        fetchOrderHistory();
+        showToast('Thanh toán thành công', `Đơn hàng #${orderCode} đã được ngân hàng xác nhận!`, 'Payment');
+      } else {
+        showToast('Đang chờ thanh toán', `Đơn hàng #${orderCode} đang chờ giao dịch chuyển khoản...`, 'Payment');
+      }
     } catch (err) {
-      console.warn('Webhook test offline:', err);
-    } finally {
-      if (checkoutResult && checkoutResult.orderCode === orderCode) {
-        setOrderStatus('Paid');
-        setCart([]);
-      }
-      if (embeddedPaymentModal && embeddedPaymentModal.orderCode === orderCode) {
-        setEmbeddedPaymentModal(null);
-      }
-      fetchOrderHistory();
-      showToast('Thanh toán thành công', `Đơn hàng #${orderCode} đã xác nhận thanh toán qua PayOS!`, 'Payment');
+      console.warn('Payment check offline:', err);
+      showToast('Thông báo', 'Chưa thể kết nối tới máy chủ thanh toán.', 'Payment');
     }
   };
 
@@ -988,36 +968,7 @@ export default function App() {
     }
   };
 
-  const handleSendTestSignalR = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/notifications/test`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: 'Ưu đãi chớp nhoáng: Giảm giá 50%',
-          message: 'Flash Sale giảm giá 50% cho tất cả thiết bị Smart Home trong 1 giờ tới!',
-          type: 'Promotion'
-        })
-      });
-      const json = await res.json();
-      if (json.success && json.data) {
-        // Will also be received via SignalR listener
-      } else {
-        showToast('Ưu đãi chớp nhoáng', 'Flash Sale giảm 50% đang diễn ra!', 'Promotion');
-      }
-    } catch {
-      const fallbackNotif: NotificationItem = {
-        id: 'demo-' + Date.now(),
-        title: 'Khuyến mãi thành viên mới',
-        message: 'Bạn có voucher giảm 20.000đ khi thanh toán đơn hàng hôm nay!',
-        type: 'Promotion',
-        isRead: false,
-        createdAt: new Date().toISOString()
-      };
-      setNotifications(prev => [fallbackNotif, ...prev]);
-      showToast(fallbackNotif.title, fallbackNotif.message, fallbackNotif.type);
-    }
-  };
+
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
   const formatPrice = (val: number) => new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(val);
@@ -1407,35 +1358,24 @@ export default function App() {
 
                         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
                           {order.status === 'Pending' && (
-                            <>
-                              <button
-                                type="button"
-                                className="btn btn-primary"
-                                style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                                onClick={() => {
-                                  if (order.checkoutUrl) {
-                                    setEmbeddedPaymentModal({
-                                      orderCode: order.orderCode,
-                                      checkoutUrl: order.checkoutUrl,
-                                      totalAmount: order.totalAmount
-                                    });
-                                  } else {
-                                    showToast('Thông báo', `Đơn hàng #${order.orderCode} đang đợi thanh toán PayOS.`, 'Order');
-                                  }
-                                }}
-                              >
-                                <CreditCard size={15} /> Thanh toán ngay (PayOS trực tiếp)
-                              </button>
-                              <button
-                                type="button"
-                                className="btn btn-secondary"
-                                style={{ padding: '8px 12px', fontSize: '0.8rem' }}
-                                onClick={() => handleSimulatePaymentForOrder(order.orderCode, order.totalAmount)}
-                                title="Mô phỏng Webhook thanh toán thành công"
-                              >
-                                ⚡ Test PayOS
-                              </button>
-                            </>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                              onClick={() => {
+                                if (order.checkoutUrl) {
+                                  setEmbeddedPaymentModal({
+                                    orderCode: order.orderCode,
+                                    checkoutUrl: order.checkoutUrl,
+                                    totalAmount: order.totalAmount
+                                  });
+                                } else {
+                                  showToast('Thông báo', `Đơn hàng #${order.orderCode} đang đợi thanh toán PayOS.`, 'Order');
+                                }
+                              }}
+                            >
+                              <CreditCard size={15} /> Thanh toán ngay (PayOS trực tiếp)
+                            </button>
                           )}
 
                           {(order.status === 'Paid' || order.status === 'Completed') && (
@@ -1497,17 +1437,19 @@ export default function App() {
             {/* User Avatar & Session Info */}
             <div className="profile-avatar-banner">
               <div className="profile-avatar-circle">
-                {profileFullName.charAt(0) || 'D'}
+                {(profileFullName || user?.fullName || 'U').charAt(0).toUpperCase()}
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>{profileFullName}</h3>
+                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
+                    {profileFullName || user?.fullName || 'Thông tin người nhận'}
+                  </h3>
                   <span className="brand-badge" style={{ fontSize: '0.75rem' }}>
-                    {user?.role || 'Khách hàng VIP'}
+                    {user?.role || 'Khách hàng'}
                   </span>
                 </div>
                 <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '4px 0 0' }}>
-                  {profileEmail} • Tài khoản DAFL Store
+                  {profileEmail || user?.email || 'Chưa liên kết email'} • Sổ địa chỉ giao hàng
                 </p>
               </div>
 
@@ -1521,54 +1463,6 @@ export default function App() {
                   <LogOut size={14} /> Đăng xuất
                 </button>
               )}
-            </div>
-
-            {/* Quick Address Presets */}
-            <div style={{ marginBottom: 24, padding: 14, background: 'var(--bg-subtle)', borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
-              <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6, color: 'var(--primary)' }}>
-                <Sparkles size={15} /> Điền nhanh các địa chỉ mẫu thường dùng:
-              </div>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.775rem', padding: '6px 12px' }}
-                  onClick={() => applyAddressPreset(
-                    'Nguyễn Văn Demo',
-                    '0987654321',
-                    'Số 1 Đại Cồ Việt, P. Bách Khoa, Q. Hai Bà Trưng, Hà Nội',
-                    'Giao tại sảnh tòa nhà B1 ĐH Bách Khoa'
-                  )}
-                >
-                  📍 ĐH Bách Khoa Hà Nội
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.775rem', padding: '6px 12px' }}
-                  onClick={() => applyAddressPreset(
-                    'Trần Minh Khang',
-                    '0912345678',
-                    'Tòa nhà Keangnam Landmark 72, Đường Phạm Hùng, Q. Nam Từ Liêm, Hà Nội',
-                    'Giao giờ hành chính, gọi trước 15 phút'
-                  )}
-                >
-                  🏢 Keangnam Landmark 72
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.775rem', padding: '6px 12px' }}
-                  onClick={() => applyAddressPreset(
-                    'Lê Hoàng Long',
-                    '0908765432',
-                    'Tòa tháp Bitexco Financial Tower, Số 2 Hải Triều, P. Bến Nghé, Quận 1, TP. Hồ Chí Minh',
-                    'Giao hàng tại quầy lễ tân tầng trệt'
-                  )}
-                >
-                  🏙️ Bitexco Quận 1, TP.HCM
-                </button>
-              </div>
             </div>
 
             {/* Address Configuration Form */}
@@ -2039,6 +1933,8 @@ export default function App() {
         setRegisterEmail={setRegisterEmail}
         registerPassword={registerPassword}
         setRegisterPassword={setRegisterPassword}
+        registerConfirmPassword={registerConfirmPassword}
+        setRegisterConfirmPassword={setRegisterConfirmPassword}
         registerPhone={registerPhone}
         setRegisterPhone={setRegisterPhone}
         registerAddress={registerAddress}
@@ -2178,20 +2074,6 @@ export default function App() {
               </button>
             </div>
 
-            {/* Promo Alert Demo */}
-            <div style={{ marginBottom: 16, padding: 12, borderRadius: 10, background: 'rgba(224, 46, 36, 0.1)', border: '1px dashed rgba(224, 46, 36, 0.35)' }}>
-              <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginBottom: 8 }}>
-                Bấm nút dưới để nhận thử thông báo chương trình khuyến mãi và voucher giảm giá mới nhất:
-              </p>
-              <button
-                className="btn btn-secondary"
-                style={{ width: '100%', fontSize: '0.8rem', padding: '8px' }}
-                onClick={handleSendTestSignalR}
-              >
-                🔔 Nhận thông báo khuyến mãi mới
-              </button>
-            </div>
-
             <div style={{ maxHeight: 380, overflowY: 'auto' }}>
               {notifications.length === 0 ? (
                 <p style={{ textAlign: 'center', color: '#9ca3af', padding: '30px 0' }}>Không có thông báo nào.</p>
@@ -2289,11 +2171,11 @@ export default function App() {
                   <div style={{ display: 'flex', gap: 8 }}>
                     <button
                       type="button"
-                      className="btn btn-secondary"
+                      className="btn btn-primary"
                       style={{ fontSize: '0.775rem', padding: '6px 12px' }}
                       onClick={() => handleSimulatePaymentForOrder(embeddedPaymentModal.orderCode, embeddedPaymentModal.totalAmount)}
                     >
-                      ⚡ Test Xác nhận Thanh toán
+                      Kiểm tra trạng thái
                     </button>
                     <button
                       type="button"
