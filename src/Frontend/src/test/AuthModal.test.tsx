@@ -20,6 +20,8 @@ describe('Authentication Module - AuthModal Component', () => {
     setRegisterEmail: vi.fn(),
     registerPassword: '',
     setRegisterPassword: vi.fn(),
+    registerConfirmPassword: '',
+    setRegisterConfirmPassword: vi.fn(),
     registerPhone: '',
     setRegisterPhone: vi.fn(),
     registerAddress: '',
@@ -57,6 +59,7 @@ describe('Authentication Module - AuthModal Component', () => {
     expect(screen.getByTestId('register-name-input')).toBeInTheDocument();
     expect(screen.getByTestId('register-email-input')).toBeInTheDocument();
     expect(screen.getByTestId('register-password-input')).toBeInTheDocument();
+    expect(screen.getByTestId('register-confirm-password-input')).toBeInTheDocument();
     expect(screen.getByTestId('register-phone-input')).toBeInTheDocument();
     expect(screen.getByTestId('register-address-input')).toBeInTheDocument();
     expect(screen.getByTestId('register-submit-btn')).toHaveTextContent('Đăng ký ngay');

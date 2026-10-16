@@ -18,6 +18,8 @@ export interface AuthModalProps {
   setRegisterEmail: (val: string) => void;
   registerPassword: string;
   setRegisterPassword: (val: string) => void;
+  registerConfirmPassword?: string;
+  setRegisterConfirmPassword?: (val: string) => void;
   registerPhone: string;
   setRegisterPhone: (val: string) => void;
   registerAddress: string;
@@ -44,6 +46,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   setRegisterEmail,
   registerPassword,
   setRegisterPassword,
+  registerConfirmPassword = '',
+  setRegisterConfirmPassword,
   registerPhone,
   setRegisterPhone,
   registerAddress,
@@ -138,20 +142,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {authLoading ? 'Đang xử lý...' : 'Đăng nhập'}
             </button>
 
-            <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ width: '100%', fontSize: '0.8rem' }}
-                onClick={onFillDemoAccount || (() => {
-                  setLoginEmail('demo@dafl.vn');
-                  setLoginPassword('Password123!');
-                })}
-                data-testid="demo-account-btn"
-              >
-                ⚡ Dùng tài khoản Demo (demo@dafl.vn)
-              </button>
-            </div>
+            {onFillDemoAccount && (
+              <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid rgba(255,255,255,0.08)', textAlign: 'center' }}>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  style={{ width: '100%', fontSize: '0.8rem' }}
+                  onClick={onFillDemoAccount}
+                  data-testid="demo-account-btn"
+                >
+                  ⚡ Dùng tài khoản Demo (demo@dafl.vn)
+                </button>
+              </div>
+            )}
           </form>
         ) : (
           <form onSubmit={onRegister} data-testid="register-form">
@@ -190,6 +193,19 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 value={registerPassword}
                 onChange={e => setRegisterPassword(e.target.value)}
                 placeholder="Tối thiểu 6 ký tự"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label className="form-label" htmlFor="register-confirm-password">Nhập lại mật khẩu</label>
+              <input
+                id="register-confirm-password"
+                className="form-input"
+                type="password"
+                data-testid="register-confirm-password-input"
+                value={registerConfirmPassword}
+                onChange={e => setRegisterConfirmPassword && setRegisterConfirmPassword(e.target.value)}
+                placeholder="Nhập lại mật khẩu để xác nhận"
                 required
               />
             </div>

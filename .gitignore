@@ -30,6 +30,11 @@ TestResults/
 *.trx
 *.coverage
 *.coveragexml
+target/
+allure-results/
+allure-report/
+tests/**/results/
+tests/**/target/
 
 # --- Node.js & React Frontend ---
 node_modules/

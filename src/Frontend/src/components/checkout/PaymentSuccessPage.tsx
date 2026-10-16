@@ -7,30 +7,9 @@ export const PaymentSuccessPage: React.FC = () => {
 
   useEffect(() => {
     if (orderCode) {
-      // Trigger webhook to ensure backend database marks order as Paid
-      const payload = {
-        code: '00',
-        desc: 'success',
-        data: {
-          orderCode: Number(orderCode),
-          amount: 2000,
-          description: `DH ${orderCode}`,
-          accountNumber: '9999888877',
-          reference: 'TX_' + Date.now(),
-          transactionDateTime: new Date().toISOString(),
-          currency: 'VND',
-          paymentLinkId: 'link_' + orderCode,
-          code: '00',
-          desc: 'success'
-        },
-        signature: 'simulated_valid_hmac_signature'
-      };
-
-      fetch('/api/payments/payos-webhook', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      }).catch(console.warn);
+      // Query order status from backend to verify payment confirmation
+      fetch(`/api/payments/status/${orderCode}`)
+        .catch(console.warn);
     }
   }, [orderCode]);
 

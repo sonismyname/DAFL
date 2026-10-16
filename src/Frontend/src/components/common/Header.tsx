@@ -125,9 +125,9 @@ export const Header: React.FC<HeaderProps> = ({
             data-testid="account-toggle-btn"
           >
             <div className="account-avatar-mini">
-              {(user?.fullName || profileFullName || 'D').charAt(0).toUpperCase()}
+              {(user?.fullName || 'T').charAt(0).toUpperCase()}
             </div>
-            <span className="account-toggle-name">{user ? user.fullName : profileFullName || 'Tài khoản'}</span>
+            <span className="account-toggle-name">{user ? user.fullName : 'Tài khoản'}</span>
             <ChevronDown size={14} className={`dropdown-chevron ${isAccountDropdownOpen ? 'open' : ''}`} />
           </button>
 
@@ -135,7 +135,7 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="account-dropdown-menu" data-testid="account-dropdown-menu">
               <div className="dropdown-header">
                 <div className="dropdown-user-name">
-                  {user ? user.fullName : profileFullName || 'Khách vãng lai'}
+                  {user ? user.fullName : 'Khách hàng'}
                 </div>
                 <div className="dropdown-user-role">
                   {user ? (user.role === 'Admin' ? 'Quản trị viên' : 'Thành viên DAFL') : 'Chưa đăng nhập'}
@@ -149,8 +149,12 @@ export const Header: React.FC<HeaderProps> = ({
                   type="button"
                   className="dropdown-nav-item"
                   onClick={() => {
-                    onNavigate('orders');
                     setIsAccountDropdownOpen(false);
+                    if (!user) {
+                      onOpenAuth();
+                    } else {
+                      onNavigate('orders');
+                    }
                   }}
                   data-testid="dropdown-orders-btn"
                 >
@@ -162,8 +166,12 @@ export const Header: React.FC<HeaderProps> = ({
                   type="button"
                   className="dropdown-nav-item"
                   onClick={() => {
-                    onNavigate('profile');
                     setIsAccountDropdownOpen(false);
+                    if (!user) {
+                      onOpenAuth();
+                    } else {
+                      onNavigate('profile');
+                    }
                   }}
                   data-testid="dropdown-profile-btn"
                 >
