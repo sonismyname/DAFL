@@ -33,8 +33,8 @@ public class HomePageTest extends BaseTest {
     public void testSearchInputAndThemeToggle() {
         driver.get(baseUrl);
 
-        WebElement searchInput = wait.until(
-                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='search-input123']")));
+        WebElement searchInput = wait
+                .until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='search-input']")));
         Assert.assertTrue(searchInput.isDisplayed(), "Thanh tìm kiếm không hiển thị");
 
         searchInput.sendKeys("Áo");
