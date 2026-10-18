@@ -95,6 +95,33 @@ pipeline {
                     """
                 }
             }
+            post {
+                always {
+                    // 1. Luôn thu thập báo cáo Surefire để Jenkins hiển thị biểu đồ Test Result (Pass/Fail)
+                    junit testResults: "${env.WORKTREE_DIR}/tests/functional-selenium/target/surefire-reports/*.xml", allowEmptyResults: true
+
+                    // 2. Lưu trữ file XML kết quả làm Artifact
+                    archiveArtifacts artifacts: "${env.WORKTREE_DIR}/tests/functional-selenium/target/surefire-reports/*.xml", allowEmptyArchive: true
+
+                    // 3. Render Allure Test Report nếu Jenkins đã cài đặt Allure Plugin
+                    script {
+                        def allureDir = "${env.WORKTREE_DIR}/tests/functional-selenium/target/allure-results"
+                        if (fileExists(allureDir)) {
+                            try {
+                                allure([
+                                    includeProperties: false,
+                                    jdk: '',
+                                    properties: [],
+                                    reportBuildPolicy: 'ALWAYS',
+                                    results: [[path: allureDir]]
+                                ])
+                            } catch (Throwable err) {
+                                echo "Allure Report warning: Chưa cấu hình Allure Commandline trong Jenkins Tools. Chi tiết: ${err}"
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         stage('Stage 3: Functional Quality Gate') {
@@ -107,16 +134,16 @@ pipeline {
                             error("❌ [Functional Quality Gate FAILED] Không tìm thấy thư mục báo cáo test Surefire!")
                         }
 
-                        // Kiểm tra lỗi trong các file XML báo cáo của Surefire
+                        // Đếm số lượng test cases thất bại hoặc lỗi
                         def hasFailures = sh(
                             script: "grep -rnE 'failures=\"[1-9][0-9]*\"|errors=\"[1-9][0-9]*\"' ${reportDir}/*.xml 2>/dev/null || true",
                             returnStdout: true
                         ).trim()
 
                         if (hasFailures) {
-                            echo "Chi tiết lỗi kiểm thử:"
+                            echo "=== Chi tiết lỗi kiểm thử Functional ==="
                             echo hasFailures
-                            error("❌ [Functional Quality Gate FAILED] Phát hiện Test Case thất bại! Dừng Pipeline ngay lập tức.")
+                            error("❌ [Functional Quality Gate FAILED] Phát hiện Test Case thất bại! Dừng Pipeline ngay lập tức (Báo cáo đã được lưu lại).")
                         } else {
                             echo "✅ [Functional Quality Gate PASSED] Toàn bộ test case Selenium Headless đều vượt qua thành công!"
                         }
@@ -147,8 +174,25 @@ pipeline {
                             -Jtarget_host=dafl-backend \
                             -Jtarget_port=8080 \
                             -l results/result.jtl \
-                            -e -o results/dashboard
+                            -e -o results/dashboard || true
                     """
+                }
+            }
+            post {
+                always {
+                    // Xuất JMeter HTML Dashboard
+                    publishHTML([
+                        allowMissing: true,
+                        alwaysLinkToLastBuild: true,
+                        keepAll: true,
+                        reportDir: "${env.WORKTREE_DIR}/tests/performance-jmeter/results/dashboard",
+                        reportFiles: 'index.html',
+                        reportName: 'JMeter Performance Dashboard',
+                        reportTitles: 'JMeter Dashboard Report'
+                    ])
+
+                    // Lưu trữ file .jtl làm Artifacts
+                    archiveArtifacts artifacts: "${env.WORKTREE_DIR}/tests/performance-jmeter/results/*.jtl", allowEmptyArchive: true
                 }
             }
         }
@@ -162,44 +206,6 @@ pipeline {
                         ./check_performance_gate.sh results/result.jtl ${MAX_ERROR_RATE} ${MAX_AVG_RT_MS}
                     """
                 }
-            }
-        }
-
-        stage('Stage 6: Publish Artifacts') {
-            steps {
-                echo "=== Stage 6: Đẩy Allure Report và JMeter HTML Dashboard lên giao diện Jenkins ==="
-
-                // 1. Publish JMeter HTML Report Dashboard
-                publishHTML([
-                    allowMissing: true,
-                    alwaysLinkToLastBuild: true,
-                    keepAll: true,
-                    reportDir: "${env.WORKTREE_DIR}/tests/performance-jmeter/results/dashboard",
-                    reportFiles: 'index.html',
-                    reportName: 'JMeter Performance Dashboard',
-                    reportTitles: 'JMeter Dashboard Report'
-                ])
-
-                // 2. Publish Allure Test Report (Nếu có Allure Plugin và Allure Commandline)
-                script {
-                    def allureDir = "${env.WORKTREE_DIR}/tests/functional-selenium/target/allure-results"
-                    if (fileExists(allureDir)) {
-                        try {
-                            allure([
-                                includeProperties: false,
-                                jdk: '',
-                                properties: [],
-                                reportBuildPolicy: 'ALWAYS',
-                                results: [[path: allureDir]]
-                            ])
-                        } catch (Throwable err) {
-                            echo "Allure Report warning: Chưa cấu hình Allure Commandline trong Jenkins Tools. Chi tiết: ${err}"
-                        }
-                    }
-                }
-
-                // 3. Lưu trữ file .jtl và Surefire XML làm Artifact
-                archiveArtifacts artifacts: "${env.WORKTREE_DIR}/tests/performance-jmeter/results/*.jtl, ${env.WORKTREE_DIR}/tests/functional-selenium/target/surefire-reports/*.xml", allowEmptyArchive: true
             }
         }
 
@@ -249,6 +255,7 @@ pipeline {
         }
         failure {
             echo "❌ Pipeline thất bại do không vượt qua Quality Gate hoặc lỗi Build/Deploy!"
+            echo "👉 Vui lòng kiểm tra mục 'Test Result' hoặc 'Allure Report' trên Jenkins để xem chi tiết test case fail."
         }
     }
 }
