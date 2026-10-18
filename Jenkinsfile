@@ -180,7 +180,7 @@ pipeline {
                     reportTitles: 'JMeter Dashboard Report'
                 ])
 
-                // 2. Publish Allure Test Report (Nếu có Allure Plugin và allure CLI)
+                // 2. Publish Allure Test Report (Nếu có Allure Plugin và Allure Commandline)
                 script {
                     def allureDir = "${env.WORKTREE_DIR}/tests/functional-selenium/target/allure-results"
                     if (fileExists(allureDir)) {
@@ -192,8 +192,8 @@ pipeline {
                                 reportBuildPolicy: 'ALWAYS',
                                 results: [[path: allureDir]]
                             ])
-                        } catch (Exception e) {
-                            echo "Allure Report Plugin warning: ${e.message}"
+                        } catch (Throwable err) {
+                            echo "Allure Report warning: Chưa cấu hình Allure Commandline trong Jenkins Tools. Chi tiết: ${err}"
                         }
                     }
                 }
