@@ -21,7 +21,8 @@ public class HomePageTest extends BaseTest {
     public void testHomePageLoadsSuccessfully() {
         driver.get(baseUrl);
 
-        WebElement brandLogo = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='brand-logo']")));
+        WebElement brandLogo = wait
+                .until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='brand-logo']")));
         Assert.assertNotNull(brandLogo, "Logo thương hiệu không tìm thấy");
         Assert.assertTrue(brandLogo.getText().contains("DAFL"), "Tên thương hiệu không chứa DAFL");
     }
@@ -32,7 +33,8 @@ public class HomePageTest extends BaseTest {
     public void testSearchInputAndThemeToggle() {
         driver.get(baseUrl);
 
-        WebElement searchInput = wait.until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='search-input']")));
+        WebElement searchInput = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='search-input123']")));
         Assert.assertTrue(searchInput.isDisplayed(), "Thanh tìm kiếm không hiển thị");
 
         searchInput.sendKeys("Áo");
