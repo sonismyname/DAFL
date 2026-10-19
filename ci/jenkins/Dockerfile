@@ -18,5 +18,8 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
+# Copy script khởi tạo tài khoản admin và cấu hình bảo mật
+COPY init.groovy.d/ /usr/share/jenkins/ref/init.groovy.d/
+
 # Chạy dưới quyền root để truy cập /var/run/docker.sock từ Docker Desktop
 USER 0:0
