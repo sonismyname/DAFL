@@ -2207,7 +2207,7 @@ export default function App() {
       {/* ============================================================== */}
       {isNotifOpen && (
         <div className="modal-overlay" onClick={() => setIsNotifOpen(false)} data-testid="notifications-modal">
-          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ width: '100%', maxWidth: 600 }}>
             <div className="modal-header">
               <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Bell size={20} color="var(--primary)" />
@@ -2237,7 +2237,7 @@ export default function App() {
               </button>
             </div>
 
-            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
+            <div style={{ maxHeight: 440, overflowY: 'auto' }}>
               {notifications.length === 0 ? (
                 <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '30px 0' }}>
                   <Bell size={40} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
@@ -2252,8 +2252,8 @@ export default function App() {
                     style={{ cursor: 'pointer' }}
                   >
                     {!n.isRead && <div className="unread-dot" />}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                      <span className="tag" style={{ padding: '2px 8px', fontSize: '0.7rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 6 }}>
+                      <span className={`notif-badge ${(n.type || 'system').toLowerCase()}`}>
                         {n.type === 'Payment' ? '💳 Thanh toán' : n.type === 'Order' ? '📦 Đơn hàng' : n.type === 'Promotion' ? '🎁 Khuyến mãi' : '⚙️ Hệ thống'}
                       </span>
                       <strong style={{ fontSize: '0.95rem', color: 'var(--text-main)' }}>{n.title}</strong>

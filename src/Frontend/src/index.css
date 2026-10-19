@@ -1321,6 +1321,67 @@ body {
   right: 14px;
 }
 
+.notif-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-size: 0.725rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+.notif-badge.payment {
+  background: rgba(37, 99, 235, 0.12);
+  color: #1d4ed8;
+  border: 1px solid rgba(37, 99, 235, 0.28);
+}
+
+[data-theme='dark'] .notif-badge.payment {
+  background: rgba(59, 130, 246, 0.22);
+  color: #93c5fd;
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.notif-badge.order {
+  background: rgba(217, 119, 6, 0.12);
+  color: #b45309;
+  border: 1px solid rgba(217, 119, 6, 0.28);
+}
+
+[data-theme='dark'] .notif-badge.order {
+  background: rgba(245, 158, 11, 0.22);
+  color: #fcd34d;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+
+.notif-badge.promotion {
+  background: rgba(224, 46, 36, 0.12);
+  color: #e02e24;
+  border: 1px solid rgba(224, 46, 36, 0.28);
+}
+
+[data-theme='dark'] .notif-badge.promotion {
+  background: rgba(239, 68, 68, 0.22);
+  color: #fca5a5;
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.notif-badge.system {
+  background: rgba(107, 114, 128, 0.12);
+  color: #374151;
+  border: 1px solid rgba(107, 114, 128, 0.28);
+}
+
+[data-theme='dark'] .notif-badge.system {
+  background: rgba(156, 163, 175, 0.22);
+  color: #d1d5db;
+  border-color: rgba(156, 163, 175, 0.4);
+}
+
 /* Live Toast Notifications */
 .toast-container {
   position: fixed;
