@@ -1,5 +1,5 @@
-import React from 'react';
-import { X, ArrowLeft } from 'lucide-react';
+import React, { useState } from 'react';
+import { X, ArrowLeft, Eye, EyeOff } from 'lucide-react';
 
 export interface AuthModalProps {
   isOpen?: boolean;
@@ -58,6 +58,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onFillDemoAccount,
   isModal = false,
 }) => {
+  const [showLoginPassword, setShowLoginPassword] = useState(false);
+  const [showRegisterPassword, setShowRegisterPassword] = useState(false);
+  const [showRegisterConfirmPassword, setShowRegisterConfirmPassword] = useState(false);
+
   if (isOpen === false) return null;
 
   const content = (
@@ -138,15 +142,41 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="login-password">Mật khẩu</label>
-              <input
-                id="login-password"
-                className="form-input"
-                type="password"
-                data-testid="login-password-input"
-                value={loginPassword}
-                onChange={e => setLoginPassword(e.target.value)}
-                required
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="login-password"
+                  className="form-input"
+                  type={showLoginPassword ? 'text' : 'password'}
+                  data-testid="login-password-input"
+                  value={loginPassword}
+                  onChange={e => setLoginPassword(e.target.value)}
+                  style={{ paddingRight: 40 }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowLoginPassword(!showLoginPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={showLoginPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  aria-label={showLoginPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  data-testid="toggle-login-password-btn"
+                >
+                  {showLoginPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
 
             <button
@@ -202,16 +232,42 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="register-password">Mật khẩu</label>
-              <input
-                id="register-password"
-                className="form-input"
-                type="password"
-                data-testid="register-password-input"
-                value={registerPassword}
-                onChange={e => setRegisterPassword(e.target.value)}
-                placeholder="Tối thiểu 8 ký tự, gồm chữ hoa & ký tự đặc biệt"
-                required
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="register-password"
+                  className="form-input"
+                  type={showRegisterPassword ? 'text' : 'password'}
+                  data-testid="register-password-input"
+                  value={registerPassword}
+                  onChange={e => setRegisterPassword(e.target.value)}
+                  placeholder="Tối thiểu 8 ký tự, gồm chữ hoa & ký tự đặc biệt"
+                  style={{ paddingRight: 40 }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterPassword(!showRegisterPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={showRegisterPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  aria-label={showRegisterPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  data-testid="toggle-register-password-btn"
+                >
+                  {showRegisterPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginTop: 6, fontSize: '0.75rem' }}>
                 <span style={{ color: registerPassword.length >= 8 ? '#10b981' : 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: registerPassword.length >= 8 ? 600 : 400 }}>
                   {registerPassword.length >= 8 ? '✓' : '•'} Tối thiểu 8 ký tự
@@ -226,16 +282,42 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="register-confirm-password">Nhập lại mật khẩu</label>
-              <input
-                id="register-confirm-password"
-                className="form-input"
-                type="password"
-                data-testid="register-confirm-password-input"
-                value={registerConfirmPassword}
-                onChange={e => setRegisterConfirmPassword && setRegisterConfirmPassword(e.target.value)}
-                placeholder="Nhập lại mật khẩu để xác nhận"
-                required
-              />
+              <div style={{ position: 'relative' }}>
+                <input
+                  id="register-confirm-password"
+                  className="form-input"
+                  type={showRegisterConfirmPassword ? 'text' : 'password'}
+                  data-testid="register-confirm-password-input"
+                  value={registerConfirmPassword}
+                  onChange={e => setRegisterConfirmPassword && setRegisterConfirmPassword(e.target.value)}
+                  placeholder="Nhập lại mật khẩu để xác nhận"
+                  style={{ paddingRight: 40 }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowRegisterConfirmPassword(!showRegisterConfirmPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                    padding: 4,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  title={showRegisterConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  aria-label={showRegisterConfirmPassword ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
+                  data-testid="toggle-register-confirm-password-btn"
+                >
+                  {showRegisterConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                </button>
+              </div>
             </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               <div className="form-group">
