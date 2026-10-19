@@ -2224,9 +2224,6 @@ export default function App() {
             </div>
 
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                Tự động cập nhật: <strong style={{ color: '#10b981' }}>SignalR Đang bật</strong>
-              </span>
               <button
                 type="button"
                 style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer', fontSize: '0.8rem' }}
