@@ -252,7 +252,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 145000,
     "originalPrice": 180000,
     "availableStock": 120,
-    "imageUrl": "https://images.unsplash.com/photo-1536591375315-1b8e780415d9?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600",
     "rating": 4.9,
     "reviewCount": 65
   },
@@ -308,7 +308,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 289000,
     "originalPrice": 350000,
     "availableStock": 80,
-    "imageUrl": "https://images.unsplash.com/photo-1581655353564-df123a1eb820?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=600",
     "rating": 4.6,
     "reviewCount": 22
   },
@@ -322,7 +322,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 380000,
     "originalPrice": 480000,
     "availableStock": 65,
-    "imageUrl": "https://images.unsplash.com/photo-1542272604-780c96856592?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1541099649105-f69ad21f3246?w=600",
     "rating": 4.8,
     "reviewCount": 45
   },
@@ -392,7 +392,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 280000,
     "originalPrice": 380000,
     "availableStock": 60,
-    "imageUrl": "https://images.unsplash.com/photo-1611591475878-8316eb14ffb3?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1599643478518-a784e5dc4c8f?w=600",
     "rating": 4.7,
     "reviewCount": 26
   },
@@ -490,7 +490,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 115000,
     "originalPrice": 150000,
     "availableStock": 80,
-    "imageUrl": "https://images.unsplash.com/photo-1544943910-4c1dc44a04d2?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?w=600",
     "rating": 4.6,
     "reviewCount": 17
   },
@@ -546,7 +546,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 480000,
     "originalPrice": 650000,
     "availableStock": 55,
-    "imageUrl": "https://images.unsplash.com/photo-1609592424368-80db61b8f0c2?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600",
     "rating": 4.8,
     "reviewCount": 36
   },
@@ -686,7 +686,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 180000,
     "originalPrice": 240000,
     "availableStock": 85,
-    "imageUrl": "https://images.unsplash.com/photo-1556228722-d0b5de75d776?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1556228720-195a672e8a03?w=600",
     "rating": 4.7,
     "reviewCount": 39
   },
@@ -798,7 +798,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 55000,
     "originalPrice": 75000,
     "availableStock": 160,
-    "imageUrl": "https://images.unsplash.com/photo-1585336261026-7756f7ef5cf5?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600",
     "rating": 4.7,
     "reviewCount": 51
   },
@@ -1022,7 +1022,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 380000,
     "originalPrice": 520000,
     "availableStock": 50,
-    "imageUrl": "https://images.unsplash.com/photo-1594657434651-6a4e405e3f43?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=600",
     "rating": 4.8,
     "reviewCount": 29
   },
@@ -1162,7 +1162,7 @@ export const FALLBACK_PRODUCTS: Product[] = [
     "price": 65000,
     "originalPrice": 90000,
     "availableStock": 130,
-    "imageUrl": "https://images.unsplash.com/photo-1550572017-ed240562e5b8?w=600",
+    "imageUrl": "https://images.unsplash.com/photo-1550572017-4fcdbb59cc32?w=600",
     "rating": 4.8,
     "reviewCount": 74
   },
