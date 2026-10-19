@@ -8,7 +8,7 @@ import { User } from '../../types';
 export interface HeaderProps {
   searchQuery: string;
   setSearchQuery: (val: string) => void;
-  onNavigate: (route: 'home' | 'orders' | 'profile') => void;
+  onNavigate: (route: 'home' | 'cart' | 'login' | 'register' | 'orders' | 'profile' | 'notifications') => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
   unreadCount: number;
@@ -45,7 +45,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <header className="header" data-testid="header">
       <a
-        href="#"
+        href="/"
         onClick={(e) => { e.preventDefault(); onNavigate('home'); }}
         className="brand"
         data-testid="brand-logo"
@@ -58,7 +58,6 @@ export const Header: React.FC<HeaderProps> = ({
           <ShoppingBag size={22} />
         </div>
         <span>DAFL Store</span>
-        <span className="brand-badge">Deal Giá Sốc</span>
       </a>
 
       {/* Search Bar with Clear button */}

@@ -25,7 +25,7 @@ export const PaymentSuccessPage: React.FC = () => {
         </p>
         <div style={{ display: 'flex', gap: 10, justifyContent: 'center' }}>
           <a
-            href="/#/orders"
+            href="/orders"
             style={{
               display: 'inline-flex',
               alignItems: 'center',

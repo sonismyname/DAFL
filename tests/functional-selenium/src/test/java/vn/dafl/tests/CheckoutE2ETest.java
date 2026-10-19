@@ -79,10 +79,39 @@ public class CheckoutE2ETest extends BaseTest {
         addressInput.sendKeys("123 Đường Test E2E, Phường Bến Nghé, Quận 1, TP.HCM");
         sleep(1000);
 
-        // Bấm nút Đặt hàng / Thanh toán PayOS
+        // ==========================================
+        // Bước 4.1: Nhấn Thanh toán khi chưa đăng nhập -> Phải điều hướng về màn hình Đăng nhập (Auth Guard)
+        // ==========================================
         WebElement submitBtn = driver.findElement(By.cssSelector("[data-testid='checkout-submit-btn']"));
         Assert.assertTrue(submitBtn.isEnabled(), "Nút thanh toán bị vô hiệu hóa");
         submitBtn.click();
+
+        // Xác nhận điều hướng về màn hình Đăng nhập
+        WebElement authModal = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='auth-modal']")));
+        Assert.assertTrue(authModal.isDisplayed(), "Không điều hướng về màn hình Đăng nhập khi thanh toán không có Auth");
+        sleep(1000);
+
+        // Đăng nhập bằng tài khoản Demo để hoàn tất xác thực (Auth)
+        WebElement demoBtn = wait.until(
+                ExpectedConditions.elementToBeClickable(By.cssSelector("[data-testid='demo-account-btn']")));
+        demoBtn.click();
+        sleep(500);
+
+        WebElement loginSubmitBtn = driver.findElement(By.cssSelector("[data-testid='login-submit-btn']"));
+        loginSubmitBtn.click();
+
+        // ==========================================
+        // Bước 4.2: Sau khi đăng nhập thành công, quay trở lại Giỏ hàng và tiến hành Thanh toán
+        // ==========================================
+        WebElement cartDrawerAfterAuth = wait.until(
+                ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='cart-drawer']")));
+        Assert.assertTrue(cartDrawerAfterAuth.isDisplayed(), "Không quay lại giỏ hàng sau khi đăng nhập thành công");
+        sleep(1000);
+
+        WebElement submitBtnAuth = wait.until(
+                ExpectedConditions.elementToBeClickable(By.cssSelector("[data-testid='checkout-submit-btn']")));
+        submitBtnAuth.click();
 
         // ==========================================
         // Bước 5: Cổng thanh toán PayOS hiển thị

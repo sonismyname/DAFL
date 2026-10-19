@@ -1,8 +1,8 @@
 import React from 'react';
-import { X } from 'lucide-react';
+import { X, ArrowLeft } from 'lucide-react';
 
 export interface AuthModalProps {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose: () => void;
   authTab: 'login' | 'register';
   setAuthTab: (tab: 'login' | 'register') => void;
@@ -27,10 +27,11 @@ export interface AuthModalProps {
   onLogin: (e: React.FormEvent) => void;
   onRegister: (e: React.FormEvent) => void;
   onFillDemoAccount?: () => void;
+  isModal?: boolean;
 }
 
 export const AuthModal: React.FC<AuthModalProps> = ({
-  isOpen,
+  isOpen = true,
   onClose,
   authTab,
   setAuthTab,
@@ -55,23 +56,39 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onLogin,
   onRegister,
   onFillDemoAccount,
+  isModal = false,
 }) => {
-  if (!isOpen) return null;
+  if (isOpen === false) return null;
 
-  return (
-    <div className="modal-overlay" onClick={onClose} data-testid="auth-modal-overlay">
-      <div className="modal-content" onClick={e => e.stopPropagation()} data-testid="auth-modal">
-        <div className="modal-header">
-          <h2 className="modal-title" data-testid="auth-modal-title">
+  const content = (
+    <div className={`auth-card ${isModal ? 'modal-content' : 'auth-page-card'}`} onClick={e => e.stopPropagation()} data-testid="auth-modal">
+      <div className={isModal ? 'modal-header' : 'auth-card-header'} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          {!isModal && (
+            <button
+              type="button"
+              className="btn btn-secondary"
+              style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 6 }}
+              onClick={onClose}
+              data-testid="auth-close-btn"
+              title="Quay lại trang chủ"
+            >
+              <ArrowLeft size={16} /> Trang chủ
+            </button>
+          )}
+          <h2 className="modal-title" style={{ margin: 0 }} data-testid="auth-modal-title">
             {authTab === 'login' ? 'Đăng nhập tài khoản' : 'Đăng ký thành viên mới'}
           </h2>
+        </div>
+        {isModal && (
           <button className="close-btn" onClick={onClose} data-testid="auth-close-btn" title="Đóng">
             <X size={20} />
           </button>
-        </div>
+        )}
+      </div>
 
-        {/* Tabs */}
-        <div className="modal-tabs">
+      {/* Tabs */}
+      <div className="modal-tabs">
           <button
             className={`tab-btn ${authTab === 'login' ? 'active' : ''}`}
             onClick={() => setAuthTab('login')}
@@ -246,6 +263,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </form>
         )}
       </div>
+    );
+
+  if (isModal) {
+    return (
+      <div className="modal-overlay" onClick={onClose} data-testid="auth-modal-overlay">
+        {content}
+      </div>
+    );
+  }
+
+  return (
+    <div className="auth-page-wrapper" data-testid="auth-page">
+      {content}
     </div>
   );
 };
+

@@ -1,4 +1,6 @@
 import React from 'react';
+import { Lock } from 'lucide-react';
+import { User } from '../../types';
 import { formatPrice } from '../../utils/formatters';
 
 export interface CheckoutFormProps {
@@ -13,6 +15,9 @@ export interface CheckoutFormProps {
   finalTotal: number;
   isCheckingOut: boolean;
   onSubmit: (e: React.FormEvent) => void;
+  user?: User | null;
+  isAuthRequired?: boolean;
+  onRequireAuth?: () => void;
 }
 
 export const CheckoutForm: React.FC<CheckoutFormProps> = ({
@@ -27,9 +32,23 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   finalTotal,
   isCheckingOut,
   onSubmit,
+  user,
+  isAuthRequired = false,
+  onRequireAuth,
 }) => {
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isAuthRequired && !user) {
+      if (onRequireAuth) {
+        onRequireAuth();
+      }
+      return;
+    }
+    onSubmit(e);
+  };
+
   return (
-    <form onSubmit={onSubmit} data-testid="checkout-form">
+    <form onSubmit={handleFormSubmit} data-testid="checkout-form">
       <div className="form-group">
         <label className="form-label" htmlFor="checkout-name">Họ tên người nhận</label>
         <input
@@ -78,6 +97,30 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
         </div>
       </div>
 
+      {isAuthRequired && !user && (
+        <div
+          data-testid="checkout-auth-required-notice"
+          style={{
+            background: 'rgba(224, 46, 36, 0.08)',
+            border: '1px solid rgba(224, 46, 36, 0.25)',
+            borderRadius: 8,
+            padding: '12px 14px',
+            marginTop: 14,
+            marginBottom: 6,
+            fontSize: '0.85rem',
+            color: 'var(--text-main)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 10
+          }}
+        >
+          <Lock size={18} color="#e02e24" style={{ flexShrink: 0 }} />
+          <div>
+            <strong>Yêu cầu xác thực:</strong> Bạn cần đăng nhập để được phép nhấn thanh toán đơn hàng này.
+          </div>
+        </div>
+      )}
+
       <button
         type="submit"
         className="btn btn-primary"
@@ -85,7 +128,11 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
         disabled={isCheckingOut}
         data-testid="checkout-submit-btn"
       >
-        {isCheckingOut ? 'Đang tạo cổng thanh toán PayOS...' : `Thanh toán trực tiếp PayOS (${formatPrice(finalTotal)})`}
+        {isCheckingOut
+          ? 'Đang tạo cổng thanh toán PayOS...'
+          : isAuthRequired && !user
+          ? `Đăng nhập để thanh toán (${formatPrice(finalTotal)})`
+          : `Thanh toán trực tiếp PayOS (${formatPrice(finalTotal)})`}
       </button>
     </form>
   );

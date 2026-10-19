@@ -1902,3 +1902,115 @@ body {
   }
 }
 
+/* ============================================================== */
+/* Route-based Pages Layouts (No Modals) */
+/* ============================================================== */
+
+/* Cart & Checkout Page */
+.cart-page-wrapper {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  animation: fadeIn 0.25s ease;
+}
+
+.cart-page-content {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+}
+
+.cart-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.cart-two-columns-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+@media (max-width: 900px) {
+  .cart-two-columns-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Auth Page (Login / Register) */
+.auth-page-wrapper {
+  max-width: 540px;
+  margin: 40px auto 80px;
+  padding: 0 16px;
+  animation: fadeIn 0.25s ease;
+}
+
+.auth-page-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.08);
+}
+
+.auth-card-header {
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+/* Product Detail Page */
+.product-detail-page {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  animation: fadeIn 0.25s ease;
+}
+
+.product-detail-page-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 32px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.05);
+}
+
+/* Notifications Page */
+.notifications-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  animation: fadeIn 0.25s ease;
+}
+
+.notifications-page-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Standalone PayOS Payment Page */
+.payment-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  animation: fadeIn 0.25s ease;
+}
+
+.payment-page-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+}
+
