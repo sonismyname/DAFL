@@ -81,7 +81,7 @@ export const MockPayOSStandalonePage: React.FC = () => {
             <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: 24 }}>
               Đơn hàng #{orderCode} đã được hệ thống xác nhận thanh toán qua PayOS.
             </p>
-            <a href="/#/orders" style={{ display: 'inline-block', background: '#e02e24', color: '#fff', textDecoration: 'none', padding: '10px 24px', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem' }}>
+            <a href="/orders" style={{ display: 'inline-block', background: '#e02e24', color: '#fff', textDecoration: 'none', padding: '10px 24px', borderRadius: 8, fontWeight: 700, fontSize: '0.9rem' }}>
               Xem danh sách đơn hàng
             </a>
           </div>

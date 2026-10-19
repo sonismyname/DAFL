@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
+import { Search, X } from 'lucide-react';
 import { Category } from '../../types';
 
 export interface CategoryFilterProps {
@@ -12,48 +13,94 @@ export const CategoryFilter: React.FC<CategoryFilterProps> = ({
   selectedCategory,
   onSelectCategory,
 }) => {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredCategories = useMemo(() => {
+    const q = searchTerm.trim().toLowerCase();
+    if (!q) return categories;
+    return categories.filter(
+      cat =>
+        cat.name.toLowerCase().includes(q) ||
+        (cat.description && cat.description.toLowerCase().includes(q))
+    );
+  }, [categories, searchTerm]);
+
   return (
     <section data-testid="category-filter-section">
-      <div className="section-title">
-        <span>Danh mục ngành hàng ({categories.length} hạng mục)</span>
-        {selectedCategory && (
-          <button
-            style={{
-              background: 'none',
-              border: 'none',
-              color: 'var(--primary)',
-              cursor: 'pointer',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-            }}
-            onClick={() => onSelectCategory(null)}
-            data-testid="clear-category-btn"
-          >
-            Xem tất cả
-          </button>
-        )}
+      <div className="section-title category-section-title">
+        <div className="category-title-left">
+          <span>Danh mục ngành hàng ({categories.length} hạng mục)</span>
+          {selectedCategory && (
+            <button
+              className="category-clear-btn"
+              onClick={() => onSelectCategory(null)}
+              data-testid="clear-category-btn"
+            >
+              Xem tất cả
+            </button>
+          )}
+        </div>
+
+        {/* Category Search Input */}
+        <div className="category-search-box" data-testid="category-search-box">
+          <Search className="category-search-icon" size={15} />
+          <input
+            type="text"
+            className="category-search-input"
+            placeholder="Tìm danh mục..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            data-testid="category-search-input"
+          />
+          {searchTerm && (
+            <button
+              type="button"
+              className="category-search-clear-btn"
+              onClick={() => setSearchTerm('')}
+              title="Xóa tìm kiếm danh mục"
+              data-testid="category-search-clear-btn"
+            >
+              <X size={14} />
+            </button>
+          )}
+        </div>
       </div>
 
-      <div className="categories-bar" data-testid="categories-bar">
-        <button
-          className={`category-pill ${selectedCategory === null ? 'active' : ''}`}
-          onClick={() => onSelectCategory(null)}
-          data-testid="category-pill-all"
-        >
-          Tất cả danh mục
-        </button>
-        {categories.map(cat => (
+      {searchTerm && filteredCategories.length === 0 ? (
+        <div className="category-empty-state" data-testid="category-empty-state">
+          <span>Không tìm thấy danh mục nào phù hợp với &quot;<strong>{searchTerm}</strong>&quot;</span>
           <button
-            key={cat.id}
-            className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
-            onClick={() => onSelectCategory(cat.id)}
-            data-testid={`category-pill-${cat.id}`}
+            type="button"
+            className="category-pill"
+            style={{ marginLeft: 12, padding: '4px 12px' }}
+            onClick={() => setSearchTerm('')}
           >
-            <span style={{ marginRight: 6 }}>{cat.iconUrl || '📦'}</span>
-            {cat.name}
+            Hiển thị tất cả
           </button>
-        ))}
-      </div>
+        </div>
+      ) : (
+        <div className="categories-bar" data-testid="categories-bar">
+          <button
+            className={`category-pill ${selectedCategory === null ? 'active' : ''}`}
+            onClick={() => onSelectCategory(null)}
+            data-testid="category-pill-all"
+          >
+            Tất cả danh mục
+          </button>
+          {filteredCategories.map(cat => (
+            <button
+              key={cat.id}
+              className={`category-pill ${selectedCategory === cat.id ? 'active' : ''}`}
+              onClick={() => onSelectCategory(cat.id)}
+              data-testid={`category-pill-${cat.id}`}
+            >
+              <span style={{ marginRight: 6 }}>{cat.iconUrl || '📦'}</span>
+              {cat.name}
+            </button>
+          ))}
+        </div>
+      )}
     </section>
   );
 };
+

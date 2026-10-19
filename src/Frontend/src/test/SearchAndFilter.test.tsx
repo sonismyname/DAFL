@@ -145,6 +145,49 @@ describe('Search & Filter Module', () => {
     expect(onSelectCategory).toHaveBeenCalledWith(null);
   });
 
+  it('TC_FILTER_04: Should filter category pills when typing in category search box', () => {
+    render(
+      <CategoryFilter
+        categories={mockCategories}
+        selectedCategory={null}
+        onSelectCategory={vi.fn()}
+      />
+    );
+
+    const searchInput = screen.getByTestId('category-search-input');
+    expect(searchInput).toBeInTheDocument();
+
+    // Type "Điện thoại"
+    fireEvent.change(searchInput, { target: { value: 'Điện thoại' } });
+
+    expect(screen.getByTestId('category-pill-cat-1')).toBeInTheDocument();
+    expect(screen.queryByTestId('category-pill-cat-2')).not.toBeInTheDocument();
+    expect(screen.queryByTestId('category-pill-cat-3')).not.toBeInTheDocument();
+
+    // Clear search using clear button
+    const clearBtn = screen.getByTestId('category-search-clear-btn');
+    fireEvent.click(clearBtn);
+
+    expect(screen.getByTestId('category-pill-cat-1')).toBeInTheDocument();
+    expect(screen.getByTestId('category-pill-cat-2')).toBeInTheDocument();
+    expect(screen.getByTestId('category-pill-cat-3')).toBeInTheDocument();
+  });
+
+  it('TC_FILTER_05: Should show empty state when no category matches search query', () => {
+    render(
+      <CategoryFilter
+        categories={mockCategories}
+        selectedCategory={null}
+        onSelectCategory={vi.fn()}
+      />
+    );
+
+    const searchInput = screen.getByTestId('category-search-input');
+    fireEvent.change(searchInput, { target: { value: 'KhôngTồnTại123' } });
+
+    expect(screen.getByTestId('category-empty-state')).toBeInTheDocument();
+  });
+
   // ==========================================
   // Negative Path Test Cases (30%)
   // ==========================================

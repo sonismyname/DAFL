@@ -36,6 +36,21 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ApiRespon
     {
         var normalizedEmail = request.Email.Trim().ToLowerInvariant();
 
+        if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 8)
+        {
+            return ApiResponse<UserDto>.Fail("Mật khẩu phải có tối thiểu 8 ký tự.");
+        }
+
+        if (!request.Password.Any(char.IsUpper))
+        {
+            return ApiResponse<UserDto>.Fail("Mật khẩu phải chứa ít nhất 1 ký tự chữ hoa (A-Z).");
+        }
+
+        if (!request.Password.Any(ch => !char.IsLetterOrDigit(ch)))
+        {
+            return ApiResponse<UserDto>.Fail("Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (ví dụ: !@#$%^&*...).");
+        }
+
         if (await _context.Users.AnyAsync(u => u.Email == normalizedEmail, cancellationToken))
         {
             return ApiResponse<UserDto>.Fail("Email này đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập.");

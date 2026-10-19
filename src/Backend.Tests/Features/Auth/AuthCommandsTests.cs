@@ -185,6 +185,60 @@ public class AuthCommandsTests : IDisposable
         result.Data.Should().BeNull();
     }
 
+    /// <summary>
+    /// TC-AUTH-07A: Đăng ký với mật khẩu ngắn hơn 8 ký tự → Thất bại.
+    /// </summary>
+    [Fact]
+    public async Task Register_WithPasswordShorterThan8Chars_ShouldReturnFail()
+    {
+        // Arrange
+        var handler = new RegisterCommandHandler(_context, _mockKafkaProducer.Object, _mockHubContext.Object);
+        var command = new RegisterCommand("shortpw@dafl.vn", "Pass@1", "Short Pass User", null, null);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.Success.Should().BeFalse();
+        result.Message.Should().Contain("8 ký tự");
+    }
+
+    /// <summary>
+    /// TC-AUTH-07B: Đăng ký với mật khẩu không có ký tự viết hoa → Thất bại.
+    /// </summary>
+    [Fact]
+    public async Task Register_WithPasswordWithoutUppercase_ShouldReturnFail()
+    {
+        // Arrange
+        var handler = new RegisterCommandHandler(_context, _mockKafkaProducer.Object, _mockHubContext.Object);
+        var command = new RegisterCommand("noupper@dafl.vn", "pass@123", "No Upper User", null, null);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.Success.Should().BeFalse();
+        result.Message.Should().Contain("chữ hoa");
+    }
+
+    /// <summary>
+    /// TC-AUTH-07C: Đăng ký với mật khẩu không có ký tự đặc biệt → Thất bại.
+    /// </summary>
+    [Fact]
+    public async Task Register_WithPasswordWithoutSpecialChar_ShouldReturnFail()
+    {
+        // Arrange
+        var handler = new RegisterCommandHandler(_context, _mockKafkaProducer.Object, _mockHubContext.Object);
+        var command = new RegisterCommand("nospecial@dafl.vn", "Password123", "No Special User", null, null);
+
+        // Act
+        var result = await handler.Handle(command, CancellationToken.None);
+
+        // Assert
+        result.Success.Should().BeFalse();
+        result.Message.Should().Contain("đặc biệt");
+    }
+
     #endregion
 
     #region Login Tests - Positive Path

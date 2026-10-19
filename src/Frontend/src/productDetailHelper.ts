@@ -22,7 +22,8 @@ export function getProductDetailExtra(product: {
   reviewCount?: number;
 }): ProductDetailExtra {
   const cat = (product.categoryName || '').toLowerCase();
-  const sku = `DAFL-${product.id.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
+  const productIdStr = String(product.id || '');
+  const sku = `DAFL-${productIdStr.replace(/-/g, '').slice(0, 8).toUpperCase()}`;
 
   // 1. Determine Specs by Category Category
   let specs: ProductSpecItem[] = [
@@ -72,15 +73,17 @@ export function getProductDetailExtra(product: {
   // 2. Highlights
   const highlights = [
     `Gia công tinh xảo, đường nét sắc sảo, độ hoàn thiện cao cấp vượt tầm giá.`,
-    `${product.description}`,
+    product.description || 'Sản phẩm tiêu chuẩn chất lượng cao, bền bỉ và tối ưu trải nghiệm người dùng.',
     `Đã qua quy trình kiểm định chất lượng 3 bước nghiêm ngặt trước khi đóng gói xuất xưởng.`,
     `Đóng hộp carton chống sốc chuyên dụng, bảo vệ trọn vẹn sản phẩm khi vận chuyển toàn quốc.`
   ];
 
   // 3. Detailed Article
   const detailedArticle = [
-    `${product.name} là một trong những sản phẩm được người tiêu dùng đánh giá cao nhất trong nhóm ngành hàng ${product.categoryName}. Sở hữu thiết kế công thái học cùng phong cách hiện đại, sản phẩm mang lại vẻ đẹp thanh lịch và tiện dụng tối đa cho không gian sống cũng như công việc hàng ngày của bạn.`,
-    `Điểm nổi bật của sản phẩm nằm ở ${product.description.toLowerCase()} Nhờ ứng dụng dây chuyền công nghệ tiên tiến cùng các vật liệu tuyển chọn bền bỉ, sản phẩm không chỉ hoạt động êm ái, bền bỉ theo thời gian mà còn tiết kiệm năng lượng, thân thiện với sức khỏe người sử dụng.`,
+    `${product.name || 'Sản phẩm'} là một trong những sản phẩm được người tiêu dùng đánh giá cao nhất trong nhóm ngành hàng ${product.categoryName || 'chọn lọc'}. Sở hữu thiết kế công thái học cùng phong cách hiện đại, sản phẩm mang lại vẻ đẹp thanh lịch và tiện dụng tối đa cho không gian sống cũng như công việc hàng ngày của bạn.`,
+    product.description
+      ? `Điểm nổi bật của sản phẩm nằm ở ${(product.description || '').toLowerCase()}. Nhờ ứng dụng dây chuyền công nghệ tiên tiến cùng các vật liệu tuyển chọn bền bỉ, sản phẩm không chỉ hoạt động êm ái, bền bỉ theo thời gian mà còn tiết kiệm năng lượng, thân thiện với sức khỏe người sử dụng.`
+      : `Nhờ ứng dụng dây chuyền công nghệ tiên tiến cùng các vật liệu tuyển chọn bền bỉ, sản phẩm không chỉ hoạt động êm ái, bền bỉ theo thời gian mà còn tiết kiệm năng lượng, thân thiện với sức khỏe người sử dụng.`,
     `Mỗi sản phẩm khi giao đến tay khách hàng đều được kiểm tra kỹ lưỡng, nguyên seal 100% kèm theo tài liệu hướng dẫn và phiếu bảo hành chính hãng. Khách hàng được quyền mở hộp đồng kiểm trước khi thanh toán, đảm bảo an tâm tuyệt đối.`
   ];
 

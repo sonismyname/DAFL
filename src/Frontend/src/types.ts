@@ -1,3 +1,14 @@
+export type AppRoute =
+  | 'home'
+  | 'cart'
+  | 'login'
+  | 'register'
+  | 'product'
+  | 'orders'
+  | 'profile'
+  | 'notifications'
+  | 'payment';
+
 export interface Category {
   id: string;
   name: string;
