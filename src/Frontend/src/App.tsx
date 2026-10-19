@@ -1497,12 +1497,9 @@ export default function App() {
                         <ArrowLeft size={16} /> Trang chủ
                       </button>
                       <h1 className="page-title" style={{ margin: 0 }}>
-                        <MapPin size={26} color="var(--primary)" /> Cấu hình Địa Chỉ & Thông Tin Nhận Hàng
+                        <MapPin size={26} color="var(--primary)" /> Địa Chỉ & Thông Tin Nhận Hàng
                       </h1>
                     </div>
-                    <p className="page-subtitle" style={{ marginTop: 6 }}>
-                      Thông tin này sẽ được lưu trữ an toàn và tự động điền sẵn vào đơn hàng của bạn khi đặt mua và thanh toán PayOS.
-                    </p>
                   </div>
 
                   <button

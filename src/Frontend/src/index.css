@@ -1,7 +1,7 @@
 :root,
 [data-theme="dark"] {
   --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  
+
   /* Pinduoduo Red & Coral Signature Color Palette */
   --pdd-red: #e02e24;
   --pdd-red-hover: #c52219;
@@ -9,14 +9,14 @@
   --pdd-orange-hover: #f4511e;
   --pdd-gradient: linear-gradient(135deg, #e02e24 0%, #ff5722 100%);
   --pdd-gradient-hover: linear-gradient(135deg, #c52219 0%, #f4511e 100%);
-  
+
   --primary: #e02e24;
   --primary-hover: #c52219;
   --primary-glow: rgba(224, 46, 36, 0.3);
-  
+
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-focus: rgba(224, 46, 36, 0.55);
-  
+
   /* Dark Theme Surfaces */
   --bg-primary: #0b0d13;
   --bg-secondary: #131722;
@@ -29,13 +29,13 @@
   --bg-subtle: rgba(31, 41, 55, 0.4);
   --bg-subtle-light: rgba(255, 255, 255, 0.05);
   --bg-img-wrap: #1f2937;
-  
+
   --btn-secondary-bg: rgba(255, 255, 255, 0.05);
   --btn-secondary-hover: rgba(255, 255, 255, 0.1);
   --btn-cart-bg: rgba(224, 46, 36, 0.12);
   --btn-cart-border: rgba(224, 46, 36, 0.3);
   --btn-cart-text: #ff8a80;
-  
+
   /* Dark Hero */
   --hero-bg: linear-gradient(135deg, rgba(38, 22, 25, 0.7), rgba(19, 23, 34, 0.9));
   --hero-border: rgba(224, 46, 36, 0.2);
@@ -44,35 +44,35 @@
   --hero-tag-bg: rgba(255, 255, 255, 0.05);
   --hero-tag-border: rgba(255, 255, 255, 0.08);
   --hero-tag-color: #9ca3af;
-  
+
   /* Category Pills */
   --pill-bg: rgba(31, 41, 55, 0.5);
   --pill-hover: rgba(31, 41, 55, 0.9);
   --pill-border: rgba(255, 255, 255, 0.08);
   --pill-color: #9ca3af;
-  
+
   /* Accents */
   --accent-cyan: #ff5722;
   --accent-emerald: #e02e24;
   --accent-rose: #e02e24;
   --accent-amber: #f59e0b;
   --accent-green: #10b981;
-  
+
   --text-main: #f9fafb;
   --text-muted: #9ca3af;
   --text-dim: #6b7280;
-  
+
   --radius-sm: 8px;
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-full: 9999px;
-  
+
   --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.35);
   --shadow-glow: 0 0 25px var(--primary-glow);
   --shadow-card: 0 4px 14px rgba(0, 0, 0, 0.3);
   --shadow-card-hover: 0 12px 30px rgba(0, 0, 0, 0.45);
-  
+
   --body-bg-gradient: radial-gradient(at 0% 0%, rgba(224, 46, 36, 0.15) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 87, 34, 0.1) 0px, transparent 50%);
   --scrollbar-thumb: #374151;
   --scrollbar-thumb-hover: #4b5563;
@@ -81,21 +81,21 @@
 /* Light Theme (Pinduoduo Official Style as requested) */
 [data-theme="light"] {
   --font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-  
+
   --pdd-red: #e02e24;
   --pdd-red-hover: #c52219;
   --pdd-orange: #ff5722;
   --pdd-orange-hover: #f4511e;
   --pdd-gradient: linear-gradient(135deg, #e02e24 0%, #ff5722 100%);
   --pdd-gradient-hover: linear-gradient(135deg, #c52219 0%, #f4511e 100%);
-  
+
   --primary: #e02e24;
   --primary-hover: #c52219;
   --primary-glow: rgba(224, 46, 36, 0.2);
-  
+
   --border-subtle: #e5e7eb;
   --border-focus: rgba(224, 46, 36, 0.6);
-  
+
   /* Light Theme Surfaces (Crisp White + Clean Soft Gray) */
   --bg-primary: #f6f6f6;
   --bg-secondary: #ffffff;
@@ -108,13 +108,13 @@
   --bg-subtle: #f9fafb;
   --bg-subtle-light: #f3f4f6;
   --bg-img-wrap: #f8fafc;
-  
+
   --btn-secondary-bg: #f3f4f6;
   --btn-secondary-hover: #e5e7eb;
   --btn-cart-bg: #fee2e2;
   --btn-cart-border: rgba(224, 46, 36, 0.3);
   --btn-cart-text: #e02e24;
-  
+
   /* Pinduoduo Coral/Pink-Red Hero Banner (from screenshot) */
   --hero-bg: linear-gradient(125deg, #e02e24 0%, #ff385c 48%, #ff5722 100%);
   --hero-border: #ff385c;
@@ -123,30 +123,30 @@
   --hero-tag-bg: rgba(255, 255, 255, 0.22);
   --hero-tag-border: rgba(255, 255, 255, 0.38);
   --hero-tag-color: #ffffff;
-  
+
   /* Category Pills */
   --pill-bg: #ffffff;
   --pill-hover: #f3f4f6;
   --pill-border: #e5e7eb;
   --pill-color: #374151;
-  
+
   /* Accents */
   --accent-cyan: #ff5722;
   --accent-emerald: #e02e24;
   --accent-rose: #e02e24;
   --accent-amber: #d97706;
   --accent-green: #059669;
-  
+
   --text-main: #1f2937;
   --text-muted: #4b5563;
   --text-dim: #9ca3af;
-  
+
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.06);
   --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.08);
   --shadow-glow: 0 4px 20px rgba(224, 46, 36, 0.2);
   --shadow-card: 0 2px 8px rgba(0, 0, 0, 0.05);
   --shadow-card-hover: 0 10px 24px rgba(0, 0, 0, 0.1);
-  
+
   --body-bg-gradient: radial-gradient(at 0% 0%, rgba(224, 46, 36, 0.06) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(255, 87, 34, 0.04) 0px, transparent 50%);
   --scrollbar-thumb: #d1d5db;
   --scrollbar-thumb-hover: #9ca3af;
@@ -175,13 +175,16 @@ body {
   width: 8px;
   height: 8px;
 }
+
 ::-webkit-scrollbar-track {
   background: var(--bg-primary);
 }
+
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: var(--radius-full);
 }
+
 ::-webkit-scrollbar-thumb:hover {
   background: var(--scrollbar-thumb-hover);
 }
@@ -439,7 +442,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  background-image: 
+  background-image:
     radial-gradient(circle at 85% 30%, rgba(255, 255, 255, 0.25) 0%, transparent 45%),
     radial-gradient(circle at 10% 80%, rgba(255, 255, 255, 0.15) 0%, transparent 40%),
     linear-gradient(45deg, rgba(255, 255, 255, 0.08) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.08) 75%, transparent 75%, transparent);
@@ -602,12 +605,135 @@ body {
   color: var(--text-main);
 }
 
-.categories-bar {
+.category-section-title {
   display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.category-title-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.category-clear-btn {
+  background: none;
+  border: none;
+  color: var(--primary);
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: opacity 0.2s ease;
+}
+
+.category-clear-btn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.category-search-box {
+  display: flex;
+  align-items: center;
+  background: var(--bg-input);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  width: 220px;
+  transition: all 0.25s ease;
+}
+
+.category-search-box:focus-within {
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 2px var(--primary-glow);
+  background: var(--bg-input-focus);
+  width: 260px;
+}
+
+.category-search-icon {
+  color: var(--text-dim);
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.category-search-input {
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.82rem;
+  color: var(--text-main);
+  width: 100%;
+  font-family: inherit;
+}
+
+.category-search-input::placeholder {
+  color: var(--text-dim);
+}
+
+.category-search-clear-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  border-radius: var(--radius-full);
+  transition: color 0.15s ease;
+  margin-left: 4px;
+}
+
+.category-search-clear-btn:hover {
+  color: var(--text-main);
+}
+
+.category-empty-state {
+  display: flex;
+  align-items: center;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-subtle);
+  border-radius: var(--radius-md);
+  color: var(--text-muted);
+  font-size: 0.88rem;
+  margin-bottom: 28px;
+}
+
+.categories-bar {
+  display: grid;
+  grid-template-rows: repeat(3, auto);
+  grid-auto-flow: column;
+  grid-auto-columns: max-content;
   gap: 10px;
   overflow-x: auto;
   padding-bottom: 14px;
   margin-bottom: 28px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(224, 46, 36, 0.4) transparent;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categories-bar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.categories-bar::-webkit-scrollbar-track {
+  background: var(--bg-subtle-light);
+  border-radius: var(--radius-full);
+}
+
+.categories-bar::-webkit-scrollbar-thumb {
+  background: rgba(224, 46, 36, 0.4);
+  border-radius: var(--radius-full);
+}
+
+.categories-bar::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }
 
 .category-pill {
@@ -621,6 +747,10 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
 }
 
 .category-pill:hover {
@@ -1408,13 +1538,25 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideInRight {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
 }
 
 @media (max-width: 1024px) {
@@ -1422,6 +1564,7 @@ body {
     flex-direction: column;
     align-items: flex-start;
   }
+
   .hero-showcase-card {
     display: none;
   }
@@ -1433,19 +1576,24 @@ body {
     gap: 14px;
     align-items: stretch;
   }
+
   .search-bar {
     width: 100%;
   }
+
   .header-actions {
     flex-wrap: wrap;
     justify-content: flex-end;
   }
+
   .hero {
     padding: 24px 20px;
   }
+
   .hero-title {
     font-size: 1.6rem;
   }
+
   .product-detail-layout {
     grid-template-columns: 1fr;
   }
@@ -1530,6 +1678,7 @@ body {
     opacity: 0;
     transform: translateY(-8px) scale(0.97);
   }
+
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -2074,4 +2223,3 @@ body {
   padding: 28px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
 }
-
