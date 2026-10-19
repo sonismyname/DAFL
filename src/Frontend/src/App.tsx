@@ -900,6 +900,10 @@ export default function App() {
     if (returnUrl) {
       sessionStorage.setItem('dafl_return_route', returnUrl);
     }
+    if (route === 'notifications') {
+      setIsNotifOpen(true);
+      return;
+    }
     if ((route === 'orders' || route === 'profile') && !user) {
       sessionStorage.setItem('dafl_return_route', `/${route}`);
       showToast('Yêu cầu đăng nhập', 'Vui lòng đăng nhập để truy cập trang này.', 'System');
@@ -924,6 +928,14 @@ export default function App() {
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  // If user accesses /notifications path directly, open modal and keep URL clean at /
+  useEffect(() => {
+    if (location.pathname === '/notifications') {
+      setIsNotifOpen(true);
+      navigate('/', { replace: true });
+    }
+  }, [location.pathname, navigate]);
 
   // Automatically clean up and redirect any legacy URLs with hash (e.g. #/cart, #/orders) to clean pathname
   useEffect(() => {
@@ -1096,7 +1108,7 @@ export default function App() {
           theme={theme}
           onToggleTheme={toggleTheme}
           unreadCount={unreadCount}
-          onToggleNotif={() => navigateTo('notifications')}
+          onToggleNotif={() => setIsNotifOpen(prev => !prev)}
           user={user}
           profileFullName={profileFullName}
           isAccountDropdownOpen={isAccountDropdownOpen}
@@ -1115,1009 +1127,1120 @@ export default function App() {
           path="/"
           element={
             <>
-          {/* Hero Showcase (Commercial E-Commerce Promotion) */}
-          <section className="hero">
-            <div className="hero-layout">
-              <div className="hero-main">
-                <div className="hero-top-badge">
-                  <Sparkles size={14} color="#e02e24" />
-                  <span>Săn Deal Giá Sốc • Mua Sắm Tiết Kiệm</span>
+              {/* Hero Showcase (Commercial E-Commerce Promotion) */}
+              <section className="hero">
+                <div className="hero-layout">
+                  <div className="hero-main">
+                    <div className="hero-top-badge">
+                      <Sparkles size={14} color="#e02e24" />
+                      <span>Săn Deal Giá Sốc • Mua Sắm Tiết Kiệm</span>
+                    </div>
+                    <h1 className="hero-title">
+                      Sàn Thương Mại Điện Tử DAFL
+                    </h1>
+                    <p className="hero-subtitle">
+                      <strong>Càng Mua Càng Rẻ</strong> — Mua sắm thông minh, ngập tràn deal sốc mỗi ngày! Khám phá 26 ngành hàng đa dạng từ Thời trang, Điện thoại, Gia dụng đến Hàng tiêu dùng với mức giá ưu đãi nhất thị trường và bảo đảm quyền lợi người mua 100%.
+                    </p>
+                    <div className="hero-tags">
+                    </div>
+                    <div className="hero-actions">
+                    </div>
+                  </div>
                 </div>
-                <h1 className="hero-title">
-                  Sàn Thương Mại Điện Tử DAFL
-                </h1>
-                <p className="hero-subtitle">
-                  <strong>Càng Mua Càng Rẻ</strong> — Mua sắm thông minh, ngập tràn deal sốc mỗi ngày! Khám phá 26 ngành hàng đa dạng từ Thời trang, Điện thoại, Gia dụng đến Hàng tiêu dùng với mức giá ưu đãi nhất thị trường và bảo đảm quyền lợi người mua 100%.
-                </p>
-                <div className="hero-tags">
-                </div>
-                <div className="hero-actions">
-                </div>
-              </div>
-            </div>
-          </section>
+              </section>
 
-          {/* Categories Filter Bar */}
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onSelectCategory={setSelectedCategory}
-          />
+              {/* Categories Filter Bar */}
+              <CategoryFilter
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+              />
 
-          {/* Products Grid */}
-          <section id="products-section">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
-              <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>
-                {selectedCategory ? (categories.find(c => c.id === selectedCategory)?.name || 'Danh mục sản phẩm') : 'Tất cả sản phẩm'}
-              </h2>
-              {products.length > 0 && (
-                <div className="product-count-badge">
-                  <Package size={14} color="var(--primary)" />
-                  <span>Hiển thị {Math.min(visibleCount, products.length)} / {products.length} sản phẩm</span>
+              {/* Products Grid */}
+              <section id="products-section">
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18, flexWrap: 'wrap', gap: 10 }}>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>
+                    {selectedCategory ? (categories.find(c => c.id === selectedCategory)?.name || 'Danh mục sản phẩm') : 'Tất cả sản phẩm'}
+                  </h2>
+                  {products.length > 0 && (
+                    <div className="product-count-badge">
+                      <Package size={14} color="var(--primary)" />
+                      <span>Hiển thị {Math.min(visibleCount, products.length)} / {products.length} sản phẩm</span>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            {loading ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
-                <RefreshCw size={24} className="spin" style={{ display: 'inline-block', marginBottom: 8 }} />
-                <div>Đang tải danh sách sản phẩm...</div>
-              </div>
-            ) : products.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
-                Không tìm thấy sản phẩm nào phù hợp với tìm kiếm.
-              </div>
+                {loading ? (
+                  <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
+                    <RefreshCw size={24} className="spin" style={{ display: 'inline-block', marginBottom: 8 }} />
+                    <div>Đang tải danh sách sản phẩm...</div>
+                  </div>
+                ) : products.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '60px 0', color: '#9ca3af' }}>
+                    Không tìm thấy sản phẩm nào phù hợp với tìm kiếm.
+                  </div>
+                ) : (
+                  <>
+                    <div className="products-grid">
+                      {products.slice(0, visibleCount).map(product => (
+                        <ProductCard
+                          key={product.id}
+                          product={product}
+                          onOpenDetail={openProductDetail}
+                          onAddToCart={addToCart}
+                        />
+                      ))}
+                    </div>
+
+                    {/* Scroll Sentinel for Infinite Scroll Lazy Loading */}
+                    <div ref={loadMoreSentinelRef} style={{ height: 24 }} />
+
+                    {/* Lazy Load Spinner */}
+                    {isLoadingMore && (
+                      <div className="lazy-load-indicator">
+                        <RefreshCw size={20} className="spin" />
+                        <span>Đang tải thêm sản phẩm khi cuộn...</span>
+                      </div>
+                    )}
+
+                    {/* Manual Load More Button as Fallback */}
+                    {!isLoadingMore && visibleCount < products.length && (
+                      <div style={{ textAlign: 'center', margin: '16px 0 28px' }}>
+                        <button
+                          className="btn btn-secondary"
+                          onClick={handleLoadMore}
+                          style={{ padding: '10px 24px', borderRadius: 999, fontSize: '0.875rem' }}
+                        >
+                          Tải thêm {Math.min(16, products.length - visibleCount)} sản phẩm tiếp theo
+                        </button>
+                      </div>
+                    )}
+
+                    {/* End of list state */}
+                    {visibleCount >= products.length && products.length > 0 && (
+                      <div className="lazy-load-end">
+                        <CheckCircle2 size={18} color="#10b981" />
+                        <span>Bạn đã xem toàn bộ {products.length} sản phẩm</span>
+                      </div>
+                    )}
+                  </>
+                )}
+              </section>
+            </>
+          }
+        />
+
+        {/* ============================================================== */}
+        {/* ROUTE VIEW: ORDERS & ORDER HISTORY (/orders) */}
+        {/* ============================================================== */}
+        <Route
+          path="/orders"
+          element={
+            authInitialized && !user ? (
+              <Navigate to="/login" replace />
             ) : (
-              <>
-                <div className="products-grid">
-                  {products.slice(0, visibleCount).map(product => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      onOpenDetail={openProductDetail}
-                      onAddToCart={addToCart}
-                    />
+              <section className="orders-page">
+                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 14 }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                        onClick={() => navigateTo('home')}
+                      >
+                        <ArrowLeft size={16} /> Tiếp tục mua sắm
+                      </button>
+                      <h1 className="page-title" style={{ margin: 0 }}>
+                        <Package size={26} color="var(--primary)" /> Quản lý Đơn Mua & Lịch Sử Đơn Hàng
+                      </h1>
+                    </div>
+                    <p className="page-subtitle" style={{ marginTop: 6 }}>
+                      Theo dõi tiến độ đơn hàng, thanh toán trực tiếp qua PayOS trên web và kiểm tra trạng thái thời gian thực.
+                    </p>
+                  </div>
+
+                  <div style={{ display: 'flex', gap: 10 }}>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={fetchOrderHistory}
+                      disabled={orderHistoryLoading}
+                      style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                      <RefreshCw size={15} className={orderHistoryLoading ? 'spin' : ''} />
+                      Làm mới danh sách
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      onClick={() => navigateTo('profile')}
+                      style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
+                    >
+                      <MapPin size={15} color="#e02e24" /> Cấu hình địa chỉ nhận hàng
+                    </button>
+                  </div>
+                </div>
+
+                {/* Filter Tabs */}
+                <div className="order-filter-tabs">
+                  {[
+                    { key: 'all', label: `Tất cả (${orderHistory.length})` },
+                    { key: 'Pending', label: `Chờ thanh toán (${orderHistory.filter(o => o.status === 'Pending').length})` },
+                    { key: 'Paid', label: `Đã thanh toán (${orderHistory.filter(o => o.status === 'Paid').length})` },
+                    { key: 'Shipping', label: `Đang giao hàng (${orderHistory.filter(o => o.status === 'Shipping').length})` },
+                    { key: 'Completed', label: `Hoàn tất (${orderHistory.filter(o => o.status === 'Completed').length})` },
+                    { key: 'Cancelled', label: `Đã hủy (${orderHistory.filter(o => o.status === 'Cancelled').length})` }
+                  ].map(tab => (
+                    <button
+                      key={tab.key}
+                      type="button"
+                      className={`order-filter-btn ${orderFilter === tab.key ? 'active' : ''}`}
+                      onClick={() => setOrderFilter(tab.key as any)}
+                    >
+                      {tab.label}
+                    </button>
                   ))}
                 </div>
 
-                {/* Scroll Sentinel for Infinite Scroll Lazy Loading */}
-                <div ref={loadMoreSentinelRef} style={{ height: 24 }} />
-
-                {/* Lazy Load Spinner */}
-                {isLoadingMore && (
-                  <div className="lazy-load-indicator">
-                    <RefreshCw size={20} className="spin" />
-                    <span>Đang tải thêm sản phẩm khi cuộn...</span>
+                {/* Orders List */}
+                {orderHistoryLoading ? (
+                  <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+                    <RefreshCw size={36} className="spin" style={{ margin: '0 auto 12px', color: 'var(--primary)' }} />
+                    <p>Đang tải danh sách đơn hàng từ máy chủ...</p>
                   </div>
-                )}
-
-                {/* Manual Load More Button as Fallback */}
-                {!isLoadingMore && visibleCount < products.length && (
-                  <div style={{ textAlign: 'center', margin: '16px 0 28px' }}>
-                    <button
-                      className="btn btn-secondary"
-                      onClick={handleLoadMore}
-                      style={{ padding: '10px 24px', borderRadius: 999, fontSize: '0.875rem' }}
-                    >
-                      Tải thêm {Math.min(16, products.length - visibleCount)} sản phẩm tiếp theo
+                ) : orderHistory.length === 0 ? (
+                  <div style={{ textAlign: 'center', padding: '60px 0', background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-subtle)' }}>
+                    <Package size={56} style={{ margin: '0 auto 14px', opacity: 0.3, color: 'var(--text-muted)' }} />
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: 8 }}>Bạn chưa có đơn hàng nào</h3>
+                    <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 20 }}>
+                      Khám phá ngay các ưu đãi giảm giá và sản phẩm nổi bật tại DAFL Store!
+                    </p>
+                    <button type="button" className="btn btn-primary" onClick={() => navigateTo('home')}>
+                      <ShoppingBag size={16} /> Mua sắm ngay
                     </button>
                   </div>
-                )}
-
-                {/* End of list state */}
-                {visibleCount >= products.length && products.length > 0 && (
-                  <div className="lazy-load-end">
-                    <CheckCircle2 size={18} color="#10b981" />
-                    <span>Bạn đã xem toàn bộ {products.length} sản phẩm</span>
-                  </div>
-                )}
-              </>
-            )}
-          </section>
-        </>
-      }
-    />
-
-    {/* ============================================================== */}
-    {/* ROUTE VIEW: ORDERS & ORDER HISTORY (/orders) */}
-    {/* ============================================================== */}
-    <Route
-      path="/orders"
-      element={
-        authInitialized && !user ? (
-          <Navigate to="/login" replace />
-        ) : (
-          <section className="orders-page">
-          <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 14 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                  onClick={() => navigateTo('home')}
-                >
-                  <ArrowLeft size={16} /> Tiếp tục mua sắm
-                </button>
-                <h1 className="page-title" style={{ margin: 0 }}>
-                  <Package size={26} color="var(--primary)" /> Quản lý Đơn Mua & Lịch Sử Đơn Hàng
-                </h1>
-              </div>
-              <p className="page-subtitle" style={{ marginTop: 6 }}>
-                Theo dõi tiến độ đơn hàng, thanh toán trực tiếp qua PayOS trên web và kiểm tra trạng thái thời gian thực.
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: 10 }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={fetchOrderHistory}
-                disabled={orderHistoryLoading}
-                style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
-              >
-                <RefreshCw size={15} className={orderHistoryLoading ? 'spin' : ''} />
-                Làm mới danh sách
-              </button>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                onClick={() => navigateTo('profile')}
-                style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
-              >
-                <MapPin size={15} color="#e02e24" /> Cấu hình địa chỉ nhận hàng
-              </button>
-            </div>
-          </div>
-
-          {/* Filter Tabs */}
-          <div className="order-filter-tabs">
-            {[
-              { key: 'all', label: `Tất cả (${orderHistory.length})` },
-              { key: 'Pending', label: `Chờ thanh toán (${orderHistory.filter(o => o.status === 'Pending').length})` },
-              { key: 'Paid', label: `Đã thanh toán (${orderHistory.filter(o => o.status === 'Paid').length})` },
-              { key: 'Shipping', label: `Đang giao hàng (${orderHistory.filter(o => o.status === 'Shipping').length})` },
-              { key: 'Completed', label: `Hoàn tất (${orderHistory.filter(o => o.status === 'Completed').length})` },
-              { key: 'Cancelled', label: `Đã hủy (${orderHistory.filter(o => o.status === 'Cancelled').length})` }
-            ].map(tab => (
-              <button
-                key={tab.key}
-                type="button"
-                className={`order-filter-btn ${orderFilter === tab.key ? 'active' : ''}`}
-                onClick={() => setOrderFilter(tab.key as any)}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Orders List */}
-          {orderHistoryLoading ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
-              <RefreshCw size={36} className="spin" style={{ margin: '0 auto 12px', color: 'var(--primary)' }} />
-              <p>Đang tải danh sách đơn hàng từ máy chủ...</p>
-            </div>
-          ) : orderHistory.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '60px 0', background: 'var(--bg-card)', borderRadius: 16, border: '1px solid var(--border-subtle)' }}>
-              <Package size={56} style={{ margin: '0 auto 14px', opacity: 0.3, color: 'var(--text-muted)' }} />
-              <h3 style={{ fontSize: '1.2rem', marginBottom: 8 }}>Bạn chưa có đơn hàng nào</h3>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: 20 }}>
-                Khám phá ngay các ưu đãi giảm giá và sản phẩm nổi bật tại DAFL Store!
-              </p>
-              <button type="button" className="btn btn-primary" onClick={() => navigateTo('home')}>
-                <ShoppingBag size={16} /> Mua sắm ngay
-              </button>
-            </div>
-          ) : (
-            <div className="orders-list-container">
-              {orderHistory
-                .filter(o => orderFilter === 'all' || o.status === orderFilter)
-                .map(order => {
-                  const statusClass = order.status.toLowerCase();
-                  return (
-                    <div key={order.id} className="order-card">
-                      {/* Order Card Header */}
-                      <div className="order-card-header">
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)' }}>
-                            Mã đơn: #{order.orderCode}
-                          </span>
-                          <span className={`order-status-badge ${statusClass}`}>
-                            {order.status === 'Paid' && <CheckCircle2 size={13} />}
-                            {order.status === 'Pending' && <Clock size={13} />}
-                            {order.status === 'Shipping' && <Truck size={13} />}
-                            {order.status === 'Completed' && <CheckCircle2 size={13} />}
-                            {order.status === 'Paid' ? 'Đã thanh toán (PayOS)' :
-                              order.status === 'Pending' ? 'Chờ thanh toán' :
-                                order.status === 'Shipping' ? 'Đang giao hàng' :
-                                  order.status === 'Completed' ? 'Giao thành công' :
-                                    order.status === 'Cancelled' ? 'Đã hủy' : order.status}
-                          </span>
-                        </div>
-
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                            <Calendar size={14} /> {new Date(order.createdAt).toLocaleString('vi-VN')}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Recipient & Shipping Address */}
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 14px', background: 'var(--bg-subtle)', borderRadius: 8, marginBottom: 14, fontSize: '0.85rem' }}>
-                        <MapPin size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: 2 }} />
-                        <div>
-                          <strong>{order.customerName}</strong> ({order.customerPhone}) — <span style={{ color: 'var(--text-muted)' }}>{order.shippingAddress}</span>
-                        </div>
-                      </div>
-
-                      {/* Order Items */}
-                      <div className="order-items-list">
-                        {order.items && order.items.map(item => (
-                          <div key={item.id} className="order-item-row">
-                            <img
-                              src={item.productImageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'}
-                              alt={item.productName}
-                              className="order-item-img"
-                            />
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: 4 }}>
-                                {item.productName}
+                ) : (
+                  <div className="orders-list-container">
+                    {orderHistory
+                      .filter(o => orderFilter === 'all' || o.status === orderFilter)
+                      .map(order => {
+                        const statusClass = order.status.toLowerCase();
+                        return (
+                          <div key={order.id} className="order-card">
+                            {/* Order Card Header */}
+                            <div className="order-card-header">
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                <span style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--text-main)' }}>
+                                  Mã đơn: #{order.orderCode}
+                                </span>
+                                <span className={`order-status-badge ${statusClass}`}>
+                                  {order.status === 'Paid' && <CheckCircle2 size={13} />}
+                                  {order.status === 'Pending' && <Clock size={13} />}
+                                  {order.status === 'Shipping' && <Truck size={13} />}
+                                  {order.status === 'Completed' && <CheckCircle2 size={13} />}
+                                  {order.status === 'Paid' ? 'Đã thanh toán (PayOS)' :
+                                    order.status === 'Pending' ? 'Chờ thanh toán' :
+                                      order.status === 'Shipping' ? 'Đang giao hàng' :
+                                        order.status === 'Completed' ? 'Giao thành công' :
+                                          order.status === 'Cancelled' ? 'Đã hủy' : order.status}
+                                </span>
                               </div>
-                              <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                                Số lượng: x{item.quantity} • Đơn giá: {formatPrice(item.unitPrice)}
+
+                              <div style={{ display: 'flex', alignItems: 'center', gap: 14, fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                  <Calendar size={14} /> {new Date(order.createdAt).toLocaleString('vi-VN')}
+                                </span>
                               </div>
                             </div>
-                            <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>
-                              {formatPrice(item.unitPrice * item.quantity)}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
 
-                      {/* Order Status Timeline (If exists) */}
-                      {order.statusHistories && order.statusHistories.length > 0 && (
-                        <div className="order-timeline-box">
-                          <div style={{ fontWeight: 700, marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                            Tiến trình trạng thái đơn hàng:
-                          </div>
-                          <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                            {order.statusHistories.map((h, i) => (
-                              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem' }}>
-                                <CheckCircle2 size={12} color="#10b981" />
-                                <span>{new Date(h.timestamp).toLocaleTimeString('vi-VN')}</span>
-                                <span style={{ fontWeight: 600 }}>{h.note || 'Cập nhật trạng thái'}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Order Footer & Actions */}
-                      <div className="order-footer-actions">
-                        <div>
-                          <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                            {order.discountAmount > 0 && (
-                              <span>
-                                Đã giảm <strong style={{ color: '#10b981' }}>-{formatPrice(order.discountAmount)}</strong>
-                                {order.voucherCode ? ` (Mã: ${order.voucherCode})` : ''} •
-                              </span>
-                            )}
-                            {' '}Tổng giá trị đơn: <strong style={{ color: '#e02e24', fontSize: '1.15rem' }}>{formatPrice(order.totalAmount)}</strong>
-                          </div>
-                        </div>
-
-                        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                          {order.status === 'Pending' && (
-                            <button
-                              type="button"
-                              className="btn btn-primary"
-                              style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                              onClick={() => {
-                                if (!user) {
-                                  sessionStorage.setItem('dafl_return_route', `/payment/${order.orderCode}`);
-                                  showToast('Yêu cầu đăng nhập', 'Vui lòng đăng nhập để tiến hành thanh toán đơn hàng.', 'System');
-                                  navigate('/login');
-                                  return;
-                                }
-                                navigate(`/payment/${order.orderCode}`);
-                              }}
-                            >
-                              <CreditCard size={15} /> Thanh toán ngay (PayOS trực tiếp)
-                            </button>
-                          )}
-
-                          {(order.status === 'Paid' || order.status === 'Completed') && (
-                            <button
-                              type="button"
-                              className="btn btn-secondary"
-                              style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
-                              onClick={() => handleReorder(order)}
-                            >
-                              <RotateCcw size={14} /> Mua lại đơn này
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-            </div>
-          )}
-          </section>
-        )
-      }
-    />
-
-    {/* ============================================================== */}
-    {/* ROUTE VIEW: SHIPPING ADDRESS & PROFILE (/profile) */}
-    {/* ============================================================== */}
-    <Route
-      path="/profile"
-      element={
-        authInitialized && !user ? (
-          <Navigate to="/login" replace />
-        ) : (
-          <section className="profile-page">
-          <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                  onClick={() => navigateTo('home')}
-                >
-                  <ArrowLeft size={16} /> Trang chủ
-                </button>
-                <h1 className="page-title" style={{ margin: 0 }}>
-                  <MapPin size={26} color="var(--primary)" /> Cấu hình Địa Chỉ & Thông Tin Nhận Hàng
-                </h1>
-              </div>
-              <p className="page-subtitle" style={{ marginTop: 6 }}>
-                Thông tin này sẽ được lưu trữ an toàn và tự động điền sẵn vào đơn hàng của bạn khi đặt mua và thanh toán PayOS.
-              </p>
-            </div>
-
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={() => navigateTo('orders')}
-              style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              <Package size={15} /> Xem lịch sử đơn mua ({orderHistory.length})
-            </button>
-          </div>
-
-          <div className="profile-card">
-            {/* User Avatar & Session Info */}
-            <div className="profile-avatar-banner">
-              <div className="profile-avatar-circle">
-                {(profileFullName || user?.fullName || 'U').charAt(0).toUpperCase()}
-              </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
-                    {profileFullName || user?.fullName || 'Thông tin người nhận'}
-                  </h3>
-                  <span className="brand-badge" style={{ fontSize: '0.75rem' }}>
-                    {user?.role || 'Khách hàng'}
-                  </span>
-                </div>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '4px 0 0' }}>
-                  {profileEmail || user?.email || 'Chưa liên kết email'} • Sổ địa chỉ giao hàng
-                </p>
-              </div>
-
-              {user && (
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ color: '#f87171', borderColor: 'rgba(244, 63, 94, 0.3)', fontSize: '0.8rem', padding: '6px 12px' }}
-                  onClick={handleLogout}
-                >
-                  <LogOut size={14} /> Đăng xuất
-                </button>
-              )}
-            </div>
-
-            {/* Address Configuration Form */}
-            <form onSubmit={handleSaveProfile}>
-              <div className="address-form-grid">
-                <div className="form-group">
-                  <label className="form-label">Họ và tên người nhận hàng</label>
-                  <input
-                    className="form-input"
-                    value={profileFullName}
-                    onChange={e => setProfileFullName(e.target.value)}
-                    placeholder="Nguyễn Văn A"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label className="form-label">Số điện thoại liên hệ</label>
-                  <input
-                    className="form-input"
-                    value={profilePhone}
-                    onChange={e => setProfilePhone(e.target.value)}
-                    placeholder="0987654321"
-                    required
-                  />
-                </div>
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Email nhận hóa đơn & thông báo</label>
-                <input
-                  className="form-input"
-                  type="email"
-                  value={profileEmail}
-                  onChange={e => setProfileEmail(e.target.value)}
-                  placeholder="name@example.com"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Địa chỉ giao hàng chi tiết (Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành)</label>
-                <input
-                  className="form-input"
-                  value={profileAddress}
-                  onChange={e => setProfileAddress(e.target.value)}
-                  placeholder="Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội"
-                  required
-                />
-              </div>
-
-              <div className="form-group">
-                <label className="form-label">Ghi chú giao hàng mặc định</label>
-                <textarea
-                  className="form-input"
-                  rows={2}
-                  value={profileNotes}
-                  onChange={e => setProfileNotes(e.target.value)}
-                  placeholder="Ví dụ: Giao giờ hành chính, gọi điện trước khi giao..."
-                />
-              </div>
-
-              <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24, paddingTop: 18, borderTop: '1px solid var(--border-subtle)' }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => navigateTo('home')}
-                >
-                  Hủy bỏ
-                </button>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  style={{ padding: '12px 28px', display: 'flex', alignItems: 'center', gap: 8 }}
-                  disabled={savingProfile}
-                >
-                  <Check size={16} /> {savingProfile ? 'Đang lưu vào hệ thống...' : 'Lưu thông tin địa chỉ'}
-                </button>
-              </div>
-            </form>
-          </div>
-          </section>
-        )
-      }
-    />
-
-    {/* ============================================================== */}
-    {/* ROUTE VIEW: PRODUCT DETAIL (/product/:id) */}
-    {/* ============================================================== */}
-    <Route
-      path="/product/:id"
-      element={
-        <section className="product-detail-page" data-testid="product-detail-page">
-          <div className="product-detail-page-card">
-            <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <button
-                type="button"
-                className="btn btn-secondary"
-                style={{ padding: '6px 14px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
-                onClick={() => navigateTo('home')}
-                data-testid="product-detail-back-btn"
-              >
-                <ArrowLeft size={16} /> Tiếp tục mua sắm
-              </button>
-              {selectedProduct && (
-                <span className="product-category-badge" style={{ position: 'static' }}>
-                  {selectedProduct.categoryName}
-                </span>
-              )}
-            </div>
-
-            {productDetailLoading ? (
-              <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
-                <RefreshCw size={32} className="spin" style={{ margin: '0 auto 12px', color: 'var(--primary)' }} />
-                <p>Đang tải thông tin chi tiết sản phẩm...</p>
-              </div>
-            ) : !selectedProduct ? (
-              <div style={{ textAlign: 'center', padding: '60px 0' }}>
-                <Package size={48} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
-                <h3 style={{ fontSize: '1.2rem', marginBottom: 8 }}>Không tìm thấy sản phẩm</h3>
-                <button type="button" className="btn btn-primary" onClick={() => navigateTo('home')} style={{ marginTop: 12 }}>
-                  Quay lại trang chủ
-                </button>
-              </div>
-            ) : (
-              <>
-                <div className="product-detail-layout">
-                  <div>
-                    <img
-                      src={selectedProduct.imageUrl}
-                      alt={selectedProduct.name}
-                      className="product-detail-image"
-                    />
-                    <div className="product-trust-badges">
-                      <div className="product-trust-badge">
-                        <Check size={14} color="#10b981" /> Hàng chính hãng 100%
-                      </div>
-                      <div className="product-trust-badge">
-                        <Clock size={14} color="#6366f1" /> Đổi trả trong 7 ngày
-                      </div>
-                      <div className="product-trust-badge">
-                        <ShieldCheck size={14} color="#e02e24" /> Bảo hành 12 tháng
-                      </div>
-                      <div className="product-trust-badge">
-                        <Truck size={14} color="#f59e0b" /> Giao hàng toàn quốc
-                      </div>
-                    </div>
-                  </div>
-
-                  <div>
-                    <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: 8, color: 'var(--text-main)' }}>{selectedProduct.name}</h2>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-                      <div className="star-rating">
-                        {[1, 2, 3, 4, 5].map(st => (
-                          <Star
-                            key={st}
-                            size={16}
-                            fill={st <= Math.round(selectedProduct.rating || 5) ? '#f59e0b' : 'transparent'}
-                            color="#f59e0b"
-                          />
-                        ))}
-                      </div>
-                      <span style={{ fontSize: '0.9rem', color: '#f59e0b', fontWeight: 700 }}>
-                        {selectedProduct.rating ? selectedProduct.rating.toFixed(1) : '5.0'} / 5.0
-                      </span>
-                      <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>
-                        ({selectedProduct.reviewCount || selectedProduct.evaluations?.length || 0} đánh giá)
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 16 }}>
-                      <span style={{ fontSize: '1.6rem', fontWeight: 800, color: '#e02e24' }}>
-                        {formatPrice(selectedProduct.price)}
-                      </span>
-                      {selectedProduct.originalPrice && (
-                        <span style={{ fontSize: '1rem', color: '#6b7280', textDecoration: 'line-through' }}>
-                          {formatPrice(selectedProduct.originalPrice)}
-                        </span>
-                      )}
-                      {selectedProduct.originalPrice && selectedProduct.originalPrice > selectedProduct.price && (
-                        <span style={{ fontSize: '0.8rem', background: 'rgba(224, 46, 36, 0.1)', color: '#e02e24', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
-                          Tiết kiệm {formatPrice(selectedProduct.originalPrice - selectedProduct.price)}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="product-detail-desc" style={{ marginBottom: 20 }}>
-                      {selectedProduct.description}
-                    </div>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
-                      <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Số lượng:</span>
-                      <div className="cart-item-actions">
-                        <button className="qty-btn" onClick={() => setDetailQuantity(Math.max(1, detailQuantity - 1))}>
-                          <Minus size={14} />
-                        </button>
-                        <span style={{ minWidth: 24, textAlign: 'center', fontWeight: 700 }}>{detailQuantity}</span>
-                        <button className="qty-btn" onClick={() => setDetailQuantity(detailQuantity + 1)}>
-                          <Plus size={14} />
-                        </button>
-                      </div>
-                      <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                        (Còn {selectedProduct.availableStock} sản phẩm có sẵn)
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: 12 }}>
-                      <button
-                        className="btn btn-secondary"
-                        style={{ flex: 1, padding: '12px' }}
-                        onClick={() => {
-                          addToCart(selectedProduct, detailQuantity);
-                        }}
-                      >
-                        <Plus size={16} /> Thêm vào giỏ hàng
-                      </button>
-                      <button
-                        className="btn btn-primary"
-                        style={{ flex: 1, padding: '12px' }}
-                        onClick={() => {
-                          handleBuyNow(selectedProduct, detailQuantity);
-                        }}
-                      >
-                        Mua ngay
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Detail Tabs Header */}
-                <div className="detail-tabs-header" style={{ marginTop: 24 }}>
-                  <button
-                    className={`detail-tab-btn ${modalTab === 'description' ? 'active' : ''}`}
-                    onClick={() => setModalTab('description')}
-                  >
-                    <FileText size={17} /> Mô tả & Thông số chi tiết
-                  </button>
-                  <button
-                    className={`detail-tab-btn ${modalTab === 'reviews' ? 'active' : ''}`}
-                    onClick={() => setModalTab('reviews')}
-                  >
-                    <Star size={17} /> Đánh giá từ khách hàng ({selectedProduct.evaluations?.length || 0})
-                  </button>
-                </div>
-
-                {/* TAB 1: Mô tả chi tiết & Thông số sản phẩm */}
-                {modalTab === 'description' && (() => {
-                  const extra = getProductDetailExtra(selectedProduct);
-                  return (
-                    <div className="product-detail-expanded" style={{ marginTop: 10 }}>
-                      <div className="detail-section">
-                        <h4 className="detail-section-title">
-                          <Sparkles size={18} color="var(--primary)" /> Đặc điểm nổi bật
-                        </h4>
-                        <ul style={{ paddingLeft: 20, margin: 0, lineHeight: 1.8 }}>
-                          {extra.highlights.map((h, idx) => (
-                            <li key={idx} style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: 6 }}>
-                              {h}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className="detail-section">
-                        <h4 className="detail-section-title">
-                          <Layers size={18} color="var(--primary)" /> Thông số kỹ thuật & Thông tin chi tiết
-                        </h4>
-                        <table className="specs-table">
-                          <tbody>
-                            {extra.specs.map((item, idx) => (
-                              <tr key={idx}>
-                                <td className="specs-label">{item.label}</td>
-                                <td className="specs-value">{item.value}</td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-
-                      <div className="detail-section">
-                        <h4 className="detail-section-title">
-                          <FileText size={18} color="var(--primary)" /> Bài viết giới thiệu chi tiết sản phẩm
-                        </h4>
-                        <div style={{ background: 'var(--bg-subtle)', padding: 18, borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
-                          {extra.detailedArticle.map((para, idx) => (
-                            <p key={idx} className="detail-article-p" style={{ marginBottom: idx === extra.detailedArticle.length - 1 ? 0 : 12 }}>
-                              {para}
-                            </p>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="detail-section">
-                        <h4 className="detail-section-title">
-                          <ShieldCheck size={18} color="var(--primary)" /> Ưu điểm vượt trội & Cam kết chất lượng
-                        </h4>
-                        <div className="features-grid">
-                          {extra.features.map((feat, idx) => (
-                            <div key={idx} className="feature-box">
-                              <div className="feature-box-title">✓ {feat.title}</div>
-                              <div className="feature-box-desc">{feat.desc}</div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="detail-section">
-                        <h4 className="detail-section-title">
-                          <CheckCircle2 size={18} color="#10b981" /> Hướng dẫn sử dụng & Bảo quản đúng cách
-                        </h4>
-                        <div style={{ background: 'var(--bg-subtle)', padding: 16, borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
-                          <ol style={{ paddingLeft: 20, margin: 0, lineHeight: 1.8 }}>
-                            {extra.usageGuide.map((g, idx) => (
-                              <li key={idx} style={{ color: 'var(--text-main)', fontSize: '0.875rem', marginBottom: 4 }}>
-                                {g}
-                              </li>
-                            ))}
-                          </ol>
-                        </div>
-                      </div>
-
-                      <div className="detail-section" style={{ marginBottom: 10 }}>
-                        <h4 className="detail-section-title">
-                          <Truck size={18} color="var(--primary)" /> Chính sách bán hàng & Dịch vụ khách hàng DAFL
-                        </h4>
-                        <div className="guarantees-grid">
-                          {extra.guarantees.map((g, idx) => (
-                            <div key={idx} className="guarantee-card">
+                            {/* Recipient & Shipping Address */}
+                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '10px 14px', background: 'var(--bg-subtle)', borderRadius: 8, marginBottom: 14, fontSize: '0.85rem' }}>
+                              <MapPin size={16} color="var(--primary)" style={{ flexShrink: 0, marginTop: 2 }} />
                               <div>
-                                <div className="guarantee-title">{g.title}</div>
-                                <div className="guarantee-desc">{g.desc}</div>
+                                <strong>{order.customerName}</strong> ({order.customerPhone}) — <span style={{ color: 'var(--text-muted)' }}>{order.shippingAddress}</span>
                               </div>
                             </div>
-                          ))}
-                        </div>
+
+                            {/* Order Items */}
+                            <div className="order-items-list">
+                              {order.items && order.items.map(item => (
+                                <div key={item.id} className="order-item-row">
+                                  <img
+                                    src={item.productImageUrl || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=600&auto=format&fit=crop&q=80'}
+                                    alt={item.productName}
+                                    className="order-item-img"
+                                  />
+                                  <div style={{ flex: 1 }}>
+                                    <div style={{ fontWeight: 600, fontSize: '0.9rem', marginBottom: 4 }}>
+                                      {item.productName}
+                                    </div>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                      Số lượng: x{item.quantity} • Đơn giá: {formatPrice(item.unitPrice)}
+                                    </div>
+                                  </div>
+                                  <div style={{ fontWeight: 700, fontSize: '0.95rem', color: 'var(--text-main)' }}>
+                                    {formatPrice(item.unitPrice * item.quantity)}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+
+                            {/* Order Status Timeline (If exists) */}
+                            {order.statusHistories && order.statusHistories.length > 0 && (
+                              <div className="order-timeline-box">
+                                <div style={{ fontWeight: 700, marginBottom: 6, fontSize: '0.8rem', color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                                  Tiến trình trạng thái đơn hàng:
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                  {order.statusHistories.map((h, i) => (
+                                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.8rem' }}>
+                                      <CheckCircle2 size={12} color="#10b981" />
+                                      <span>{new Date(h.timestamp).toLocaleTimeString('vi-VN')}</span>
+                                      <span style={{ fontWeight: 600 }}>{h.note || 'Cập nhật trạng thái'}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Order Footer & Actions */}
+                            <div className="order-footer-actions">
+                              <div>
+                                <div style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                                  {order.discountAmount > 0 && (
+                                    <span>
+                                      Đã giảm <strong style={{ color: '#10b981' }}>-{formatPrice(order.discountAmount)}</strong>
+                                      {order.voucherCode ? ` (Mã: ${order.voucherCode})` : ''} •
+                                    </span>
+                                  )}
+                                  {' '}Tổng giá trị đơn: <strong style={{ color: '#e02e24', fontSize: '1.15rem' }}>{formatPrice(order.totalAmount)}</strong>
+                                </div>
+                              </div>
+
+                              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+                                {order.status === 'Pending' && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                                    onClick={() => {
+                                      if (!user) {
+                                        sessionStorage.setItem('dafl_return_route', `/payment/${order.orderCode}`);
+                                        showToast('Yêu cầu đăng nhập', 'Vui lòng đăng nhập để tiến hành thanh toán đơn hàng.', 'System');
+                                        navigate('/login');
+                                        return;
+                                      }
+                                      navigate(`/payment/${order.orderCode}`);
+                                    }}
+                                  >
+                                    <CreditCard size={15} /> Thanh toán ngay (PayOS trực tiếp)
+                                  </button>
+                                )}
+
+                                {(order.status === 'Paid' || order.status === 'Completed') && (
+                                  <button
+                                    type="button"
+                                    className="btn btn-secondary"
+                                    style={{ padding: '8px 16px', fontSize: '0.85rem', display: 'inline-flex', alignItems: 'center', gap: 6 }}
+                                    onClick={() => handleReorder(order)}
+                                  >
+                                    <RotateCcw size={14} /> Mua lại đơn này
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
+              </section>
+            )
+          }
+        />
+
+        {/* ============================================================== */}
+        {/* ROUTE VIEW: SHIPPING ADDRESS & PROFILE (/profile) */}
+        {/* ============================================================== */}
+        <Route
+          path="/profile"
+          element={
+            authInitialized && !user ? (
+              <Navigate to="/login" replace />
+            ) : (
+              <section className="profile-page">
+                <div className="page-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                        onClick={() => navigateTo('home')}
+                      >
+                        <ArrowLeft size={16} /> Trang chủ
+                      </button>
+                      <h1 className="page-title" style={{ margin: 0 }}>
+                        <MapPin size={26} color="var(--primary)" /> Cấu hình Địa Chỉ & Thông Tin Nhận Hàng
+                      </h1>
+                    </div>
+                    <p className="page-subtitle" style={{ marginTop: 6 }}>
+                      Thông tin này sẽ được lưu trữ an toàn và tự động điền sẵn vào đơn hàng của bạn khi đặt mua và thanh toán PayOS.
+                    </p>
+                  </div>
+
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => navigateTo('orders')}
+                    style={{ fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
+                  >
+                    <Package size={15} /> Xem lịch sử đơn mua ({orderHistory.length})
+                  </button>
+                </div>
+
+                <div className="profile-card">
+                  {/* User Avatar & Session Info */}
+                  <div className="profile-avatar-banner">
+                    <div className="profile-avatar-circle">
+                      {(profileFullName || user?.fullName || 'U').charAt(0).toUpperCase()}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <h3 style={{ fontSize: '1.25rem', fontWeight: 800, margin: 0 }}>
+                          {profileFullName || user?.fullName || 'Thông tin người nhận'}
+                        </h3>
+                        <span className="brand-badge" style={{ fontSize: '0.75rem' }}>
+                          {user?.role || 'Khách hàng'}
+                        </span>
+                      </div>
+                      <p style={{ color: 'var(--text-muted)', fontSize: '0.85rem', margin: '4px 0 0' }}>
+                        {profileEmail || user?.email || 'Chưa liên kết email'} • Sổ địa chỉ giao hàng
+                      </p>
+                    </div>
+
+                    {user && (
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        style={{ color: '#f87171', borderColor: 'rgba(244, 63, 94, 0.3)', fontSize: '0.8rem', padding: '6px 12px' }}
+                        onClick={handleLogout}
+                      >
+                        <LogOut size={14} /> Đăng xuất
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Address Configuration Form */}
+                  <form onSubmit={handleSaveProfile}>
+                    <div className="address-form-grid">
+                      <div className="form-group">
+                        <label className="form-label">Họ và tên người nhận hàng</label>
+                        <input
+                          className="form-input"
+                          value={profileFullName}
+                          onChange={e => setProfileFullName(e.target.value)}
+                          placeholder="Nguyễn Văn A"
+                          required
+                        />
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Số điện thoại liên hệ</label>
+                        <input
+                          className="form-input"
+                          value={profilePhone}
+                          onChange={e => setProfilePhone(e.target.value)}
+                          placeholder="0987654321"
+                          required
+                        />
                       </div>
                     </div>
-                  );
-                })()}
 
-                {/* TAB 2: Đánh giá từ khách hàng */}
-                {modalTab === 'reviews' && (
-                  <div className="evaluations-container">
-                    <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: 16 }}>
-                      Đánh giá từ khách hàng ({selectedProduct.evaluations?.length || 0})
-                    </h3>
+                    <div className="form-group">
+                      <label className="form-label">Email nhận hóa đơn & thông báo</label>
+                      <input
+                        className="form-input"
+                        type="email"
+                        value={profileEmail}
+                        onChange={e => setProfileEmail(e.target.value)}
+                        placeholder="name@example.com"
+                        required
+                      />
+                    </div>
 
-                    <form onSubmit={handleAddReview} style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)', padding: 16, borderRadius: 12, marginBottom: 20 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                        <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Để lại đánh giá của bạn:</span>
-                        <div className="star-picker">
-                          {[1, 2, 3, 4, 5].map(st => (
-                            <Star
-                              key={st}
-                              size={20}
-                              fill={st <= reviewRating ? '#f59e0b' : 'transparent'}
-                              color="#f59e0b"
-                              onClick={() => setReviewRating(st)}
-                            />
-                          ))}
-                        </div>
-                      </div>
+                    <div className="form-group">
+                      <label className="form-label">Địa chỉ giao hàng chi tiết (Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành)</label>
+                      <input
+                        className="form-input"
+                        value={profileAddress}
+                        onChange={e => setProfileAddress(e.target.value)}
+                        placeholder="Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội"
+                        required
+                      />
+                    </div>
 
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10, marginBottom: 10 }}>
-                        <input
-                          className="form-input"
-                          placeholder="Tên của bạn..."
-                          value={reviewAuthor}
-                          onChange={e => setReviewAuthor(e.target.value)}
-                          required
-                        />
-                        <input
-                          className="form-input"
-                          placeholder="Cảm nhận của bạn về sản phẩm..."
-                          value={reviewComment}
-                          onChange={e => setReviewComment(e.target.value)}
-                          required
-                        />
-                      </div>
+                    <div className="form-group">
+                      <label className="form-label">Ghi chú giao hàng mặc định</label>
+                      <textarea
+                        className="form-input"
+                        rows={2}
+                        value={profileNotes}
+                        onChange={e => setProfileNotes(e.target.value)}
+                        placeholder="Ví dụ: Giao giờ hành chính, gọi điện trước khi giao..."
+                      />
+                    </div>
 
+                    <div style={{ display: 'flex', gap: 12, justifyContent: 'flex-end', marginTop: 24, paddingTop: 18, borderTop: '1px solid var(--border-subtle)' }}>
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => navigateTo('home')}
+                      >
+                        Hủy bỏ
+                      </button>
                       <button
                         type="submit"
                         className="btn btn-primary"
-                        style={{ padding: '8px 16px', fontSize: '0.8rem', marginLeft: 'auto', display: 'flex' }}
-                        disabled={submittingReview}
+                        style={{ padding: '12px 28px', display: 'flex', alignItems: 'center', gap: 8 }}
+                        disabled={savingProfile}
                       >
-                        <Send size={14} /> {submittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
+                        <Check size={16} /> {savingProfile ? 'Đang lưu vào hệ thống...' : 'Lưu thông tin địa chỉ'}
                       </button>
-                    </form>
+                    </div>
+                  </form>
+                </div>
+              </section>
+            )
+          }
+        />
 
-                    {selectedProduct.evaluations && selectedProduct.evaluations.length > 0 ? (
-                      selectedProduct.evaluations.map(ev => (
-                        <div key={ev.id} className="evaluation-card">
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                              <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#e02e24', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
-                                {ev.userName.charAt(0)}
-                              </div>
-                              <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{ev.userName}</span>
+        {/* ============================================================== */}
+        {/* ROUTE VIEW: PRODUCT DETAIL (/product/:id) */}
+        {/* ============================================================== */}
+        <Route
+          path="/product/:id"
+          element={
+            <section className="product-detail-page" data-testid="product-detail-page">
+              <div className="product-detail-page-card">
+                <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    style={{ padding: '6px 14px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
+                    onClick={() => navigateTo('home')}
+                    data-testid="product-detail-back-btn"
+                  >
+                    <ArrowLeft size={16} /> Tiếp tục mua sắm
+                  </button>
+                  {selectedProduct && (
+                    <span className="product-category-badge" style={{ position: 'static' }}>
+                      {selectedProduct.categoryName}
+                    </span>
+                  )}
+                </div>
+
+                {productDetailLoading ? (
+                  <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
+                    <RefreshCw size={32} className="spin" style={{ margin: '0 auto 12px', color: 'var(--primary)' }} />
+                    <p>Đang tải thông tin chi tiết sản phẩm...</p>
+                  </div>
+                ) : !selectedProduct ? (
+                  <div style={{ textAlign: 'center', padding: '60px 0' }}>
+                    <Package size={48} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
+                    <h3 style={{ fontSize: '1.2rem', marginBottom: 8 }}>Không tìm thấy sản phẩm</h3>
+                    <button type="button" className="btn btn-primary" onClick={() => navigateTo('home')} style={{ marginTop: 12 }}>
+                      Quay lại trang chủ
+                    </button>
+                  </div>
+                ) : (
+                  <>
+                    <div className="product-detail-layout">
+                      <div>
+                        <img
+                          src={selectedProduct.imageUrl}
+                          alt={selectedProduct.name}
+                          className="product-detail-image"
+                        />
+                        <div className="product-trust-badges">
+                          <div className="product-trust-badge">
+                            <Check size={14} color="#10b981" /> Hàng chính hãng 100%
+                          </div>
+                          <div className="product-trust-badge">
+                            <Clock size={14} color="#6366f1" /> Đổi trả trong 7 ngày
+                          </div>
+                          <div className="product-trust-badge">
+                            <ShieldCheck size={14} color="#e02e24" /> Bảo hành 12 tháng
+                          </div>
+                          <div className="product-trust-badge">
+                            <Truck size={14} color="#f59e0b" /> Giao hàng toàn quốc
+                          </div>
+                        </div>
+                      </div>
+
+                      <div>
+                        <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: 8, color: 'var(--text-main)' }}>{selectedProduct.name}</h2>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                          <div className="star-rating">
+                            {[1, 2, 3, 4, 5].map(st => (
+                              <Star
+                                key={st}
+                                size={16}
+                                fill={st <= Math.round(selectedProduct.rating || 5) ? '#f59e0b' : 'transparent'}
+                                color="#f59e0b"
+                              />
+                            ))}
+                          </div>
+                          <span style={{ fontSize: '0.9rem', color: '#f59e0b', fontWeight: 700 }}>
+                            {selectedProduct.rating ? selectedProduct.rating.toFixed(1) : '5.0'} / 5.0
+                          </span>
+                          <span style={{ color: '#9ca3af', fontSize: '0.85rem' }}>
+                            ({selectedProduct.reviewCount || selectedProduct.evaluations?.length || 0} đánh giá)
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 12, marginBottom: 16 }}>
+                          <span style={{ fontSize: '1.6rem', fontWeight: 800, color: '#e02e24' }}>
+                            {formatPrice(selectedProduct.price)}
+                          </span>
+                          {selectedProduct.originalPrice && (
+                            <span style={{ fontSize: '1rem', color: '#6b7280', textDecoration: 'line-through' }}>
+                              {formatPrice(selectedProduct.originalPrice)}
+                            </span>
+                          )}
+                          {selectedProduct.originalPrice && selectedProduct.originalPrice > selectedProduct.price && (
+                            <span style={{ fontSize: '0.8rem', background: 'rgba(224, 46, 36, 0.1)', color: '#e02e24', padding: '2px 8px', borderRadius: 4, fontWeight: 700 }}>
+                              Tiết kiệm {formatPrice(selectedProduct.originalPrice - selectedProduct.price)}
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="product-detail-desc" style={{ marginBottom: 20 }}>
+                          {selectedProduct.description}
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 24 }}>
+                          <span style={{ fontSize: '0.9rem', fontWeight: 600 }}>Số lượng:</span>
+                          <div className="cart-item-actions">
+                            <button className="qty-btn" onClick={() => setDetailQuantity(Math.max(1, detailQuantity - 1))}>
+                              <Minus size={14} />
+                            </button>
+                            <span style={{ minWidth: 24, textAlign: 'center', fontWeight: 700 }}>{detailQuantity}</span>
+                            <button className="qty-btn" onClick={() => setDetailQuantity(detailQuantity + 1)}>
+                              <Plus size={14} />
+                            </button>
+                          </div>
+                          <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
+                            (Còn {selectedProduct.availableStock} sản phẩm có sẵn)
+                          </span>
+                        </div>
+
+                        <div style={{ display: 'flex', gap: 12 }}>
+                          <button
+                            className="btn btn-secondary"
+                            style={{ flex: 1, padding: '12px' }}
+                            onClick={() => {
+                              addToCart(selectedProduct, detailQuantity);
+                            }}
+                          >
+                            <Plus size={16} /> Thêm vào giỏ hàng
+                          </button>
+                          <button
+                            className="btn btn-primary"
+                            style={{ flex: 1, padding: '12px' }}
+                            onClick={() => {
+                              handleBuyNow(selectedProduct, detailQuantity);
+                            }}
+                          >
+                            Mua ngay
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Detail Tabs Header */}
+                    <div className="detail-tabs-header" style={{ marginTop: 24 }}>
+                      <button
+                        className={`detail-tab-btn ${modalTab === 'description' ? 'active' : ''}`}
+                        onClick={() => setModalTab('description')}
+                      >
+                        <FileText size={17} /> Mô tả & Thông số chi tiết
+                      </button>
+                      <button
+                        className={`detail-tab-btn ${modalTab === 'reviews' ? 'active' : ''}`}
+                        onClick={() => setModalTab('reviews')}
+                      >
+                        <Star size={17} /> Đánh giá từ khách hàng ({selectedProduct.evaluations?.length || 0})
+                      </button>
+                    </div>
+
+                    {/* TAB 1: Mô tả chi tiết & Thông số sản phẩm */}
+                    {modalTab === 'description' && (() => {
+                      const extra = getProductDetailExtra(selectedProduct);
+                      return (
+                        <div className="product-detail-expanded" style={{ marginTop: 10 }}>
+                          <div className="detail-section">
+                            <h4 className="detail-section-title">
+                              <Sparkles size={18} color="var(--primary)" /> Đặc điểm nổi bật
+                            </h4>
+                            <ul style={{ paddingLeft: 20, margin: 0, lineHeight: 1.8 }}>
+                              {extra.highlights.map((h, idx) => (
+                                <li key={idx} style={{ color: 'var(--text-main)', fontSize: '0.9rem', marginBottom: 6 }}>
+                                  {h}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          <div className="detail-section">
+                            <h4 className="detail-section-title">
+                              <Layers size={18} color="var(--primary)" /> Thông số kỹ thuật & Thông tin chi tiết
+                            </h4>
+                            <table className="specs-table">
+                              <tbody>
+                                {extra.specs.map((item, idx) => (
+                                  <tr key={idx}>
+                                    <td className="specs-label">{item.label}</td>
+                                    <td className="specs-value">{item.value}</td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+
+                          <div className="detail-section">
+                            <h4 className="detail-section-title">
+                              <FileText size={18} color="var(--primary)" /> Bài viết giới thiệu chi tiết sản phẩm
+                            </h4>
+                            <div style={{ background: 'var(--bg-subtle)', padding: 18, borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
+                              {extra.detailedArticle.map((para, idx) => (
+                                <p key={idx} className="detail-article-p" style={{ marginBottom: idx === extra.detailedArticle.length - 1 ? 0 : 12 }}>
+                                  {para}
+                                </p>
+                              ))}
                             </div>
-                            <div className="star-rating">
+                          </div>
+
+                          <div className="detail-section">
+                            <h4 className="detail-section-title">
+                              <ShieldCheck size={18} color="var(--primary)" /> Ưu điểm vượt trội & Cam kết chất lượng
+                            </h4>
+                            <div className="features-grid">
+                              {extra.features.map((feat, idx) => (
+                                <div key={idx} className="feature-box">
+                                  <div className="feature-box-title">✓ {feat.title}</div>
+                                  <div className="feature-box-desc">{feat.desc}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className="detail-section">
+                            <h4 className="detail-section-title">
+                              <CheckCircle2 size={18} color="#10b981" /> Hướng dẫn sử dụng & Bảo quản đúng cách
+                            </h4>
+                            <div style={{ background: 'var(--bg-subtle)', padding: 16, borderRadius: 12, border: '1px solid var(--border-subtle)' }}>
+                              <ol style={{ paddingLeft: 20, margin: 0, lineHeight: 1.8 }}>
+                                {extra.usageGuide.map((g, idx) => (
+                                  <li key={idx} style={{ color: 'var(--text-main)', fontSize: '0.875rem', marginBottom: 4 }}>
+                                    {g}
+                                  </li>
+                                ))}
+                              </ol>
+                            </div>
+                          </div>
+
+                          <div className="detail-section" style={{ marginBottom: 10 }}>
+                            <h4 className="detail-section-title">
+                              <Truck size={18} color="var(--primary)" /> Chính sách bán hàng & Dịch vụ khách hàng DAFL
+                            </h4>
+                            <div className="guarantees-grid">
+                              {extra.guarantees.map((g, idx) => (
+                                <div key={idx} className="guarantee-card">
+                                  <div>
+                                    <div className="guarantee-title">{g.title}</div>
+                                    <div className="guarantee-desc">{g.desc}</div>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {/* TAB 2: Đánh giá từ khách hàng */}
+                    {modalTab === 'reviews' && (
+                      <div className="evaluations-container">
+                        <h3 style={{ fontSize: '1.15rem', fontWeight: 700, marginBottom: 16 }}>
+                          Đánh giá từ khách hàng ({selectedProduct.evaluations?.length || 0})
+                        </h3>
+
+                        <form onSubmit={handleAddReview} style={{ background: 'var(--bg-subtle)', border: '1px solid var(--border-subtle)', padding: 16, borderRadius: 12, marginBottom: 20 }}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+                            <span style={{ fontSize: '0.875rem', fontWeight: 600 }}>Để lại đánh giá của bạn:</span>
+                            <div className="star-picker">
                               {[1, 2, 3, 4, 5].map(st => (
                                 <Star
                                   key={st}
-                                  size={13}
-                                  fill={st <= ev.rating ? '#f59e0b' : 'transparent'}
+                                  size={20}
+                                  fill={st <= reviewRating ? '#f59e0b' : 'transparent'}
                                   color="#f59e0b"
+                                  onClick={() => setReviewRating(st)}
                                 />
                               ))}
                             </div>
                           </div>
-                          <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.5 }}>{ev.comment}</p>
-                          <span style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: 4, display: 'block' }}>
-                            {new Date(ev.createdAt).toLocaleDateString('vi-VN')}
-                          </span>
-                        </div>
-                      ))
-                    ) : (
-                      <p style={{ color: '#9ca3af', fontSize: '0.85rem', textAlign: 'center', padding: '16px 0' }}>
-                        Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!
-                      </p>
+
+                          <div style={{ display: 'grid', gridTemplateColumns: '1fr 2fr', gap: 10, marginBottom: 10 }}>
+                            <input
+                              className="form-input"
+                              placeholder="Tên của bạn..."
+                              value={reviewAuthor}
+                              onChange={e => setReviewAuthor(e.target.value)}
+                              required
+                            />
+                            <input
+                              className="form-input"
+                              placeholder="Cảm nhận của bạn về sản phẩm..."
+                              value={reviewComment}
+                              onChange={e => setReviewComment(e.target.value)}
+                              required
+                            />
+                          </div>
+
+                          <button
+                            type="submit"
+                            className="btn btn-primary"
+                            style={{ padding: '8px 16px', fontSize: '0.8rem', marginLeft: 'auto', display: 'flex' }}
+                            disabled={submittingReview}
+                          >
+                            <Send size={14} /> {submittingReview ? 'Đang gửi...' : 'Gửi đánh giá'}
+                          </button>
+                        </form>
+
+                        {selectedProduct.evaluations && selectedProduct.evaluations.length > 0 ? (
+                          selectedProduct.evaluations.map(ev => (
+                            <div key={ev.id} className="evaluation-card">
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                  <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#e02e24', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '0.75rem', fontWeight: 700 }}>
+                                    {ev.userName.charAt(0)}
+                                  </div>
+                                  <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{ev.userName}</span>
+                                </div>
+                                <div className="star-rating">
+                                  {[1, 2, 3, 4, 5].map(st => (
+                                    <Star
+                                      key={st}
+                                      size={13}
+                                      fill={st <= ev.rating ? '#f59e0b' : 'transparent'}
+                                      color="#f59e0b"
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                              <p style={{ fontSize: '0.85rem', color: 'var(--text-main)', lineHeight: 1.5 }}>{ev.comment}</p>
+                              <span style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: 4, display: 'block' }}>
+                                {new Date(ev.createdAt).toLocaleDateString('vi-VN')}
+                              </span>
+                            </div>
+                          ))
+                        ) : (
+                          <p style={{ color: '#9ca3af', fontSize: '0.85rem', textAlign: 'center', padding: '16px 0' }}>
+                            Chưa có đánh giá nào cho sản phẩm này. Hãy là người đầu tiên đánh giá!
+                          </p>
+                        )}
+                      </div>
                     )}
-                  </div>
+                  </>
                 )}
-              </>
-            )}
-          </div>
-        </section>
-      }
-    />
-
-{/* ============================================================== */}
-{/* ROUTE VIEW: CART & CHECKOUT (/cart) */}
-{/* ============================================================== */}
-<Route
-  path="/cart"
-  element={
-    <CartDrawer
-          isOpen={true}
-          isModal={false}
-          onClose={() => navigateTo('home')}
-          cart={cart}
-          vouchers={vouchers}
-          voucherCodeInput={voucherCodeInput}
-          setVoucherCodeInput={setVoucherCodeInput}
-          appliedVoucher={appliedVoucher}
-          voucherMessage={voucherMessage}
-          rawSubTotal={rawSubTotal}
-          finalTotal={finalTotal}
-          totalItemCount={totalItemCount}
-          customerName={customerName}
-          setCustomerName={setCustomerName}
-          customerEmail={customerEmail}
-          setCustomerEmail={setCustomerEmail}
-          customerPhone={customerPhone}
-          setCustomerPhone={setCustomerPhone}
-          shippingAddress={shippingAddress}
-          setShippingAddress={setShippingAddress}
-          checkoutResult={checkoutResult}
-          isCheckingOut={isCheckingOut}
-          orderStatus={orderStatus}
-          timeLeft={timeLeft}
-          onUpdateQuantity={updateQuantity}
-          onApplyVoucher={handleApplyVoucher}
-          onRemoveVoucher={() => { setAppliedVoucher(null); setVoucherMessage(null); }}
-          onCheckout={handleCheckout}
-          onSimulateSuccess={handleSimulatePaymentSuccess}
-          onResetCheckout={() => setCheckoutResult(null)}
-          onNavigateToOrders={() => { setCheckoutResult(null); navigateTo('orders'); }}
-          onNavigateToHome={() => { setCheckoutResult(null); navigateTo('home'); }}
-          onCopyOrderCode={(code) => {
-            navigator.clipboard?.writeText(String(code));
-            showToast('Đã chép mã', `Mã đơn #${code}`, 'System');
-          }}
-          user={user}
-          onRequireAuth={handleRequireAuth}
-        />
-      }
-    />
-
-    <Route path="/checkout" element={<Navigate to="/cart" replace />} />
-
-    {/* ============================================================== */}
-    {/* ROUTE VIEW: AUTH (LOGIN / REGISTER) (/login & /register) */}
-    {/* ============================================================== */}
-    <Route
-      path="/login"
-      element={
-        <AuthModal
-          isOpen={true}
-          isModal={false}
-          onClose={() => navigateTo('home')}
-          authTab="login"
-          setAuthTab={(tab) => {
-            setAuthTab(tab);
-            navigateTo(tab);
-          }}
-          authError={authError}
-          authLoading={authLoading}
-          loginEmail={loginEmail}
-          setLoginEmail={setLoginEmail}
-          loginPassword={loginPassword}
-          setLoginPassword={setLoginPassword}
-          registerName={registerName}
-          setRegisterName={setRegisterName}
-          registerEmail={registerEmail}
-          setRegisterEmail={setRegisterEmail}
-          registerPassword={registerPassword}
-          setRegisterPassword={setRegisterPassword}
-          registerConfirmPassword={registerConfirmPassword}
-          setRegisterConfirmPassword={setRegisterConfirmPassword}
-          registerPhone={registerPhone}
-          setRegisterPhone={setRegisterPhone}
-          registerAddress={registerAddress}
-          setRegisterAddress={setRegisterAddress}
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-          onFillDemoAccount={handleFillDemoAccount}
-        />
-      }
-    />
-  <Route
-    path="/register"
-    element={
-        <AuthModal
-          isOpen={true}
-          isModal={false}
-          onClose={() => navigateTo('home')}
-          authTab="register"
-          setAuthTab={(tab) => {
-            setAuthTab(tab);
-            navigateTo(tab);
-          }}
-          authError={authError}
-          authLoading={authLoading}
-          loginEmail={loginEmail}
-          setLoginEmail={setLoginEmail}
-          loginPassword={loginPassword}
-          setLoginPassword={setLoginPassword}
-          registerName={registerName}
-          setRegisterName={setRegisterName}
-          registerEmail={registerEmail}
-          setRegisterEmail={setRegisterEmail}
-          registerPassword={registerPassword}
-          setRegisterPassword={setRegisterPassword}
-          registerConfirmPassword={registerConfirmPassword}
-          setRegisterConfirmPassword={setRegisterConfirmPassword}
-          registerPhone={registerPhone}
-          setRegisterPhone={setRegisterPhone}
-          registerAddress={registerAddress}
-          setRegisterAddress={setRegisterAddress}
-          onLogin={handleLogin}
-          onRegister={handleRegister}
-          onFillDemoAccount={handleFillDemoAccount}
-        />
-      }
-    />
-
-  {/* ============================================================== */}
-  {/* ROUTE VIEW: NOTIFICATIONS (/notifications) */}
-  {/* ============================================================== */}
-  <Route
-    path="/notifications"
-    element={
-      <section className="notifications-page" data-testid="notifications-page">
-          <div className="notifications-page-card">
-            <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ padding: '6px 14px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
-                  onClick={() => navigateTo('home')}
-                >
-                  <ArrowLeft size={16} /> Tiếp tục mua sắm
-                </button>
-                <h1 className="page-title" style={{ margin: 0 }}>
-                  <Bell size={24} color="var(--primary)" /> Hộp thư thông báo
-                </h1>
               </div>
+            </section>
+          }
+        />
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Tự động cập nhật: <strong style={{ color: '#10b981' }}>SignalR Đang bật</strong>
-                </span>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ fontSize: '0.8rem', padding: '6px 12px' }}
-                  onClick={markAllNotificationsAsRead}
-                >
-                  Đánh dấu tất cả đã đọc
-                </button>
+        {/* ============================================================== */}
+        {/* ROUTE VIEW: CART & CHECKOUT (/cart) */}
+        {/* ============================================================== */}
+        <Route
+          path="/cart"
+          element={
+            <CartDrawer
+              isOpen={true}
+              isModal={false}
+              onClose={() => navigateTo('home')}
+              cart={cart}
+              vouchers={vouchers}
+              voucherCodeInput={voucherCodeInput}
+              setVoucherCodeInput={setVoucherCodeInput}
+              appliedVoucher={appliedVoucher}
+              voucherMessage={voucherMessage}
+              rawSubTotal={rawSubTotal}
+              finalTotal={finalTotal}
+              totalItemCount={totalItemCount}
+              customerName={customerName}
+              setCustomerName={setCustomerName}
+              customerEmail={customerEmail}
+              setCustomerEmail={setCustomerEmail}
+              customerPhone={customerPhone}
+              setCustomerPhone={setCustomerPhone}
+              shippingAddress={shippingAddress}
+              setShippingAddress={setShippingAddress}
+              checkoutResult={checkoutResult}
+              isCheckingOut={isCheckingOut}
+              orderStatus={orderStatus}
+              timeLeft={timeLeft}
+              onUpdateQuantity={updateQuantity}
+              onApplyVoucher={handleApplyVoucher}
+              onRemoveVoucher={() => { setAppliedVoucher(null); setVoucherMessage(null); }}
+              onCheckout={handleCheckout}
+              onSimulateSuccess={handleSimulatePaymentSuccess}
+              onResetCheckout={() => setCheckoutResult(null)}
+              onNavigateToOrders={() => { setCheckoutResult(null); navigateTo('orders'); }}
+              onNavigateToHome={() => { setCheckoutResult(null); navigateTo('home'); }}
+              onCopyOrderCode={(code) => {
+                navigator.clipboard?.writeText(String(code));
+                showToast('Đã chép mã', `Mã đơn #${code}`, 'System');
+              }}
+              user={user}
+              onRequireAuth={handleRequireAuth}
+            />
+          }
+        />
+
+        <Route path="/checkout" element={<Navigate to="/cart" replace />} />
+
+        {/* ============================================================== */}
+        {/* ROUTE VIEW: AUTH (LOGIN / REGISTER) (/login & /register) */}
+        {/* ============================================================== */}
+        <Route
+          path="/login"
+          element={
+            <AuthModal
+              isOpen={true}
+              isModal={false}
+              onClose={() => navigateTo('home')}
+              authTab="login"
+              setAuthTab={(tab) => {
+                setAuthTab(tab);
+                navigateTo(tab);
+              }}
+              authError={authError}
+              authLoading={authLoading}
+              loginEmail={loginEmail}
+              setLoginEmail={setLoginEmail}
+              loginPassword={loginPassword}
+              setLoginPassword={setLoginPassword}
+              registerName={registerName}
+              setRegisterName={setRegisterName}
+              registerEmail={registerEmail}
+              setRegisterEmail={setRegisterEmail}
+              registerPassword={registerPassword}
+              setRegisterPassword={setRegisterPassword}
+              registerConfirmPassword={registerConfirmPassword}
+              setRegisterConfirmPassword={setRegisterConfirmPassword}
+              registerPhone={registerPhone}
+              setRegisterPhone={setRegisterPhone}
+              registerAddress={registerAddress}
+              setRegisterAddress={setRegisterAddress}
+              onLogin={handleLogin}
+              onRegister={handleRegister}
+              onFillDemoAccount={handleFillDemoAccount}
+            />
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <AuthModal
+              isOpen={true}
+              isModal={false}
+              onClose={() => navigateTo('home')}
+              authTab="register"
+              setAuthTab={(tab) => {
+                setAuthTab(tab);
+                navigateTo(tab);
+              }}
+              authError={authError}
+              authLoading={authLoading}
+              loginEmail={loginEmail}
+              setLoginEmail={setLoginEmail}
+              loginPassword={loginPassword}
+              setLoginPassword={setLoginPassword}
+              registerName={registerName}
+              setRegisterName={setRegisterName}
+              registerEmail={registerEmail}
+              setRegisterEmail={setRegisterEmail}
+              registerPassword={registerPassword}
+              setRegisterPassword={setRegisterPassword}
+              registerConfirmPassword={registerConfirmPassword}
+              setRegisterConfirmPassword={setRegisterConfirmPassword}
+              registerPhone={registerPhone}
+              setRegisterPhone={setRegisterPhone}
+              registerAddress={registerAddress}
+              setRegisterAddress={setRegisterAddress}
+              onLogin={handleLogin}
+              onRegister={handleRegister}
+              onFillDemoAccount={handleFillDemoAccount}
+            />
+          }
+        />
+
+        {/* ============================================================== */}
+        {/* ROUTE VIEW: NOTIFICATIONS (Redirects to / and opens modal) */}
+        {/* ============================================================== */}
+        <Route
+          path="/notifications"
+          element={<Navigate to="/" replace />}
+        />
+
+        {/* ============================================================== */}
+        {/* ROUTE VIEW: STANDALONE PAYOS PAYMENT (/payment/:orderCode) */}
+        {/* ============================================================== */}
+        <Route
+          path="/payment/:orderCode"
+          element={
+            authInitialized && !user ? (
+              <Navigate to="/login" replace />
+            ) : (
+              <section className="payment-page" data-testid="payment-page">
+                <div className="payment-page-card">
+                  <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      style={{ padding: '6px 14px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
+                      onClick={() => navigateTo('orders')}
+                    >
+                      <ArrowLeft size={16} /> Quay lại danh sách đơn hàng
+                    </button>
+                    <h1 className="page-title" style={{ margin: 0 }}>
+                      <CreditCard size={24} color="var(--primary)" /> Thanh toán đơn hàng PayOS
+                    </h1>
+                  </div>
+
+                  {(() => {
+                    const orderCodeNum = Number(matchedPaymentOrderCode || 0);
+                    const order = orderHistory.find(o => o.orderCode === orderCodeNum);
+                    const totalAmt = order ? order.totalAmount : 0;
+                    const checkoutUrl = order?.checkoutUrl || '';
+
+                    return (
+                      <div className="payos-embedded-card" style={{ marginTop: 0 }}>
+                        <div className="payos-summary-bar">
+                          <div>
+                            <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>Mã đơn: </span>
+                            <strong style={{ fontSize: '1.1rem' }}>#{orderCodeNum}</strong>
+                            <span style={{ margin: '0 8px', color: 'var(--border-subtle)' }}>|</span>
+                            <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>Tổng thanh toán: </span>
+                            <strong style={{ color: '#e02e24', fontSize: '1.25rem' }}>{formatPrice(totalAmt)}</strong>
+                          </div>
+                          <button
+                            type="button"
+                            className="btn btn-secondary"
+                            style={{ padding: '6px 12px', fontSize: '0.8rem' }}
+                            onClick={() => {
+                              navigator.clipboard?.writeText(String(orderCodeNum));
+                              showToast('Sao chép', `Đã chép mã đơn #${orderCodeNum}`, 'System');
+                            }}
+                          >
+                            <Copy size={13} /> Copy mã đơn
+                          </button>
+                        </div>
+
+                        <PayOSGatewayView
+                          orderCode={orderCodeNum}
+                          totalAmount={totalAmt}
+                          checkoutUrl={checkoutUrl}
+                          onSimulateSuccess={() => handleSimulatePaymentForOrder(orderCodeNum, totalAmt)}
+                          onCopyOrderCode={() => {
+                            navigator.clipboard?.writeText(String(orderCodeNum));
+                            showToast('Sao chép', `Đã chép mã đơn #${orderCodeNum}`, 'System');
+                          }}
+                        />
+
+                        <div className="payos-sync-footer">
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.825rem', color: 'var(--text-muted)' }}>
+                              <RefreshCw size={14} className="spin" color="#10b981" />
+                              <span>Lắng nghe kết quả thanh toán từ VietQR / PayOS qua SignalR...</span>
+                            </div>
+                            <div style={{ display: 'flex', gap: 8 }}>
+                              <button
+                                type="button"
+                                className="btn btn-primary"
+                                style={{ fontSize: '0.8rem', padding: '8px 16px' }}
+                                onClick={() => handleSimulatePaymentForOrder(orderCodeNum, totalAmt)}
+                              >
+                                Kiểm tra trạng thái
+                              </button>
+                              <button
+                                type="button"
+                                className="btn btn-secondary"
+                                style={{ fontSize: '0.8rem', padding: '8px 16px' }}
+                                onClick={() => navigateTo('orders')}
+                              >
+                                Xong
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </div>
+              </section>
+            )
+          }
+        />
+
+        {/* Standalone simulated payment and success pages */}
+        <Route path="/mock-payos" element={<MockPayOSStandalonePage />} />
+        <Route path="/payment-success" element={<PaymentSuccessPage />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+
+      {/* ============================================================== */}
+      {/* MODAL: NOTIFICATIONS MODAL */}
+      {/* ============================================================== */}
+      {isNotifOpen && (
+        <div className="modal-overlay" onClick={() => setIsNotifOpen(false)} data-testid="notifications-modal">
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: 480 }}>
+            <div className="modal-header">
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Bell size={20} color="var(--primary)" />
+                <h2 className="modal-title">Hộp thư thông báo</h2>
               </div>
+              <button
+                type="button"
+                className="close-btn"
+                onClick={() => setIsNotifOpen(false)}
+                data-testid="close-notif-btn"
+              >
+                <X size={20} />
+              </button>
             </div>
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
+              <span style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                Tự động cập nhật: <strong style={{ color: '#10b981' }}>SignalR Đang bật</strong>
+              </span>
+              <button
+                type="button"
+                style={{ background: 'none', border: 'none', color: '#ff8a80', cursor: 'pointer', fontSize: '0.8rem' }}
+                onClick={markAllNotificationsAsRead}
+                data-testid="mark-all-read-btn"
+              >
+                Đánh dấu tất cả đã đọc
+              </button>
+            </div>
+
+            <div style={{ maxHeight: 420, overflowY: 'auto' }}>
               {notifications.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '60px 0', color: 'var(--text-muted)' }}>
-                  <Bell size={48} style={{ margin: '0 auto 12px', opacity: 0.3 }} />
+                <div style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '30px 0' }}>
+                  <Bell size={40} style={{ margin: '0 auto 8px', opacity: 0.3 }} />
                   <p>Không có thông báo nào.</p>
                 </div>
               ) : (
@@ -2135,10 +2258,10 @@ export default function App() {
                       </span>
                       <strong style={{ fontSize: '0.95rem', color: 'var(--text-main)' }}>{n.title}</strong>
                     </div>
-                    <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', lineHeight: 1.5, margin: '6px 0' }}>
+                    <p style={{ fontSize: '0.825rem', color: 'var(--text-muted)', lineHeight: 1.4, margin: '4px 0' }}>
                       {n.message}
                     </p>
-                    <span style={{ fontSize: '0.75rem', color: 'var(--text-dim)' }}>
+                    <span style={{ fontSize: '0.7rem', color: 'var(--text-dim)' }}>
                       {new Date(n.createdAt).toLocaleTimeString('vi-VN')} - {new Date(n.createdAt).toLocaleDateString('vi-VN')}
                     </span>
                   </div>
@@ -2146,115 +2269,8 @@ export default function App() {
               )}
             </div>
           </div>
-        </section>
-      }
-    />
-
-    {/* ============================================================== */}
-    {/* ROUTE VIEW: STANDALONE PAYOS PAYMENT (/payment/:orderCode) */}
-    {/* ============================================================== */}
-    <Route
-      path="/payment/:orderCode"
-      element={
-        authInitialized && !user ? (
-          <Navigate to="/login" replace />
-        ) : (
-          <section className="payment-page" data-testid="payment-page">
-            <div className="payment-page-card">
-              <div className="page-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  style={{ padding: '6px 14px', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: 6 }}
-                  onClick={() => navigateTo('orders')}
-                >
-                  <ArrowLeft size={16} /> Quay lại danh sách đơn hàng
-                </button>
-                <h1 className="page-title" style={{ margin: 0 }}>
-                  <CreditCard size={24} color="var(--primary)" /> Thanh toán đơn hàng PayOS
-                </h1>
-              </div>
-
-              {(() => {
-                const orderCodeNum = Number(matchedPaymentOrderCode || 0);
-              const order = orderHistory.find(o => o.orderCode === orderCodeNum);
-              const totalAmt = order ? order.totalAmount : 0;
-              const checkoutUrl = order?.checkoutUrl || '';
-
-              return (
-                <div className="payos-embedded-card" style={{ marginTop: 0 }}>
-                  <div className="payos-summary-bar">
-                    <div>
-                      <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>Mã đơn: </span>
-                      <strong style={{ fontSize: '1.1rem' }}>#{orderCodeNum}</strong>
-                      <span style={{ margin: '0 8px', color: 'var(--border-subtle)' }}>|</span>
-                      <span style={{ fontSize: '0.95rem', color: 'var(--text-muted)' }}>Tổng thanh toán: </span>
-                      <strong style={{ color: '#e02e24', fontSize: '1.25rem' }}>{formatPrice(totalAmt)}</strong>
-                    </div>
-                    <button
-                      type="button"
-                      className="btn btn-secondary"
-                      style={{ padding: '6px 12px', fontSize: '0.8rem' }}
-                      onClick={() => {
-                        navigator.clipboard?.writeText(String(orderCodeNum));
-                        showToast('Sao chép', `Đã chép mã đơn #${orderCodeNum}`, 'System');
-                      }}
-                    >
-                      <Copy size={13} /> Copy mã đơn
-                    </button>
-                  </div>
-
-                  <PayOSGatewayView
-                    orderCode={orderCodeNum}
-                    totalAmount={totalAmt}
-                    checkoutUrl={checkoutUrl}
-                    onSimulateSuccess={() => handleSimulatePaymentForOrder(orderCodeNum, totalAmt)}
-                    onCopyOrderCode={() => {
-                      navigator.clipboard?.writeText(String(orderCodeNum));
-                      showToast('Sao chép', `Đã chép mã đơn #${orderCodeNum}`, 'System');
-                    }}
-                  />
-
-                  <div className="payos-sync-footer">
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 10 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.825rem', color: 'var(--text-muted)' }}>
-                        <RefreshCw size={14} className="spin" color="#10b981" />
-                        <span>Lắng nghe kết quả thanh toán từ VietQR / PayOS qua SignalR...</span>
-                      </div>
-                      <div style={{ display: 'flex', gap: 8 }}>
-                        <button
-                          type="button"
-                          className="btn btn-primary"
-                          style={{ fontSize: '0.8rem', padding: '8px 16px' }}
-                          onClick={() => handleSimulatePaymentForOrder(orderCodeNum, totalAmt)}
-                        >
-                          Kiểm tra trạng thái
-                        </button>
-                        <button
-                          type="button"
-                          className="btn btn-secondary"
-                          style={{ fontSize: '0.8rem', padding: '8px 16px' }}
-                          onClick={() => navigateTo('orders')}
-                        >
-                          Xong
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })()}
-          </div>
-        </section>
-        )
-      }
-    />
-
-  {/* Standalone simulated payment and success pages */}
-  <Route path="/mock-payos" element={<MockPayOSStandalonePage />} />
-  <Route path="/payment-success" element={<PaymentSuccessPage />} />
-  <Route path="*" element={<Navigate to="/" replace />} />
-</Routes>
+        </div>
+      )}
     </div>
   );
 }

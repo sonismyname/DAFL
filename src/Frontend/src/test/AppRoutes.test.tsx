@@ -135,4 +135,19 @@ describe('App Routing & Navigation System (React Router)', () => {
       expect(screen.getByTestId('product-detail-page')).toBeInTheDocument();
     });
   });
+
+  it('opens notifications modal when clicking bell button', async () => {
+    render(
+      <MemoryRouter initialEntries={['/']}>
+        <App />
+      </MemoryRouter>
+    );
+
+    const bellBtn = screen.getByTestId('notif-bell-btn');
+    bellBtn.click();
+
+    await waitFor(() => {
+      expect(screen.getByTestId('notifications-modal')).toBeInTheDocument();
+    });
+  });
 });
