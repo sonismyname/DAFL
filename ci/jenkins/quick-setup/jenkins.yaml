@@ -1,0 +1,45 @@
+jenkins:
+  systemMessage: "DAFL Automated CI/CD Jenkins Server"
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 2
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "adminpassword123"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+# Cấu hình công cụ Allure Commandline tự động
+tool:
+  allure:
+    installations:
+      - name: "allure"
+        home: "/opt/allure-2.30.0"
+
+# Tự động tạo Job Pipeline DAFL-Pipeline
+jobs:
+  - script: >
+      pipelineJob('DAFL-Pipeline') {
+        description('Pipeline tự động cho DAFL E-Commerce')
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/sonismyname/DAFL.git')
+                }
+                branch('*/develop')
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+        triggers {
+          githubPush()
+        }
+      }
