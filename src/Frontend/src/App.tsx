@@ -798,6 +798,21 @@ export default function App() {
     setAuthLoading(true);
     setAuthError(null);
 
+    if (registerPassword.length < 8) {
+      setAuthError('Mật khẩu phải có tối thiểu 8 ký tự.');
+      setAuthLoading(false);
+      return;
+    }
+    if (!/[A-Z]/.test(registerPassword)) {
+      setAuthError('Mật khẩu phải chứa ít nhất 1 ký tự chữ hoa (A-Z).');
+      setAuthLoading(false);
+      return;
+    }
+    if (!/[^a-zA-Z0-9]/.test(registerPassword)) {
+      setAuthError('Mật khẩu phải chứa ít nhất 1 ký tự đặc biệt (!@#$%^&*...).');
+      setAuthLoading(false);
+      return;
+    }
     if (registerPassword !== registerConfirmPassword) {
       setAuthError('Mật khẩu xác nhận không khớp. Vui lòng kiểm tra lại.');
       setAuthLoading(false);

@@ -209,9 +209,20 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 data-testid="register-password-input"
                 value={registerPassword}
                 onChange={e => setRegisterPassword(e.target.value)}
-                placeholder="Tối thiểu 6 ký tự"
+                placeholder="Tối thiểu 8 ký tự, gồm chữ hoa & ký tự đặc biệt"
                 required
               />
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px 12px', marginTop: 6, fontSize: '0.75rem' }}>
+                <span style={{ color: registerPassword.length >= 8 ? '#10b981' : 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: registerPassword.length >= 8 ? 600 : 400 }}>
+                  {registerPassword.length >= 8 ? '✓' : '•'} Tối thiểu 8 ký tự
+                </span>
+                <span style={{ color: /[A-Z]/.test(registerPassword) ? '#10b981' : 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: /[A-Z]/.test(registerPassword) ? 600 : 400 }}>
+                  {/[A-Z]/.test(registerPassword) ? '✓' : '•'} Ít nhất 1 chữ hoa (A-Z)
+                </span>
+                <span style={{ color: /[^a-zA-Z0-9]/.test(registerPassword) ? '#10b981' : 'var(--text-muted)', display: 'inline-flex', alignItems: 'center', gap: 4, fontWeight: /[^a-zA-Z0-9]/.test(registerPassword) ? 600 : 400 }}>
+                  {/[^a-zA-Z0-9]/.test(registerPassword) ? '✓' : '•'} Ít nhất 1 ký tự đặc biệt (!@#$...)
+                </span>
+              </div>
             </div>
             <div className="form-group">
               <label className="form-label" htmlFor="register-confirm-password">Nhập lại mật khẩu</label>
