@@ -56,17 +56,20 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, ApiRespon
     private readonly IPayOSService _payOSService;
     private readonly IHubContext<NotificationHub, INotificationClient> _hubContext;
     private readonly ILogger<CheckoutCommandHandler> _logger;
+    private readonly string _frontendBaseUrl;
 
     public CheckoutCommandHandler(
         AppDbContext context, 
         IPayOSService payOSService, 
         IHubContext<NotificationHub, INotificationClient> hubContext,
-        ILogger<CheckoutCommandHandler> logger)
+        ILogger<CheckoutCommandHandler> logger,
+        IConfiguration configuration)
     {
         _context = context;
         _payOSService = payOSService;
         _hubContext = hubContext;
         _logger = logger;
+        _frontendBaseUrl = (configuration["Frontend:BaseUrl"] ?? "http://localhost:3000").TrimEnd('/');
     }
 
     public async Task<ApiResponse<CheckoutResultDto>> Handle(CheckoutCommand request, CancellationToken cancellationToken)
@@ -130,7 +133,7 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, ApiRespon
                 if (!string.IsNullOrWhiteSpace(request.VoucherCode))
                 {
                     var vCode = request.VoucherCode.Trim().ToUpperInvariant();
-                    var voucher = await _context.Vouchers.FirstOrDefaultAsync(v => v.Code == vCode && v.IsActive, cancellationToken);
+                    var voucher = await _context.Vouchers.FirstOrDefaultAsync(v => v.Code == vCode && v.IsActive && (!v.ExpiryDate.HasValue || v.ExpiryDate.Value > DateTime.UtcNow), cancellationToken);
                     if (voucher != null && subTotal >= voucher.MinOrderAmount)
                     {
                         validVoucherCode = voucher.Code;
@@ -200,8 +203,8 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, ApiRespon
                 await _context.SaveChangesAsync(cancellationToken);
 
                 // 3. Create PayOS Payment Link
-                var returnUrl = $"http://localhost:3000/payment-success?orderCode={orderCode}";
-                var cancelUrl = $"http://localhost:3000/cart?orderCode={orderCode}";
+                var returnUrl = $"{_frontendBaseUrl}/payment-success?orderCode={orderCode}";
+                var cancelUrl = $"{_frontendBaseUrl}/cart?orderCode={orderCode}";
                 var description = $"DH {orderCode}";
 
                 var payOsResponse = await _payOSService.CreatePaymentLinkAsync(new CreatePaymentLinkRequest(
@@ -211,6 +214,14 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, ApiRespon
                     returnUrl,
                     cancelUrl,
                     paymentItems), cancellationToken);
+
+                if (!payOsResponse.Success || string.IsNullOrEmpty(payOsResponse.CheckoutUrl))
+                {
+                    // Không tạo được link thanh toán -> hoàn tác đơn hàng và giữ chỗ kho, tránh đơn "ma" không có link
+                    await transaction.RollbackAsync(cancellationToken);
+                    _logger.LogWarning("PayOS không tạo được link thanh toán cho đơn #{OrderCode}: {Reason}", orderCode, payOsResponse.Message);
+                    return ApiResponse<CheckoutResultDto>.Fail("Không thể tạo link thanh toán PayOS: " + (payOsResponse.Message ?? "lỗi không xác định"));
+                }
 
                 order.PayOSCheckoutUrl = payOsResponse.CheckoutUrl;
                 await _context.SaveChangesAsync(cancellationToken);
@@ -224,7 +235,11 @@ public class CheckoutCommandHandler : IRequestHandler<CheckoutCommand, ApiRespon
                     Type = "Order",
                     CreatedAt = DateTime.UtcNow
                 };
-                await _hubContext.Clients.All.ReceiveNotification(notif);
+                // Chỉ gửi thông báo cá nhân cho chủ đơn (khách vãng lai theo dõi qua màn hình thanh toán)
+                if (request.UserId.HasValue)
+                {
+                    await _hubContext.Clients.Group(NotificationGroups.ForUser(request.UserId.Value)).ReceiveNotification(notif);
+                }
                 await _hubContext.Clients.All.ReceiveOrderStatusUpdate(orderCode, "Pending", "Đơn hàng đang chờ thanh toán");
 
                 _logger.LogInformation("Order #{OrderCode} created with 15-minute stock reservation. PayOS URL: {Url}", orderCode, payOsResponse.CheckoutUrl);
