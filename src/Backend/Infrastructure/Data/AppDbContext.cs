@@ -284,7 +284,8 @@ public class AppDbContext : DbContext
             entity.Property(p => p.Price).HasPrecision(18, 2);
             entity.Property(p => p.OriginalPrice).HasPrecision(18, 2);
 
-            if (Database.ProviderName != "Microsoft.EntityFrameworkCore.InMemory")
+            // xmin chỉ có trên PostgreSQL; SQLite/InMemory không tự sinh giá trị này
+            if (Database.ProviderName == "Npgsql.EntityFrameworkCore.PostgreSQL")
             {
                 entity.Property(p => p.Version).IsRowVersion();
             }
