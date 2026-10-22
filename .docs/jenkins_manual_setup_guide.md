@@ -34,7 +34,7 @@ cp .env.example .env
 ---
 
 ### Bước 3: Đăng nhập vào Jenkins
-Container Jenkins của DAFL đã được cấu hình tự động bỏ qua màn hình Setup Wizard (`runSetupWizard=false`) và tự khởi tạo sẵn tài khoản quản trị viên thông qua script khởi tạo ([basic_security.groovy](file:///d:/DAFL/ci/jenkins/init.groovy.d/basic_security.groovy)):
+Container Jenkins của DAFL đã được cấu hình tự động bỏ qua màn hình Setup Wizard (`runSetupWizard=false`) và tự khởi tạo sẵn tài khoản quản trị viên thông qua script khởi tạo ([basic_security.groovy](../ci/jenkins/init.groovy.d/basic_security.groovy)):
 
 1. Mở trình duyệt Web tại địa chỉ: **[http://localhost:8080](http://localhost:8080)**
 2. Đăng nhập trực tiếp bằng thông tin tài khoản mặc định:
@@ -127,6 +127,6 @@ triggers {
   2. Vào GitHub Repo > **Settings** > **Webhooks** > **Add webhook**:
      - **Payload URL:** `https://<ten-mien-ngrok>/github-webhook/` *(bắt buộc có dấu gạch chéo `/` ở cuối)*.
      - **Content type:** `application/json`.
-     - **Events:** Chọn **Let me select individual events** > Tick chọn **Pull requests** (hoặc tick cả **Pushes** và **Pull requests** để bắt trọn vẹn sự kiện khi PR được **Merged** vào nhánh `develop`).
+     - **Events:** Chọn **Just the push event**. Khi một Pull Request được **Merged** vào `develop`, GitHub phát sinh sự kiện **push** lên nhánh đó nên vẫn kích hoạt Pipeline. *(Không chọn riêng "Pull requests": plugin GitHub của Jenkins chỉ lắng nghe sự kiện `push` và `ping`, nên webhook chỉ có "Pull requests" sẽ không kích hoạt build.)*
   3. Bấm **Add webhook**.
   > **Lưu ý:** Lần đầu tiên sau khi tạo Job, bạn **bắt buộc phải bấm "Build Now" thủ công 1 lần** để Jenkins nạp đoạn mã `triggers { githubPush() }` từ `Jenkinsfile`. Từ các lần sau, khi Pull Request được Merged vào nhánh `develop`, Pipeline sẽ tự động chạy 100%.

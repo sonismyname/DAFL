@@ -56,11 +56,17 @@ public class PayOSService : IPayOSService
     private readonly string _checksumKey;
     private readonly HttpClient _httpClient;
     private readonly ILogger<PayOSService> _logger;
+    private readonly string _frontendBaseUrl;
+
+    // Chế độ demo: khóa rỗng, khóa "demo_*" hoặc placeholder còn nguyên từ .env.example ("your_payos_*_here")
+    private bool IsDemoCredentials => IsDemoValue(_clientId, "demo_client_id") || IsDemoValue(_apiKey, "demo_api_key");
+    private bool IsDemoChecksum => IsDemoValue(_checksumKey, "demo_checksum_key");
 
     public PayOSService(IConfiguration configuration, HttpClient httpClient, ILogger<PayOSService> logger)
     {
         _httpClient = httpClient;
         _logger = logger;
+        _frontendBaseUrl = (configuration["Frontend:BaseUrl"] ?? "http://localhost:3000").TrimEnd('/');
         _clientId = configuration["PayOS:ClientId"] ?? "demo_client_id";
         _apiKey = configuration["PayOS:ApiKey"] ?? "demo_api_key";
         _checksumKey = configuration["PayOS:ChecksumKey"] ?? "demo_checksum_key";
@@ -85,10 +91,10 @@ public class PayOSService : IPayOSService
         };
 
         // If credentials are demo/placeholder, return a clean simulated checkout link for testing
-        if (_clientId == "demo_client_id" || _apiKey == "demo_api_key")
+        if (IsDemoCredentials)
         {
             _logger.LogInformation("[PayOS Demo Mode] Generated mock payment link for Order #{OrderCode}. Amount: {Amount}", request.OrderCode, amountInt);
-            var mockUrl = $"http://localhost:3000/mock-payos?orderCode={request.OrderCode}&amount={amountInt}";
+            var mockUrl = $"{_frontendBaseUrl}/mock-payos?orderCode={request.OrderCode}&amount={amountInt}";
             return new CreatePaymentLinkResponse(true, mockUrl, "data:image/svg+xml;base64,mock_qr", "0987654321", "DAFL STORE", 970422, request.Description, "Demo payment link created");
         }
 
@@ -135,7 +141,7 @@ public class PayOSService : IPayOSService
 
     public async Task<string?> GetPaymentStatusFromPayOSAsync(long orderCode, CancellationToken cancellationToken = default)
     {
-        if (_clientId == "demo_client_id" || _apiKey == "demo_api_key") return null;
+        if (IsDemoCredentials) return null;
 
         try
         {
@@ -167,7 +173,7 @@ public class PayOSService : IPayOSService
 
     public bool VerifyWebhookSignature(PayOSWebhookPayload payload)
     {
-        if (_checksumKey == "demo_checksum_key")
+        if (IsDemoChecksum)
         {
             // In demo mode, accept all requests with signature
             return true;
@@ -187,6 +193,11 @@ public class PayOSService : IPayOSService
             return false;
         }
     }
+
+    private static bool IsDemoValue(string value, string demoValue) =>
+        string.IsNullOrWhiteSpace(value)
+        || value == demoValue
+        || value.StartsWith("your_payos_", StringComparison.OrdinalIgnoreCase);
 
     private static string ComputeHmacSha256(string data, string key)
     {

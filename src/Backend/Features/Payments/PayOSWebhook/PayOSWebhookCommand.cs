@@ -135,7 +135,10 @@ public class PayOSWebhookCommandHandler : IRequestHandler<PayOSWebhookCommand, A
                 IsRead = false,
                 CreatedAt = notification.CreatedAt
             };
-            await _hubContext.Clients.All.ReceiveNotification(notifDto);
+            if (order.UserId.HasValue)
+            {
+                await _hubContext.Clients.Group(NotificationGroups.ForUser(order.UserId.Value)).ReceiveNotification(notifDto);
+            }
             await _hubContext.Clients.All.ReceiveOrderStatusUpdate(order.OrderCode, "Paid", "Thanh toán thành công qua PayOS!");
 
             // 5. Asynchronously stream event to Kafka topic 'payment-events'

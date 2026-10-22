@@ -18,6 +18,8 @@ import { getProductDetailExtra } from './productDetailHelper';
 import { Header } from './components/common/Header';
 import { CategoryFilter } from './components/product/CategoryFilter';
 import { ProductCard } from './components/product/ProductCard';
+import { ProductGallery } from './components/product/ProductGallery';
+import { resolveGalleryImages } from './utils/images';
 import { CartDrawer } from './components/cart/CartDrawer';
 import { AuthModal } from './components/auth/AuthModal';
 import { PayOSGatewayView } from './components/checkout/PayOSGatewayView';
@@ -190,9 +192,13 @@ export default function App() {
     fetchCategories();
     fetchVouchers();
     fetchUserSession();
-    fetchNotifications();
     fetchOrderHistory();
   }, []);
+
+  // Thông báo phụ thuộc người dùng: tải lại khi đăng nhập/đăng xuất để không lẫn thông báo của người khác
+  useEffect(() => {
+    fetchNotifications();
+  }, [user?.id]);
 
   // Debounce search query with 350ms delay
   useEffect(() => {
@@ -254,6 +260,14 @@ export default function App() {
       .configureLogging(signalR.LogLevel.Warning)
       .build();
 
+    // Tham gia nhóm thông báo riêng bằng session hợp lệ; mất khi kết nối lại nên phải gọi lại
+    const joinUserGroup = () => {
+      if (!user?.sessionId) return;
+      connection.invoke('JoinUserGroup', user.sessionId)
+        .catch(err => console.warn('[SignalR] JoinUserGroup failed:', err));
+    };
+    connection.onreconnected(joinUserGroup);
+
     connection.on('ReceiveNotification', (notif: any) => {
       const newNotif: NotificationItem = {
         id: notif.id || 'notif-' + Date.now(),
@@ -275,7 +289,10 @@ export default function App() {
       if (embeddedPaymentModal && embeddedPaymentModal.orderCode === code && status === 'Paid') {
         setEmbeddedPaymentModal(null);
       }
-      showToast(`Đơn hàng #${code} cập nhật`, message, 'Order');
+      // Chỉ hiện toast cho đơn hàng đang theo dõi trên màn hình này (sự kiện được phát cho mọi client)
+      if (checkoutResult?.orderCode === code || embeddedPaymentModal?.orderCode === code) {
+        showToast(`Đơn hàng #${code} cập nhật`, message, 'Order');
+      }
       fetchOrderHistory();
     });
 
@@ -283,6 +300,7 @@ export default function App() {
       .then(() => {
         console.log('[SignalR] Connected successfully to NotificationHub');
         signalRConnection.current = connection;
+        joinUserGroup();
       })
       .catch(err => {
         console.warn('[SignalR] NotificationHub not reachable, continuing in local mode:', err);
@@ -291,7 +309,7 @@ export default function App() {
     return () => {
       connection.stop();
     };
-  }, [checkoutResult, embeddedPaymentModal]);
+  }, [checkoutResult, embeddedPaymentModal, user?.sessionId]);
 
   // 3. Timer countdown for PayOS stock reservation
   useEffect(() => {
@@ -420,7 +438,8 @@ export default function App() {
 
   const fetchNotifications = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/notifications`);
+      const query = user?.id ? `?userId=${encodeURIComponent(user.id)}` : '';
+      const res = await fetch(`${API_BASE}/api/notifications${query}`);
       const json: ApiResponse<NotificationItem[]> = await res.json();
       if (json.success && json.data && json.data.length > 0) {
         setNotifications(json.data);
@@ -1670,10 +1689,9 @@ export default function App() {
                   <>
                     <div className="product-detail-layout">
                       <div>
-                        <img
-                          src={selectedProduct.imageUrl}
+                        <ProductGallery
+                          images={resolveGalleryImages(selectedProduct.imageUrl, selectedProduct.images)}
                           alt={selectedProduct.name}
-                          className="product-detail-image"
                         />
                         <div className="product-trust-badges">
                           <div className="product-trust-badge">

@@ -3,7 +3,7 @@ import hudson.security.*
 
 def instance = Jenkins.get()
 def username = "admin"
-def password = "adminpassword123"
+def password = System.getenv("JENKINS_ADMIN_PASSWORD") ?: "adminpassword123"
 
 // 1. Cấu hình Security Realm & tạo tài khoản admin
 def realm = instance.getSecurityRealm()

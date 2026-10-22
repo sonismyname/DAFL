@@ -59,6 +59,40 @@ public class NotificationFeaturesTests : IDisposable
     }
 
     /// <summary>
+    /// TC-NOTIF-08: Không có userId (khách chưa đăng nhập) → chỉ thấy thông báo hệ thống, không thấy thông báo của người khác.
+    /// </summary>
+    [Fact]
+    public async Task GetNotifications_WithoutUserId_ShouldReturnOnlySystemNotifications()
+    {
+        // Arrange
+        _context.Notifications.Add(new Notification { Id = Guid.NewGuid(), UserId = null, Title = "Hệ thống", Message = "Bảo trì", Type = "System", IsRead = false, CreatedAt = DateTime.UtcNow });
+        _context.SaveChanges();
+        var handler = new GetNotificationsQueryHandler(_context);
+
+        // Act
+        var result = await handler.Handle(new GetNotificationsQuery(null), CancellationToken.None);
+
+        // Assert
+        result.Data!.Should().ContainSingle().Which.Title.Should().Be("Hệ thống");
+    }
+
+    /// <summary>
+    /// TC-NOTIF-09: Đánh dấu tất cả đã đọc khi không có userId → không đụng tới thông báo của người dùng khác.
+    /// </summary>
+    [Fact]
+    public async Task MarkAllRead_WithoutUserId_ShouldNotTouchUserNotifications()
+    {
+        // Arrange
+        var handler = new MarkAllNotificationsReadCommandHandler(_context);
+
+        // Act
+        await handler.Handle(new MarkAllNotificationsReadCommand(null), CancellationToken.None);
+
+        // Assert
+        (await _context.Notifications.CountAsync(n => n.UserId == TestConstants.TestUserId && !n.IsRead)).Should().Be(2);
+    }
+
+    /// <summary>
     /// TC-NOTIF-02: Đánh dấu notification đã đọc → IsRead = true.
     /// </summary>
     [Fact]

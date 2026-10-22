@@ -5,6 +5,7 @@
             <class name="vn.dafl.tests.HomePageTest" />
             <class name="vn.dafl.tests.CatalogAndCartTest" />
             <class name="vn.dafl.tests.AuthModalTest" />
+            <class name="vn.dafl.tests.ProductGalleryTest" />
             <class name="vn.dafl.tests.CheckoutE2ETest" />
         </classes>
     </test>

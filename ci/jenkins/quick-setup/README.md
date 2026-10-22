@@ -11,6 +11,8 @@ Thư mục này chứa toàn bộ cấu hình **Zero-touch Jenkins as Code (JCas
 
 ---
 
+> Đã cài đặt xong và chỉ muốn bật/tắt Jenkins mỗi ngày? Xem [hướng dẫn sử dụng hằng ngày](../../../.docs/jenkins_daily_usage_guide.md). Lưu ý luôn dùng `-f docker-compose.jenkins.yml`.
+
 ### Hướng dẫn chạy:
 
 1. Di chuyển vào thư mục này:
