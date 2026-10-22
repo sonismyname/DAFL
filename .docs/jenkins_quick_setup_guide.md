@@ -1,6 +1,8 @@
 # Hướng Dẫn Triển Khai Nhanh Jenkins CI/CD (Quick-Setup)
 
 > **Mục tiêu:** Dựng máy chủ Jenkins CI/CD hoàn chỉnh và kích hoạt Pipeline kiểm thử tự động của DAFL chỉ trong vài bước đơn giản.
+>
+> Đã cài đặt xong và chỉ cần bật lại Jenkins mỗi ngày? Xem [jenkins_daily_usage_guide.md](./jenkins_daily_usage_guide.md).
 
 ---
 
@@ -81,9 +83,9 @@ triggers {
   2. Vào GitHub Repo > **Settings** > **Webhooks** > **Add webhook**:
      - **Payload URL:** `https://<ten-mien-ngrok>/github-webhook/` *(bắt buộc có dấu gạch chéo `/` ở cuối)*.
      - **Content type:** `application/json`.
-     - **Events:** Chọn **Let me select individual events** > Tick chọn **Pull requests** (hoặc tick cả **Pushes** và **Pull requests** để bắt trọn vẹn sự kiện khi PR được **Merged** vào nhánh `develop`).
+     - **Events:** Chọn **Just the push event**. Khi một Pull Request được **Merged** vào `develop`, GitHub phát sinh sự kiện **push** lên nhánh đó nên vẫn kích hoạt Pipeline. *(Không chọn riêng "Pull requests": plugin GitHub của Jenkins chỉ lắng nghe sự kiện `push` và `ping`, nên webhook chỉ có "Pull requests" sẽ không kích hoạt build.)*
   3. Bấm **Add webhook**.
-  > **Lưu ý:** Bạn cần bấm **Build Now** thủ công 1 lần đầu tiên để Jenkins nạp `triggers { githubPush() }` từ `Jenkinsfile`. Từ các lần sau, khi Pull Request được Merged vào nhánh `develop`, Webhook sẽ tự động kích hoạt Pipeline 100%.
+  > **Lưu ý:** Job `DAFL-Pipeline` do `jenkins.yaml` tạo ra đã được gắn sẵn trigger `githubPush()`, nên chỉ cần cấu hình webhook phía GitHub là đủ.
 
 ---
 
