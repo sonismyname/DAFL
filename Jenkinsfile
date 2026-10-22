@@ -65,9 +65,23 @@ pipeline {
                         # Chạy toàn bộ services (Postgres, Kafka, Backend, Frontend)
                         docker compose -p ${PROJECT_NAME} -f docker-compose.yml up -d
 
-                        # Chờ SUT sẵn sàng
-                        echo "Chờ Backend và Frontend khởi động trong 10 giây..."
-                        sleep 10
+                        # Chờ Backend sẵn sàng (tối đa 120 giây) thay vì sleep cố định.
+                        # Gọi /health từ bên trong container frontend (nginx alpine có sẵn wget, cùng network với backend).
+                        echo "Chờ Backend phản hồi /health..."
+                        ready=0
+                        for i in \$(seq 1 60); do
+                            if docker exec dafl-frontend wget -q -O /dev/null http://backend:8080/health 2>/dev/null; then
+                                ready=1
+                                echo "✅ Backend sẵn sàng sau khoảng \$((i * 2)) giây"
+                                break
+                            fi
+                            sleep 2
+                        done
+                        if [ \$ready -ne 1 ]; then
+                            echo "❌ Backend không phản hồi /health sau 120 giây"
+                            docker compose -p ${PROJECT_NAME} -f docker-compose.yml logs --tail=50 backend || true
+                            exit 1
+                        fi
                     """
                 }
             }
