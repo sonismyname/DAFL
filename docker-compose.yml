@@ -64,9 +64,10 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=dafl_db;Username=dafl;Password=dafl_password123;
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=${POSTGRES_DB:-dafl_db};Username=${POSTGRES_USER:-dafl};Password=${POSTGRES_PASSWORD:-dafl_password123};
       - CacheSettings__Enabled=false
       - KafkaSettings__BootstrapServers=kafka:9092
+      - Frontend__BaseUrl=http://localhost:${FRONTEND_PORT:-3000}
       - PayOS__ClientId=${PAYOS_CLIENT_ID:-demo_client_id}
       - PayOS__ApiKey=${PAYOS_API_KEY:-demo_api_key}
       - PayOS__ChecksumKey=${PAYOS_CHECKSUM_KEY:-demo_checksum_key}
@@ -85,8 +86,6 @@ services:
     restart: unless-stopped
     ports:
       - "${FRONTEND_PORT:-3000}:80"
-    environment:
-      - VITE_API_BASE_URL=http://localhost:${BACKEND_PORT:-5000}
     depends_on:
       - backend
     networks:
