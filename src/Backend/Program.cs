@@ -288,34 +288,29 @@ app.MapPut("/api/auth/profile", async (UpdateProfileRequest request, HttpContext
 
     if (user == null)
     {
-        user = await dbContext.Users.FirstOrDefaultAsync(u => u.Email == "demo@dafl.vn");
+        return Results.Json(ApiResponse<string>.Fail("Bạn cần đăng nhập để cập nhật thông tin cá nhân."), statusCode: StatusCodes.Status401Unauthorized);
     }
 
-    if (user != null)
-    {
-        if (!string.IsNullOrWhiteSpace(request.FullName)) { user.FullName = request.FullName.Trim(); if (session != null) session.FullName = user.FullName; }
-        if (!string.IsNullOrWhiteSpace(request.PhoneNumber)) user.PhoneNumber = request.PhoneNumber.Trim();
-        if (!string.IsNullOrWhiteSpace(request.Address)) user.Address = request.Address.Trim();
-        await dbContext.SaveChangesAsync();
+    if (!string.IsNullOrWhiteSpace(request.FullName)) { user.FullName = request.FullName.Trim(); if (session != null) session.FullName = user.FullName; }
+    if (!string.IsNullOrWhiteSpace(request.PhoneNumber)) user.PhoneNumber = request.PhoneNumber.Trim();
+    if (!string.IsNullOrWhiteSpace(request.Address)) user.Address = request.Address.Trim();
+    await dbContext.SaveChangesAsync();
 
-        var userDto = new UserDto(
-            user.Id,
-            user.Email,
-            user.FullName,
-            user.PhoneNumber,
-            user.Address,
-            user.Role,
-            session?.SessionId ?? Guid.NewGuid().ToString("N")
-        );
-        return Results.Ok(ApiResponse<UserDto>.Ok(userDto, "Cập nhật địa chỉ nhận hàng và thông tin thành công."));
-    }
-
-    return Results.Ok(ApiResponse<object>.Ok(new { request.FullName, request.PhoneNumber, request.Address }, "Đã lưu địa chỉ nhận hàng thành công."));
+    var userDto = new UserDto(
+        user.Id,
+        user.Email,
+        user.FullName,
+        user.PhoneNumber,
+        user.Address,
+        user.Role,
+        session?.SessionId ?? Guid.NewGuid().ToString("N")
+    );
+    return Results.Ok(ApiResponse<UserDto>.Ok(userDto, "Cập nhật địa chỉ nhận hàng và thông tin thành công."));
 })
 .WithName("UpdateProfile")
 .WithSummary("Cập nhật thông tin cá nhân và địa chỉ nhận hàng")
 .WithDescription("Cập nhật tên, số điện thoại và địa chỉ giao hàng của người dùng đang đăng nhập. "
-    + "Xác định user qua session cookie (sid). Nếu không tìm thấy session, sử dụng tài khoản demo mặc định.")
+    + "Xác định user qua session cookie (sid). Trả về 401 nếu chưa đăng nhập hoặc session đã hết hạn.")
 .WithTags("Auth - Xác thực");
 
 app.MapPost("/api/auth/logout", async (HttpContext httpContext, AppDbContext dbContext) =>
@@ -350,7 +345,7 @@ app.MapGet("/api/notifications", async (Guid? userId, IMediator mediator) =>
 .WithName("GetNotifications")
 .WithSummary("Lấy danh sách thông báo của người dùng")
 .WithDescription("Trả về tối đa 30 thông báo mới nhất của người dùng, sắp xếp theo thời gian tạo giảm dần. "
-    + "Nếu có userId, chỉ trả về thông báo của user đó và thông báo hệ thống (userId = null).")
+    + "Nếu có userId, chỉ trả về thông báo của user đó và thông báo hệ thống (userId = null); nếu không, chỉ trả về thông báo hệ thống.")
 .WithTags("Notifications - Thông báo");
 
 app.MapPut("/api/notifications/{id:guid}/read", async (Guid id, IMediator mediator) =>
@@ -372,7 +367,7 @@ app.MapPut("/api/notifications/read-all", async (Guid? userId, IMediator mediato
 .WithName("MarkAllNotificationsRead")
 .WithSummary("Đánh dấu tất cả thông báo đã đọc")
 .WithDescription("Đánh dấu tất cả thông báo chưa đọc của người dùng (theo userId) thành đã đọc. "
-    + "Nếu không truyền userId, đánh dấu tất cả thông báo trong hệ thống.")
+    + "Nếu không truyền userId, chỉ đánh dấu các thông báo hệ thống (userId = null).")
 .WithTags("Notifications - Thông báo");
 
 app.MapPost("/api/notifications/test", async (SendTestNotificationCommand command, IMediator mediator) =>

@@ -31,7 +31,7 @@ public class AuthCommandsTests : IDisposable
         _mockClients = new Mock<INotificationClient>();
 
         // Setup SignalR mock chain
-        _mockHubContext.Setup(h => h.Clients.All).Returns(_mockClients.Object);
+        _mockHubContext.Setup(h => h.Clients.Group(It.IsAny<string>())).Returns(_mockClients.Object);
         _mockClients.Setup(c => c.ReceiveNotification(It.IsAny<object>())).Returns(Task.CompletedTask);
     }
 
@@ -298,6 +298,9 @@ public class AuthCommandsTests : IDisposable
 
         // Assert
         _mockClients.Verify(c => c.ReceiveNotification(It.IsAny<object>()), Times.Once);
+        // Thông báo đăng nhập chỉ gửi cho nhóm của chính người dùng, không broadcast cho mọi client
+        _mockHubContext.Verify(h => h.Clients.Group(NotificationGroups.ForUser(TestConstants.TestUserId)), Times.Once);
+        _mockHubContext.Verify(h => h.Clients.All, Times.Never);
     }
 
     #endregion
