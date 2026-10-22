@@ -9,22 +9,42 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.Duration;
 
 @Epic("DAFL Web Application")
 @Feature("Product Detail Image Gallery")
 public class ProductGalleryTest extends BaseTest {
 
+    private static final String MAIN_IMAGE = "[data-testid='product-gallery-main']";
+
+    /** Ảnh đã tải xong và là ảnh thật (ảnh lỗi bị thay bằng placeholder dạng data: URI nên không tính). */
     private boolean isImageLoaded(WebElement img) {
         Object ok = ((JavascriptExecutor) driver).executeScript(
-                "return arguments[0].complete && arguments[0].naturalWidth > 0;", img);
+                "return arguments[0].complete && arguments[0].naturalWidth > 0 && !arguments[0].currentSrc.startsWith('data:');", img);
         return Boolean.TRUE.equals(ok);
+    }
+
+    /**
+     * Chờ ảnh chính tải xong (ảnh ngoại tuyến từ CDN có thể chậm trong CI). Quá hạn thì báo rõ là ảnh lỗi hay chỉ chưa tải xong.
+     */
+    private void assertMainImageLoads(String description) {
+        try {
+            new WebDriverWait(driver, Duration.ofSeconds(30)).until(d -> isImageLoaded(d.findElement(By.cssSelector(MAIN_IMAGE))));
+        } catch (TimeoutException e) {
+            WebElement img = driver.findElement(By.cssSelector(MAIN_IMAGE));
+            boolean placeholder = img.getAttribute("src").startsWith("data:");
+            Assert.fail(description + (placeholder ? ": ảnh bị lỗi (404?) nên đã chuyển sang ảnh thay thế: " : ": ảnh chưa tải xong sau 30 giây: ")
+                    + img.getAttribute("src"));
+        }
     }
 
     private int totalImages() {
@@ -46,7 +66,7 @@ public class ProductGalleryTest extends BaseTest {
         int total = totalImages();
         Assert.assertTrue(total >= 2, "Sản phẩm cần có nhiều ảnh, hiện có: " + total);
         Assert.assertEquals(driver.findElement(By.cssSelector("[data-testid='product-gallery-counter']")).getText(), "1/" + total);
-        Assert.assertTrue(isImageLoaded(main), "Ảnh đầu tiên không tải được (404?)");
+        assertMainImageLoads("Ảnh đầu tiên");
 
         String firstSrc = main.getAttribute("src");
 
@@ -55,13 +75,13 @@ public class ProductGalleryTest extends BaseTest {
         wait.until(ExpectedConditions.textToBe(By.cssSelector("[data-testid='product-gallery-counter']"), "2/" + total));
         WebElement second = driver.findElement(By.cssSelector("[data-testid='product-gallery-main']"));
         Assert.assertNotEquals(second.getAttribute("src"), firstSrc, "Ảnh không thay đổi sau khi bấm Tiếp");
-        wait.until(d -> isImageLoaded(driver.findElement(By.cssSelector("[data-testid='product-gallery-main']"))));
+        assertMainImageLoads("Ảnh thứ 2");
 
         // Duyệt hết các ảnh: tất cả phải tải được
         for (int i = 3; i <= total; i++) {
             driver.findElement(By.cssSelector("[data-testid='product-gallery-next']")).click();
             wait.until(ExpectedConditions.textToBe(By.cssSelector("[data-testid='product-gallery-counter']"), i + "/" + total));
-            wait.until(d -> isImageLoaded(driver.findElement(By.cssSelector("[data-testid='product-gallery-main']"))));
+            assertMainImageLoads("Ảnh thứ " + i);
         }
 
         // Quay vòng về ảnh đầu, rồi chọn lại bằng thumbnail
