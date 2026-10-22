@@ -106,7 +106,7 @@ public class RegisterCommandHandler : IRequestHandler<RegisterCommand, ApiRespon
             welcomeNotification.IsRead, 
             welcomeNotification.CreatedAt
         );
-        await _hubContext.Clients.All.ReceiveNotification(notifDto);
+        await _hubContext.Clients.Group(NotificationGroups.ForUser(user.Id)).ReceiveNotification(notifDto);
 
         // Kafka Event
         await _kafkaProducer.PublishAsync(
@@ -174,7 +174,7 @@ public class LoginCommandHandler : IRequestHandler<LoginCommand, ApiResponse<Use
             false,
             DateTime.UtcNow
         );
-        await _hubContext.Clients.All.ReceiveNotification(loginNotif);
+        await _hubContext.Clients.Group(NotificationGroups.ForUser(user.Id)).ReceiveNotification(loginNotif);
 
         await _kafkaProducer.PublishAsync(
             "notification-events",

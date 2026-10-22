@@ -23,10 +23,10 @@ public class GetNotificationsQueryHandler : IRequestHandler<GetNotificationsQuer
     {
         var query = _context.Notifications.AsNoTracking();
 
-        if (request.UserId.HasValue)
-        {
-            query = query.Where(n => n.UserId == request.UserId.Value || n.UserId == null);
-        }
+        // Không có userId (khách chưa đăng nhập) chỉ thấy thông báo hệ thống, không thấy thông báo của người khác
+        query = request.UserId.HasValue
+            ? query.Where(n => n.UserId == request.UserId.Value || n.UserId == null)
+            : query.Where(n => n.UserId == null);
 
         var notifications = await query
             .OrderByDescending(n => n.CreatedAt)
@@ -76,10 +76,9 @@ public class MarkAllNotificationsReadCommandHandler : IRequestHandler<MarkAllNot
     public async Task<ApiResponse<bool>> Handle(MarkAllNotificationsReadCommand request, CancellationToken cancellationToken)
     {
         var query = _context.Notifications.Where(n => !n.IsRead);
-        if (request.UserId.HasValue)
-        {
-            query = query.Where(n => n.UserId == request.UserId.Value);
-        }
+        query = request.UserId.HasValue
+            ? query.Where(n => n.UserId == request.UserId.Value)
+            : query.Where(n => n.UserId == null);
 
         var unread = await query.ToListAsync(cancellationToken);
         foreach (var n in unread)
