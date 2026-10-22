@@ -1,6 +1,7 @@
 using DAFL.Backend.Common;
 using DAFL.Backend.Infrastructure.Data;
 using DAFL.Backend.Infrastructure.Hubs;
+using System.Text.Json;
 using MediatR;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ public record ProductDetailDto(
     int Stock,
     int AvailableStock,
     string ImageUrl,
+    List<string> Images,
     double Rating,
     int ReviewCount,
     List<EvaluationDto> Evaluations
@@ -68,12 +70,37 @@ public class GetProductDetailQueryHandler : IRequestHandler<GetProductDetailQuer
             product.Stock,
             product.Stock - product.ReservedStock,
             product.ImageUrl,
+            ParseImages(product.ImagesJson, product.ImageUrl),
             product.Rating,
             product.ReviewCount,
             evaluations
         );
 
         return ApiResponse<ProductDetailDto>.Ok(dto);
+    }
+
+    /// <summary>
+    /// Danh sách ảnh của sản phẩm: ảnh đại diện luôn đứng đầu, bỏ ảnh trùng/rỗng; JSON hỏng hoặc trống thì chỉ còn ảnh đại diện.
+    /// </summary>
+    public static List<string> ParseImages(string? imagesJson, string mainImageUrl)
+    {
+        var images = new List<string>();
+        if (!string.IsNullOrWhiteSpace(mainImageUrl)) images.Add(mainImageUrl);
+
+        if (!string.IsNullOrWhiteSpace(imagesJson))
+        {
+            try
+            {
+                var extra = JsonSerializer.Deserialize<List<string>>(imagesJson) ?? new List<string>();
+                images.AddRange(extra.Where(u => !string.IsNullOrWhiteSpace(u) && !images.Contains(u)));
+            }
+            catch (JsonException)
+            {
+                // ImagesJson sai định dạng: bỏ qua, vẫn hiển thị ảnh đại diện
+            }
+        }
+
+        return images.Distinct().ToList();
     }
 }
 

@@ -18,6 +18,8 @@ import { getProductDetailExtra } from './productDetailHelper';
 import { Header } from './components/common/Header';
 import { CategoryFilter } from './components/product/CategoryFilter';
 import { ProductCard } from './components/product/ProductCard';
+import { ProductGallery } from './components/product/ProductGallery';
+import { resolveGalleryImages } from './utils/images';
 import { CartDrawer } from './components/cart/CartDrawer';
 import { AuthModal } from './components/auth/AuthModal';
 import { PayOSGatewayView } from './components/checkout/PayOSGatewayView';
@@ -1687,10 +1689,9 @@ export default function App() {
                   <>
                     <div className="product-detail-layout">
                       <div>
-                        <img
-                          src={selectedProduct.imageUrl}
+                        <ProductGallery
+                          images={resolveGalleryImages(selectedProduct.imageUrl, selectedProduct.images)}
                           alt={selectedProduct.name}
-                          className="product-detail-image"
                         />
                         <div className="product-trust-badges">
                           <div className="product-trust-badge">
