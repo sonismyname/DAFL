@@ -42,6 +42,8 @@ export interface Product {
 }
 
 export interface ProductDetail extends Product {
+  /** Thư viện ảnh (ảnh đại diện đứng đầu); thiếu thì dùng imageUrl */
+  images?: string[];
   evaluations: Evaluation[];
 }
 

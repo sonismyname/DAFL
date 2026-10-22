@@ -2,6 +2,7 @@ import React from 'react';
 import { Star, Plus } from 'lucide-react';
 import { Product } from '../../types';
 import { formatPrice } from '../../utils/formatters';
+import { IMAGE_PLACEHOLDER } from '../../utils/images';
 
 export interface ProductCardProps {
   product: Product;
@@ -33,6 +34,10 @@ export const ProductCard: React.FC<ProductCardProps> = ({
           className="product-image"
           loading="lazy"
           decoding="async"
+          onError={e => {
+            // Ảnh lỗi (404...) -> thay bằng ảnh placeholder, tránh icon ảnh vỡ; chặn lặp vô hạn nếu placeholder cũng lỗi
+            if (e.currentTarget.src !== IMAGE_PLACEHOLDER) e.currentTarget.src = IMAGE_PLACEHOLDER;
+          }}
         />
         <span className="product-category-badge">{product.categoryName}</span>
         {discountPercent !== null && (
