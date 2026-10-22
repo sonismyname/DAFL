@@ -40,8 +40,12 @@ public class CheckoutE2ETest extends BaseTest {
         // ==========================================
         WebElement searchInput = wait.until(
                 ExpectedConditions.visibilityOfElementLocated(By.cssSelector("[data-testid='search-input']")));
+        wait.until(ExpectedConditions.presenceOfElementLocated(By.cssSelector(".product-card")));
+        int cardsBeforeSearch = driver.findElements(By.cssSelector(".product-card")).size();
         searchInput.clear();
         searchInput.sendKeys("Áo");
+        // Chờ kết quả tìm kiếm được áp dụng (sleep() không có tác dụng khi chạy headless) để không bấm nhầm vào danh sách chưa lọc
+        wait.until(d -> d.findElements(By.cssSelector(".product-card")).size() != cardsBeforeSearch);
         sleep(1000);
 
         // ==========================================
